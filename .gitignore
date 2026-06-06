@@ -1,0 +1,47 @@
+# ===== Entorno y artefactos de Python =====
+venv/
+__pycache__/
+*.pyc
+.env
+.notebooklm/
+.ipynb_checkpoints/
+.DS_Store
+
+# ===== Datos pesados =====
+data/raw/
+data/clean/
+data/generalization/windows/
+data/generalization/samples/
+data/generalization/results/
+data/generalization/clean/
+data/attack_analysis/*results*.csv
+data/attack_analysis/*_results*.csv
+data/attack_analysis/flow_level_detection_results*.csv
+
+# ===== Comprimidos =====
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.gz
+
+# ===== Outputs grandes opcionales =====
+*.log
+*.tmp
+
+# ===== Datos pesados adicionales (más allá del mínimo) =====
+# Se ignoran los subdirectorios de data/attack_analysis/ (ventanas por ataque) y
+# los paquetes/outputs de NotebookLM, pero se CONSERVAN los CSV de resumen pequeños
+# que están en la raíz de data/attack_analysis/.
+data/attack_analysis/*/
+data/notebooklm_attack_packages/
+data/notebooklm_outputs/
+data/samples/
+data/balanced_50_50/
+data/balanced_60_40/
+data/balanced_70_30/
+
+# Nota: se MANTIENEN versionados (no ignorados):
+#   data/generalization/summaries/*.csv
+#   data/attack_analysis/*summary*.csv  y  *label*.csv pequeños

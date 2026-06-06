@@ -1,0 +1,15 @@
+label,predicted_count,original_count,correct_match,approx_precision
+anomaly-spam,1274,544,14,0.011
+anomaly-sshscan,8248,44,0,0.0
+anomaly-udpscan,204251,1001413,198324,0.971
+background,3174842,5026776,0,0.0
+blacklist,0,9639,0,
+dos,229458,247230,120957,0.527
+nerisbotnet,5264,99762,5120,0.973
+no_clasificado,2711437,0,0,0.0
+scan11,525790,102572,102220,0.194
+scan44,9767,382351,9662,0.989
+
+TOTAL_trazas,6870331,,,
+trazas_ataque,984052,,,
+trazas_background,5886279,,,

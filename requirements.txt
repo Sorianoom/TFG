@@ -1,0 +1,23 @@
+# Dependencias del TFG - Análisis explicativo de tráfico NetFlow UGR'16 con LLMs
+# Versiones fijadas para reproducibilidad. Generado a partir del entorno actual.
+
+# --- Análisis y preparación de datos ---
+numpy==2.4.4
+pandas==3.0.2
+polars==1.39.3
+openpyxl==3.1.5
+
+# --- Machine Learning (baseline comparativo clásico) ---
+scikit-learn==1.9.0
+scipy==1.17.1
+
+# --- Visualización y utilidades ---
+matplotlib==3.10.8
+tqdm==4.67.3
+
+# --- Automatización de NotebookLM ---
+notebooklm-py==0.6.0
+playwright==1.60.0
+
+# Nota: fastapi / uvicorn NO se incluyen porque no están instalados ni en uso
+# todavía; añádelos solo cuando se implemente la parte web.

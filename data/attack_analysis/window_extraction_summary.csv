@@ -1,0 +1,172 @@
+attack_label,window_type,window_id,file_path,center_row,center_timestamp,rows_total,attack_rows,background_rows,other_labels,status,truncated
+dos,rows_2000,1,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_01.csv,31706541,2016-08-01 07:59:44,2001,50,1929,{'blacklist': 22},created,False
+dos,rows_2000,2,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_02.csv,32529910,2016-08-01 08:09:52,2001,988,994,{'blacklist': 19},created,False
+dos,rows_2000,3,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_03.csv,32627714,2016-08-01 08:10:36,2001,1050,951,{},created,False
+dos,rows_2000,4,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_04.csv,32728658,2016-08-01 08:11:20,2001,1016,976,{'blacklist': 9},created,False
+dos,rows_2000,5,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_05.csv,32821894,2016-08-01 08:12:04,2001,900,1100,{'blacklist': 1},created,False
+dos,rows_2000,6,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_06.csv,33455573,2016-08-01 08:19:53,2001,396,1604,{'blacklist': 1},created,False
+dos,rows_2000,7,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_07.csv,33629393,2016-08-01 08:21:43,2001,398,1597,{'blacklist': 6},created,False
+dos,rows_2000,8,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_08.csv,33840537,2016-08-01 08:24:03,2001,396,1604,{'blacklist': 1},created,False
+dos,rows_2000,9,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_09.csv,34024894,2016-08-01 08:25:53,2001,400,1599,{'blacklist': 2},created,False
+dos,rows_2000,10,data\attack_analysis\dos\rows_2000\dos_rows_2000_window_10.csv,34357981,2016-08-01 08:29:44,2001,180,1818,{'blacklist': 3},created,False
+dos,time_10s,1,data\attack_analysis\dos\time_10s\dos_time_10s_window_01.csv,31706541,2016-08-01 07:59:44,26170,2032,24086,{'blacklist': 52},created,False
+dos,time_10s,2,data\attack_analysis\dos\time_10s\dos_time_10s_window_02.csv,32529910,2016-08-01 08:09:52,43789,17904,25794,{'blacklist': 91},created,False
+dos,time_10s,3,data\attack_analysis\dos\time_10s\dos_time_10s_window_03.csv,32627714,2016-08-01 08:10:36,47317,20860,26422,{'blacklist': 35},created,False
+dos,time_10s,4,data\attack_analysis\dos\time_10s\dos_time_10s_window_04.csv,32728658,2016-08-01 08:11:20,45512,21026,24425,{'blacklist': 61},created,False
+dos,time_10s,5,data\attack_analysis\dos\time_10s\dos_time_10s_window_05.csv,32821894,2016-08-01 08:12:04,46297,20824,25444,{'blacklist': 29},created,False
+dos,time_10s,6,data\attack_analysis\dos\time_10s\dos_time_10s_window_06.csv,33455573,2016-08-01 08:19:53,33877,7623,26234,{'blacklist': 20},created,False
+dos,time_10s,7,data\attack_analysis\dos\time_10s\dos_time_10s_window_07.csv,33629393,2016-08-01 08:21:43,31955,8316,23599,{'blacklist': 40},created,False
+dos,time_10s,8,data\attack_analysis\dos\time_10s\dos_time_10s_window_08.csv,33840537,2016-08-01 08:24:03,36722,8322,28361,{'blacklist': 39},created,False
+dos,time_10s,9,data\attack_analysis\dos\time_10s\dos_time_10s_window_09.csv,34024894,2016-08-01 08:25:53,32005,8320,23644,{'blacklist': 41},created,False
+dos,time_10s,10,data\attack_analysis\dos\time_10s\dos_time_10s_window_10.csv,34357981,2016-08-01 08:29:44,30428,2162,28232,{'blacklist': 34},created,False
+dos,time_60s,1,data\attack_analysis\dos\time_60s\dos_time_60s_window_01.csv,31706541,2016-08-01 07:59:44,100000,4289,95542,{'blacklist': 169},created_truncated,True
+dos,time_60s,2,data\attack_analysis\dos\time_60s\dos_time_60s_window_02.csv,32653185,2016-08-01 08:10:47,100000,44761,55085,{'blacklist': 154},created_truncated,True
+dos,time_60s,3,data\attack_analysis\dos\time_60s\dos_time_60s_window_03.csv,32870117,2016-08-01 08:12:26,100000,46267,53660,{'blacklist': 73},created_truncated,True
+dos,time_60s,4,data\attack_analysis\dos\time_60s\dos_time_60s_window_04.csv,33795026,2016-08-01 08:23:36,100000,16103,83683,{'blacklist': 214},created_truncated,True
+dos,time_60s,5,data\attack_analysis\dos\time_60s\dos_time_60s_window_05.csv,34357981,2016-08-01 08:29:44,100000,12066,87802,{'blacklist': 132},created_truncated,True
+anomaly-udpscan,rows_2000,1,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_01.csv,15912309,2016-08-01 04:10:22,2001,1001,997,{'blacklist': 3},created,False
+anomaly-udpscan,rows_2000,2,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_02.csv,16027617,2016-08-01 04:10:27,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,3,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_03.csv,16158363,2016-08-01 04:10:48,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,4,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_04.csv,16298494,2016-08-01 04:11:18,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,5,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_05.csv,16501264,2016-08-01 04:12:50,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,6,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_06.csv,16616419,2016-08-01 04:12:55,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,7,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_07.csv,16801562,2016-08-01 04:14:04,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,8,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_08.csv,16916248,2016-08-01 04:14:08,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,9,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_09.csv,17652515,2016-08-01 04:24:10,2001,2001,0,{},created,False
+anomaly-udpscan,rows_2000,10,data\attack_analysis\anomaly-udpscan\rows_2000\anomaly-udpscan_rows_2000_window_10.csv,86613835,2016-08-01 17:23:36,2001,60,1939,{'blacklist': 2},created,False
+anomaly-udpscan,time_10s,1,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_01.csv,15912309,2016-08-01 04:10:22,100000,85024,14909,{'blacklist': 67},created_truncated,True
+anomaly-udpscan,time_10s,2,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_02.csv,16027617,2016-08-01 04:10:27,100000,90129,9808,{'blacklist': 63},created_truncated,True
+anomaly-udpscan,time_10s,3,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_03.csv,16158363,2016-08-01 04:10:48,100000,90657,9284,{'blacklist': 59},created_truncated,True
+anomaly-udpscan,time_10s,4,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_04.csv,16298494,2016-08-01 04:11:18,100000,89966,9986,{'blacklist': 48},created_truncated,True
+anomaly-udpscan,time_10s,5,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_05.csv,16501264,2016-08-01 04:12:50,100000,87908,12024,{'blacklist': 68},created_truncated,True
+anomaly-udpscan,time_10s,6,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_06.csv,16616419,2016-08-01 04:12:55,100000,93131,6807,{'blacklist': 62},created_truncated,True
+anomaly-udpscan,time_10s,7,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_07.csv,16801562,2016-08-01 04:14:04,100000,85567,14337,{'blacklist': 96},created_truncated,True
+anomaly-udpscan,time_10s,8,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_08.csv,16916248,2016-08-01 04:14:08,100000,90295,9611,{'blacklist': 94},created_truncated,True
+anomaly-udpscan,time_10s,9,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_09.csv,17652515,2016-08-01 04:24:10,100000,86482,13440,{'blacklist': 78},created_truncated,True
+anomaly-udpscan,time_10s,10,data\attack_analysis\anomaly-udpscan\time_10s\anomaly-udpscan_time_10s_window_10.csv,86613835,2016-08-01 17:23:36,34487,60,34364,{'blacklist': 63},created,False
+anomaly-udpscan,time_60s,1,data\attack_analysis\anomaly-udpscan\time_60s\anomaly-udpscan_time_60s_window_01.csv,15912309,2016-08-01 04:10:22,100000,36445,63337,{'blacklist': 218},created_truncated,True
+anomaly-udpscan,time_60s,2,data\attack_analysis\anomaly-udpscan\time_60s\anomaly-udpscan_time_60s_window_02.csv,16186860,2016-08-01 04:10:49,100000,62005,37819,{'blacklist': 176},created_truncated,True
+anomaly-udpscan,time_60s,3,data\attack_analysis\anomaly-udpscan\time_60s\anomaly-udpscan_time_60s_window_03.csv,16559578,2016-08-01 04:12:53,100000,43382,56423,{'blacklist': 195},created_truncated,True
+anomaly-udpscan,time_60s,4,data\attack_analysis\anomaly-udpscan\time_60s\anomaly-udpscan_time_60s_window_04.csv,16887406,2016-08-01 04:14:07,100000,38230,61595,{'blacklist': 175},created_truncated,True
+anomaly-udpscan,time_60s,5,data\attack_analysis\anomaly-udpscan\time_60s\anomaly-udpscan_time_60s_window_05.csv,86613835,2016-08-01 17:23:36,100000,60,99727,{'blacklist': 213},created_truncated,True
+nerisbotnet,rows_2000,1,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_01.csv,36899181,2016-08-01 08:59:02,2001,3,1996,{'blacklist': 2},created,False
+nerisbotnet,rows_2000,2,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_02.csv,38376943,2016-08-01 09:15:09,2001,40,1961,{},created,False
+nerisbotnet,rows_2000,3,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_03.csv,38805847,2016-08-01 09:19:52,2001,1007,994,{},created,False
+nerisbotnet,rows_2000,4,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_04.csv,38836590,2016-08-01 09:20:02,2001,1366,635,{},created,False
+nerisbotnet,rows_2000,5,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_05.csv,39265320,2016-08-01 09:24:46,2001,860,1141,{},created,False
+nerisbotnet,rows_2000,6,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_06.csv,40407251,2016-08-01 09:37:38,2001,85,1896,{'blacklist': 20},created,False
+nerisbotnet,rows_2000,7,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_07.csv,41621815,2016-08-01 09:51:09,2001,132,1864,{'blacklist': 5},created,False
+nerisbotnet,rows_2000,8,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_08.csv,41798198,2016-08-01 09:52:56,2001,120,1881,{},created,False
+nerisbotnet,rows_2000,9,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_09.csv,42123478,2016-08-01 09:56:18,2001,58,1929,{'blacklist': 14},created,False
+nerisbotnet,rows_2000,10,data\attack_analysis\nerisbotnet\rows_2000\nerisbotnet_rows_2000_window_10.csv,42483536,2016-08-01 09:59:58,2001,60,1933,{'blacklist': 8},created,False
+nerisbotnet,time_10s,1,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_01.csv,36899181,2016-08-01 08:59:02,28028,5,27999,{'blacklist': 24},created,False
+nerisbotnet,time_10s,2,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_02.csv,38376943,2016-08-01 09:15:09,30518,262,30230,{'blacklist': 26},created,False
+nerisbotnet,time_10s,3,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_03.csv,38805847,2016-08-01 09:19:52,60296,29939,30296,{'blacklist': 61},created,False
+nerisbotnet,time_10s,4,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_04.csv,38836590,2016-08-01 09:20:02,57478,28574,28867,{'blacklist': 37},created,False
+nerisbotnet,time_10s,5,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_05.csv,39265320,2016-08-01 09:24:46,31685,1982,29641,{'blacklist': 62},created,False
+nerisbotnet,time_10s,6,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_06.csv,40407251,2016-08-01 09:37:38,30656,730,29803,{'blacklist': 123},created,False
+nerisbotnet,time_10s,7,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_07.csv,41621815,2016-08-01 09:51:09,32083,1782,30240,{'blacklist': 61},created,False
+nerisbotnet,time_10s,8,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_08.csv,41798198,2016-08-01 09:52:56,34421,2822,31574,{'blacklist': 25},created,False
+nerisbotnet,time_10s,9,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_09.csv,42123478,2016-08-01 09:56:18,34256,2915,31206,{'blacklist': 135},created,False
+nerisbotnet,time_10s,10,data\attack_analysis\nerisbotnet\time_10s\nerisbotnet_time_10s_window_10.csv,42483536,2016-08-01 09:59:58,36981,849,35990,{'blacklist': 142},created,False
+nerisbotnet,time_60s,1,data\attack_analysis\nerisbotnet\time_60s\nerisbotnet_time_60s_window_01.csv,36899181,2016-08-01 08:59:02,100000,5,99884,{'blacklist': 111},created_truncated,True
+nerisbotnet,time_60s,2,data\attack_analysis\nerisbotnet\time_60s\nerisbotnet_time_60s_window_02.csv,38813094,2016-08-01 09:19:54,100000,14472,85266,{'blacklist': 262},created_truncated,True
+nerisbotnet,time_60s,3,data\attack_analysis\nerisbotnet\time_60s\nerisbotnet_time_60s_window_03.csv,39681103,2016-08-01 09:29:29,100000,1337,98498,{'blacklist': 165},created_truncated,True
+nerisbotnet,time_60s,4,data\attack_analysis\nerisbotnet\time_60s\nerisbotnet_time_60s_window_04.csv,41769293,2016-08-01 09:52:40,100000,7895,91984,{'blacklist': 121},created_truncated,True
+nerisbotnet,time_60s,5,data\attack_analysis\nerisbotnet\time_60s\nerisbotnet_time_60s_window_05.csv,42483536,2016-08-01 09:59:58,100000,2418,97281,{'blacklist': 301},created_truncated,True
+scan11,rows_2000,1,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_01.csv,35133829,2016-08-01 08:39:44,2001,12,1987,{'blacklist': 2},created,False
+scan11,rows_2000,2,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_02.csv,35175123,2016-08-01 08:40:13,2001,42,1952,{'blacklist': 7},created,False
+scan11,rows_2000,3,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_03.csv,35204896,2016-08-01 08:40:33,2001,317,1684,{},created,False
+scan11,rows_2000,4,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_04.csv,35230998,2016-08-01 08:40:52,2001,682,1319,{},created,False
+scan11,rows_2000,5,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_05.csv,35260518,2016-08-01 08:41:12,2001,468,1531,{'blacklist': 2},created,False
+scan11,rows_2000,6,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_06.csv,35288718,2016-08-01 08:41:31,2001,682,1310,{'blacklist': 9},created,False
+scan11,rows_2000,7,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_07.csv,35315052,2016-08-01 08:41:50,2001,627,1373,{'blacklist': 1},created,False
+scan11,rows_2000,8,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_08.csv,35345051,2016-08-01 08:42:09,2001,707,1293,{'blacklist': 1},created,False
+scan11,rows_2000,9,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_09.csv,35381914,2016-08-01 08:42:34,2001,12,1978,{'blacklist': 11},created,False
+scan11,rows_2000,10,data\attack_analysis\scan11\rows_2000\scan11_rows_2000_window_10.csv,35404823,2016-08-01 08:42:48,2001,692,1309,{},created,False
+scan11,time_10s,1,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_01.csv,35133829,2016-08-01 08:39:44,29200,2025,27156,{'blacklist': 19},created,False
+scan11,time_10s,2,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_02.csv,35175123,2016-08-01 08:40:13,30433,3582,26805,{'blacklist': 46},created,False
+scan11,time_10s,3,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_03.csv,35204896,2016-08-01 08:40:33,29714,4595,25080,{'blacklist': 39},created,False
+scan11,time_10s,4,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_04.csv,35230998,2016-08-01 08:40:52,30023,4891,25087,{'blacklist': 45},created,False
+scan11,time_10s,5,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_05.csv,35260518,2016-08-01 08:41:12,32039,4521,27454,{'blacklist': 64},created,False
+scan11,time_10s,6,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_06.csv,35288718,2016-08-01 08:41:31,30306,4936,25335,{'blacklist': 35},created,False
+scan11,time_10s,7,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_07.csv,35315052,2016-08-01 08:41:50,31275,4950,26302,{'blacklist': 23},created,False
+scan11,time_10s,8,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_08.csv,35345051,2016-08-01 08:42:09,34379,5130,29221,{'blacklist': 28},created,False
+scan11,time_10s,9,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_09.csv,35381914,2016-08-01 08:42:34,31000,4034,26886,{'blacklist': 80},created,False
+scan11,time_10s,10,data\attack_analysis\scan11\time_10s\scan11_time_10s_window_10.csv,35404823,2016-08-01 08:42:48,30180,2870,27218,{'blacklist': 92},created,False
+scan11,time_60s,1,data\attack_analysis\scan11\time_60s\scan11_time_60s_window_01.csv,35133829,2016-08-01 08:39:44,100000,2281,97574,{'blacklist': 145},created_truncated,True
+scan11,time_60s,2,data\attack_analysis\scan11\time_60s\scan11_time_60s_window_02.csv,35215090,2016-08-01 08:40:41,100000,11376,88486,{'blacklist': 138},created_truncated,True
+scan11,time_60s,3,data\attack_analysis\scan11\time_60s\scan11_time_60s_window_03.csv,35275369,2016-08-01 08:41:22,100000,14666,85175,{'blacklist': 159},created_truncated,True
+scan11,time_60s,4,data\attack_analysis\scan11\time_60s\scan11_time_60s_window_04.csv,35342666,2016-08-01 08:42:08,100000,14046,85831,{'blacklist': 123},created_truncated,True
+scan11,time_60s,5,data\attack_analysis\scan11\time_60s\scan11_time_60s_window_05.csv,35404823,2016-08-01 08:42:48,100000,13906,85939,{'blacklist': 155},created_truncated,True
+scan44,rows_2000,1,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_01.csv,35957108,2016-08-01 08:49:44,2001,1001,999,{'blacklist': 1},created,False
+scan44,rows_2000,2,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_02.csv,36006832,2016-08-01 08:50:05,2001,1985,10,{'blacklist': 6},created,False
+scan44,rows_2000,3,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_03.csv,36057072,2016-08-01 08:50:25,2001,1885,116,{},created,False
+scan44,rows_2000,4,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_04.csv,36105069,2016-08-01 08:50:45,2001,1947,54,{},created,False
+scan44,rows_2000,5,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_05.csv,36153040,2016-08-01 08:51:05,2001,1475,525,{'blacklist': 1},created,False
+scan44,rows_2000,6,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_06.csv,36200808,2016-08-01 08:51:25,2001,1140,861,{},created,False
+scan44,rows_2000,7,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_07.csv,36252004,2016-08-01 08:51:49,2001,1100,901,{},created,False
+scan44,rows_2000,8,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_08.csv,36300194,2016-08-01 08:52:09,2001,1137,864,{},created,False
+scan44,rows_2000,9,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_09.csv,36348243,2016-08-01 08:52:30,2001,1188,808,{'blacklist': 5},created,False
+scan44,rows_2000,10,data\attack_analysis\scan44\rows_2000\scan44_rows_2000_window_10.csv,36411481,2016-08-01 08:52:59,2001,277,1723,{'blacklist': 1},created,False
+scan44,time_10s,1,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_01.csv,35957108,2016-08-01 08:49:44,38043,10070,27872,{'blacklist': 101},created,False
+scan44,time_10s,2,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_02.csv,36006832,2016-08-01 08:50:05,51600,21863,29686,{'blacklist': 51},created,False
+scan44,time_10s,3,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_03.csv,36057072,2016-08-01 08:50:25,51181,22343,28798,{'blacklist': 40},created,False
+scan44,time_10s,4,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_04.csv,36105069,2016-08-01 08:50:45,53523,24046,29436,{'blacklist': 41},created,False
+scan44,time_10s,5,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_05.csv,36153040,2016-08-01 08:51:05,50735,23307,27394,{'blacklist': 34},created,False
+scan44,time_10s,6,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_06.csv,36200808,2016-08-01 08:51:25,49459,22332,27090,{'blacklist': 37},created,False
+scan44,time_10s,7,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_07.csv,36252004,2016-08-01 08:51:49,47368,20225,27120,{'blacklist': 23},created,False
+scan44,time_10s,8,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_08.csv,36300194,2016-08-01 08:52:09,47668,20246,27390,{'blacklist': 32},created,False
+scan44,time_10s,9,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_09.csv,36348243,2016-08-01 08:52:30,53789,23246,30505,{'blacklist': 38},created,False
+scan44,time_10s,10,data\attack_analysis\scan44\time_10s\scan44_time_10s_window_10.csv,36411481,2016-08-01 08:52:59,31150,3974,27143,{'blacklist': 33},created,False
+scan44,time_60s,1,data\attack_analysis\scan44\time_60s\scan44_time_60s_window_01.csv,35957108,2016-08-01 08:49:44,100000,8088,91672,{'blacklist': 240},created_truncated,True
+scan44,time_60s,2,data\attack_analysis\scan44\time_60s\scan44_time_60s_window_02.csv,36064901,2016-08-01 08:50:27,100000,32141,67680,{'blacklist': 179},created_truncated,True
+scan44,time_60s,3,data\attack_analysis\scan44\time_60s\scan44_time_60s_window_03.csv,36177023,2016-08-01 08:51:15,100000,44276,55644,{'blacklist': 80},created_truncated,True
+scan44,time_60s,4,data\attack_analysis\scan44\time_60s\scan44_time_60s_window_04.csv,36287261,2016-08-01 08:52:03,100000,45747,54166,{'blacklist': 87},created_truncated,True
+scan44,time_60s,5,data\attack_analysis\scan44\time_60s\scan44_time_60s_window_05.csv,36411481,2016-08-01 08:52:59,100000,43491,56441,{'blacklist': 68},created_truncated,True
+anomaly-sshscan,rows_2000,1,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_01.csv,30068943,2016-08-01 07:35:19,2001,2,1994,{'blacklist': 5},created,False
+anomaly-sshscan,rows_2000,2,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_02.csv,30069230,2016-08-01 07:35:19,2001,2,1994,{'blacklist': 5},created,False
+anomaly-sshscan,rows_2000,3,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_03.csv,47441866,2016-08-01 10:47:41,2001,1,2000,{},created,False
+anomaly-sshscan,rows_2000,4,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_04.csv,47442972,2016-08-01 10:47:42,2001,1,2000,{},created,False
+anomaly-sshscan,rows_2000,5,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_05.csv,51428705,2016-08-01 11:30:59,2001,2,1999,{},created,False
+anomaly-sshscan,rows_2000,6,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_06.csv,51428995,2016-08-01 11:30:59,2001,2,1999,{},created,False
+anomaly-sshscan,rows_2000,7,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_07.csv,56585142,2016-08-01 12:23:46,2001,2,1999,{},created,False
+anomaly-sshscan,rows_2000,8,data\attack_analysis\anomaly-sshscan\rows_2000\anomaly-sshscan_rows_2000_window_08.csv,56585409,2016-08-01 12:23:46,2001,2,1999,{},created,False
+anomaly-sshscan,time_10s,1,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_01.csv,30068943,2016-08-01 07:35:19,25236,2,25189,{'blacklist': 45},created,False
+anomaly-sshscan,time_10s,2,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_02.csv,30069230,2016-08-01 07:35:19,25236,2,25189,{'blacklist': 45},created,False
+anomaly-sshscan,time_10s,3,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_03.csv,47441866,2016-08-01 10:47:41,32763,2,32704,{'blacklist': 57},created,False
+anomaly-sshscan,time_10s,4,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_04.csv,47442972,2016-08-01 10:47:42,32885,2,32828,{'blacklist': 55},created,False
+anomaly-sshscan,time_10s,5,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_05.csv,51428705,2016-08-01 11:30:59,31423,2,31385,{'blacklist': 36},created,False
+anomaly-sshscan,time_10s,6,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_06.csv,51428995,2016-08-01 11:30:59,31423,2,31385,{'blacklist': 36},created,False
+anomaly-sshscan,time_10s,7,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_07.csv,56585142,2016-08-01 12:23:46,33462,2,33434,{'blacklist': 26},created,False
+anomaly-sshscan,time_10s,8,data\attack_analysis\anomaly-sshscan\time_10s\anomaly-sshscan_time_10s_window_08.csv,56585409,2016-08-01 12:23:46,33462,2,33434,{'blacklist': 26},created,False
+anomaly-sshscan,time_60s,1,data\attack_analysis\anomaly-sshscan\time_60s\anomaly-sshscan_time_60s_window_01.csv,30068943,2016-08-01 07:35:19,100000,2,99804,{'blacklist': 194},created_truncated,True
+anomaly-sshscan,time_60s,2,data\attack_analysis\anomaly-sshscan\time_60s\anomaly-sshscan_time_60s_window_02.csv,47441866,2016-08-01 10:47:41,100000,1,99841,{'blacklist': 158},created_truncated,True
+anomaly-sshscan,time_60s,3,data\attack_analysis\anomaly-sshscan\time_60s\anomaly-sshscan_time_60s_window_03.csv,51428705,2016-08-01 11:30:59,100000,2,99857,{'blacklist': 141},created_truncated,True
+anomaly-sshscan,time_60s,4,data\attack_analysis\anomaly-sshscan\time_60s\anomaly-sshscan_time_60s_window_04.csv,51428995,2016-08-01 11:30:59,100000,2,99857,{'blacklist': 141},created_truncated,True
+anomaly-sshscan,time_60s,5,data\attack_analysis\anomaly-sshscan\time_60s\anomaly-sshscan_time_60s_window_05.csv,56585409,2016-08-01 12:23:46,100000,2,99851,{'blacklist': 147},created_truncated,True
+anomaly-spam,rows_2000,1,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_01.csv,99935933,2016-08-01 19:42:22,2001,4,1994,{'blacklist': 3},created,False
+anomaly-spam,rows_2000,2,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_02.csv,99938616,2016-08-01 19:42:24,2001,6,1993,{'blacklist': 2},created,False
+anomaly-spam,rows_2000,3,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_03.csv,99942088,2016-08-01 19:42:26,2001,3,1993,{'blacklist': 5},created,False
+anomaly-spam,rows_2000,4,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_04.csv,99945436,2016-08-01 19:42:28,2001,5,1994,{'blacklist': 2},created,False
+anomaly-spam,rows_2000,5,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_05.csv,99949116,2016-08-01 19:42:30,2001,7,1992,{'blacklist': 2},created,False
+anomaly-spam,rows_2000,6,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_06.csv,99952142,2016-08-01 19:42:32,2001,4,1997,{},created,False
+anomaly-spam,rows_2000,7,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_07.csv,99955131,2016-08-01 19:42:34,2001,3,1996,{'blacklist': 2},created,False
+anomaly-spam,rows_2000,8,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_08.csv,99958125,2016-08-01 19:42:36,2001,3,1994,{'blacklist': 4},created,False
+anomaly-spam,rows_2000,9,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_09.csv,99961154,2016-08-01 19:42:38,2001,3,1997,{'blacklist': 1},created,False
+anomaly-spam,rows_2000,10,data\attack_analysis\anomaly-spam\rows_2000\anomaly-spam_rows_2000_window_10.csv,99965732,2016-08-01 19:42:41,2001,2,1999,{},created,False
+anomaly-spam,time_10s,1,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_01.csv,99935933,2016-08-01 19:42:22,34782,28,34694,{'blacklist': 60},created,False
+anomaly-spam,time_10s,2,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_02.csv,99938616,2016-08-01 19:42:24,34301,33,34207,{'blacklist': 61},created,False
+anomaly-spam,time_10s,3,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_03.csv,99942088,2016-08-01 19:42:26,33802,37,33708,{'blacklist': 57},created,False
+anomaly-spam,time_10s,4,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_04.csv,99945436,2016-08-01 19:42:28,33891,42,33792,{'blacklist': 57},created,False
+anomaly-spam,time_10s,5,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_05.csv,99949116,2016-08-01 19:42:30,33493,45,33389,{'blacklist': 59},created,False
+anomaly-spam,time_10s,6,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_06.csv,99952142,2016-08-01 19:42:32,32870,47,32764,{'blacklist': 59},created,False
+anomaly-spam,time_10s,7,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_07.csv,99955131,2016-08-01 19:42:34,32057,42,31949,{'blacklist': 66},created,False
+anomaly-spam,time_10s,8,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_08.csv,99958125,2016-08-01 19:42:36,31866,37,31762,{'blacklist': 67},created,False
+anomaly-spam,time_10s,9,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_09.csv,99961154,2016-08-01 19:42:38,31435,32,31338,{'blacklist': 65},created,False
+anomaly-spam,time_10s,10,data\attack_analysis\anomaly-spam\time_10s\anomaly-spam_time_10s_window_10.csv,99965732,2016-08-01 19:42:41,31830,22,31737,{'blacklist': 71},created,False
+anomaly-spam,time_60s,1,data\attack_analysis\anomaly-spam\time_60s\anomaly-spam_time_60s_window_01.csv,99935933,2016-08-01 19:42:22,100000,6,99827,{'blacklist': 167},created_truncated,True
+anomaly-spam,time_60s,2,data\attack_analysis\anomaly-spam\time_60s\anomaly-spam_time_60s_window_02.csv,99943014,2016-08-01 19:42:26,100000,16,99821,{'blacklist': 163},created_truncated,True
+anomaly-spam,time_60s,3,data\attack_analysis\anomaly-spam\time_60s\anomaly-spam_time_60s_window_03.csv,99949409,2016-08-01 19:42:30,100000,26,99807,{'blacklist': 167},created_truncated,True
+anomaly-spam,time_60s,4,data\attack_analysis\anomaly-spam\time_60s\anomaly-spam_time_60s_window_04.csv,99956544,2016-08-01 19:42:35,100000,40,99789,{'blacklist': 171},created_truncated,True
+anomaly-spam,time_60s,5,data\attack_analysis\anomaly-spam\time_60s\anomaly-spam_time_60s_window_05.csv,99965732,2016-08-01 19:42:41,100000,47,99774,{'blacklist': 179},created_truncated,True

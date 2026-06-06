@@ -1,0 +1,4 @@
+file,size_gb,valid_rows,origen_conteo,labels_found,anomaly-udpscan,dos,scan11,scan44,nerisbotnet,anomaly-sshscan,anomaly-spam
+august.week1.csv,76.65,851614536,escaneo completo,background:811088135; anomaly-spam:27970000; dos:5093132; scan44:2477203; blacklist:2464585; nerisbotnet:992575; anomaly-udpscan:989872; scan11:539018; anomaly-sshscan:16,989872,5093132,539018,2477203,992575,16,27970000
+august.week2.csv.uniqblacklistremoved,75.49,837841161,conteo reutilizado (august_week2_label_counts.csv),background:793518112; anomaly-spam:36796698; blacklist:5728174; dos:1028245; scan44:547468; scan11:140541; nerisbotnet:81918; anomaly-sshscan:5,0,1028245,140541,547468,81918,5,36796698
+april.week2.csv.uniqblacklistremoved,50.83,564028843,conteo reutilizado (april_week2_label_counts.csv),background:557363853; anomaly-sshscan:4548663; blacklist:1735869; anomaly-spam:380458,0,0,0,0,0,4548663,380458

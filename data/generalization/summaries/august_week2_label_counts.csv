@@ -1,0 +1,9 @@
+label,count,es_ataque
+background,793518112,False
+anomaly-spam,36796698,True
+blacklist,5728174,False
+dos,1028245,True
+scan44,547468,True
+scan11,140541,True
+nerisbotnet,81918,True
+anomaly-sshscan,5,True
