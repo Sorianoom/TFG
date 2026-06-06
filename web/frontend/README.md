@@ -1,88 +1,80 @@
-# frontend/ — React + Vite (Fase 3, modo IA OFF)
+# frontend/ — React + Vite (Fase 5, web pública, modo IA OFF)
 
-Mapa mental interactivo del TFG: detección explicativa de anomalías NetFlow (UGR'16) con LLMs +
-clasificador contextual. **Modo IA OFF**: consume el backend FastAPI (datos locales); no integra
-ningún LLM todavía.
+Web pública, simple e interactiva del TFG: detección explicativa de anomalías NetFlow (UGR'16) con
+LLMs + clasificador contextual v5. **Modo IA OFF**: consume el backend FastAPI (datos locales de
+`web/data/attacks.json`); no integra ningún LLM todavía.
 
-- Versión principal mostrada: **v5 integrated** · Versión base estable: **v3**.
+- Versión principal: **v5 integrated** · base estable: **v3**.
+- Sin librerías de routing: navegación interna por **hash** (`#/attacks/<id>`), sin dependencias extra.
 
-**Navegación superior (sticky)**: Mapa · Ataques · Detector v5 · Resultados · ML baseline ·
-Modo defensa · IA.
+## Estructura de la web
 
-## Qué muestra
+### Portada (`#/`)
 
-1. **Mapa** — *Flujo del proyecto* (mapa mental): UGR'16 → NetFlow → ventanas → NotebookLM/LLMs →
-   hipótesis conductuales → reglas interpretables → clasificador v5 → resultados/generalización/ML;
-   y *Resumen del proyecto*: objetivo, idea clave (el LLM interpreta; la detección es por reglas
-   conductuales), versión principal v5 + base v3 y timeline v1 → v5.
-2. **Ataques** — 7 tarjetas (scan11, scan44, anomaly-udpscan, dos, nerisbotnet, anomaly-sshscan,
-   anomaly-spam) con estado (color) y métrica principal (clic → modal de detalle), más la tabla
-   *Qué mira cada ataque* (familia · señales · estado · limitación).
-3. **Detector v5** — *Cómo funciona el clasificador v5*: los 3 pases (contexto local → global por
-   ventana → global por origen SSH/fan-out), con el tercer pase destacado.
-4. **Resultados** — tabla *Resultados finales* (ataque · familia · estado · P · R · F1 ·
-   interpretación) + detección binaria v5/v3 en week1.
-5. **ML baseline** — *Comparación con ML clásico*: Random Forest (F1 macro ≈ 0,95) como baseline y
-   por qué no sustituye a la v5 (supervisado/opaco vs reglas explicables).
-6. **Modo defensa** — guion compacto de 9 puntos para una presentación de ~15 minutos.
-7. **IA** — IA OFF (activo) e IA ON / NotebookLM (panel reservado, pendiente).
+- **Hero** casi a pantalla completa: título, subtítulo y zona central con los **7 ataques flotando**
+  (burbujas clicables con nombre corto, familia, estado y color por estado). Animación de flotación,
+  hover con escala/brillo y **parallax** suave según el ratón (desactivado en móvil).
+- Debajo, secciones **compactas**: *Cómo funciona el clasificador v5* (3 pases), *Resultados finales*
+  (tarjetas resumidas), *Comparaciones* (dos gráficos de barras CSS: F1 macro de ML clásico —KNN, MLP,
+  SVM, Logistic Regression, sin Random Forest— frente al F1 por familia de la v5, cada familia con la
+  semana en que se mide), *Versiones del clasificador* (timeline v1→v5) y una caja mini *IA explicativa
+  — próximamente*. La sección explica que un único F1 macro de la v5 no sería justo porque sus familias
+  se validan en escenarios distintos (núcleo en august.week1, SSH Scan en april.week2).
 
-**Detalle de ataque** (modal): qué es, patrón técnico, señales del detector, métricas (v3/v5),
-limitaciones, nota para la defensa y documentos relacionados. Cuida especialmente
-`anomaly-sshscan` (v3 0/0 → v5 P 0,999 / R 0,907 / F1 0,951 por fan-out SSH global).
+### Página de ataque (`#/attacks/<id>`)
 
-Estilo oscuro, moderno y responsive básico, pensado para una pantalla de defensa.
+Clic en una burbuja (o en una tarjeta de resultados) abre la ruta del ataque, que muestra **solo** ese
+ataque con explicaciones pensadas para un profesor de informática no especialista (jerga explicada
+entre paréntesis): botón volver, título + familia, estado, descripción, **diagrama SVG** del patrón,
+*En palabras simples*, *Características que mira el detector* (señal · qué mide · por qué importa),
+*Proceso de detección* (pasos numerados), *Regla simplificada* (pseudocódigo ilustrativo), *Qué no usa*
+(chips), *Cómo se ve en NetFlow*, *Métricas* (con su significado), *Contexto de validación*,
+*Limitaciones*, *Para explicarlo al tribunal* y *Documentos relacionados*.
 
-## Requisitos
+Los textos didácticos por ataque viven en `attackMeta.js` (`TECH`, `NOT_USED_COMMON`); los datos duros
+(métricas, patrón, limitaciones, documentos) siguen viniendo de `web/data/attacks.json` vía backend.
 
-- Node.js 18+ y npm.
-- El **backend** debe estar corriendo (sirve los JSON y permite CORS desde el puerto 5173).
+Rutas: `#/attacks/scan11`, `#/attacks/scan44`, `#/attacks/anomaly-udpscan`, `#/attacks/dos`,
+`#/attacks/nerisbotnet`, `#/attacks/anomaly-sshscan`, `#/attacks/anomaly-spam`.
 
-## Ejecución
+`anomaly-sshscan` recibe trato especial: v3 estándar 0/0 vs v5 integrated P 0,999 / R 0,907 / F1 0,951
+(april.week2), explicación del fan-out SSH por origen y el matiz de posibles escáneres SSH de fondo no
+etiquetados como background.
 
-**1) Backend** (en una terminal):
+## Requisitos y ejecución
 
-```bash
-cd web/backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-**2) Frontend** (en otra terminal):
+- Node.js 18+ y npm. El **backend** debe estar corriendo (CORS desde el puerto 5173).
 
 ```bash
-cd web/frontend
-npm install
-npm run dev
+# backend
+cd web/backend && pip install -r requirements.txt && uvicorn main:app --reload
+# frontend
+cd web/frontend && npm install && npm run dev
 ```
 
-Abrir el navegador en `http://localhost:5173`.
+Abrir `http://localhost:5173`. La URL del backend se configura en `src/config.js` (o `.env` con
+`VITE_API_BASE`).
 
-## Configuración del backend
-
-Por defecto el frontend usa `http://127.0.0.1:8000` (ver `src/config.js`). Para cambiarlo, crear
-un archivo `web/frontend/.env` con:
+## Estructura de archivos
 
 ```text
-VITE_API_BASE=http://otra-direccion:puerto
-```
-
-## Estructura
-
-```text
-web/frontend/
-├── index.html
-├── package.json
-├── vite.config.js
-├── README.md
-└── src/
-    ├── main.jsx      # punto de entrada React
-    ├── App.jsx       # toda la UI (mapa mental, resumen, ataques, detalle, timeline, IA)
-    ├── config.js     # URL base del backend (configurable por .env)
-    └── styles.css    # tema oscuro
+web/frontend/src/
+├── main.jsx              # entrada React
+├── App.jsx               # fetch de datos + router por hash (Home / AttackDetail)
+├── config.js             # URL base del backend
+├── useHashRoute.js       # hook de routing por hash, navigate(), parseAttackId()
+├── format.js             # fmt(), metricRows(), mainMetric()
+├── attackMeta.js         # metadatos de presentación (orden, posiciones, textos, pases, versiones)
+├── styles.css            # tema oscuro, hero, burbujas flotantes, detalle, responsive
+└── components/
+    ├── Home.jsx          # hero + secciones compactas
+    ├── FloatingAttacks.jsx  # zona central flotante con parallax
+    ├── AttackDetail.jsx  # página de detalle de un ataque
+    └── AttackDiagram.jsx # diagrama SVG del patrón por ataque
 ```
 
 ## Nota
 
-Si el backend no está disponible, la web muestra un aviso claro indicando cómo arrancarlo. No se
-integran LLMs reales en esta fase (modo IA OFF).
+Si el backend no está disponible, la web muestra un aviso claro. No se integran LLMs reales en esta
+fase (modo IA OFF). El modo defensa y las tablas extensas de fases anteriores se han retirado de la
+portada para mantenerla limpia.
