@@ -1,0 +1,3 @@
+# Backend FastAPI mínimo de la web del TFG (Fase 2)
+fastapi
+uvicorn[standard]

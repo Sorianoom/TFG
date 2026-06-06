@@ -1,0 +1,53 @@
+{
+  "titulo": "Detección explicativa de anomalías en tráfico NetFlow (UGR'16) con LLMs + reglas conductuales",
+  "objetivo": "Estudiar el uso de modelos de lenguaje grandes (LLMs) como apoyo para interpretar tráfico de red, generar hipótesis técnicas y validarlas programáticamente, culminando en un clasificador contextual por traza interpretable. No es un IDS completo ni entrena un modelo de ML propio como propuesta principal.",
+  "metodologia": [
+    "Datos NetFlow del dataset UGR'16 (capturas reales de un ISP).",
+    "Análisis asistido por LLM (NotebookLM) para interpretar patrones y generar hipótesis.",
+    "Formalización de un modelo de comportamiento sintético según la localización de la automatización.",
+    "Validación programática con reglas heurísticas interpretables (sin ML, sin IPs concretas, sin usar la etiqueta para detectar)."
+  ],
+  "pipeline": [
+    "Limpieza y validación de datos NetFlow",
+    "Extracción de ventanas (perfiles normales y por ataque)",
+    "Análisis multifuente con NotebookLM",
+    "Detector heurístico por ventana (validación de hipótesis)",
+    "Clasificador contextual por traza v1 -> v2 (jerárquico) -> v3 (dos pases)",
+    "Comparación con ML clásico (baseline) y evaluación de generalización temporal"
+  ],
+  "version_principal": {
+    "nombre": "Clasificador contextual por traza v3",
+    "script": "scripts/02_attack_analysis/detect_attack_flows_contextual_v3.py",
+    "enfoque": "Dos pases: contexto local (±30 filas) + agregación global/temporal por ventana. Clasificación jerárquica: ataque/background -> familia conductual -> subtipo.",
+    "metricas_binarias": { "precision": 0.930, "recall": 0.991, "f1_ataque_aprox": 0.960 },
+    "por_que_principal": "Interpretabilidad, reglas conductuales, conexión con hipótesis del LLM y evidencia trazable por traza, sin usar IPs concretas ni la etiqueta para detectar."
+  },
+  "comparacion_ml": {
+    "objetivo": "Baseline académico predictivo, NO sustituto de la v3.",
+    "modelos": ["LogisticRegression", "KNN", "SVM", "RandomForest", "MLPClassifier"],
+    "mejor_modelo": "RandomForest (F1 macro ~0.95 sobre muestra balanceada)",
+    "conclusion": "El ML clásico supera en métricas a la v3 en varias familias, pero es supervisado, opaco y depende de la etiqueta y de features correlacionadas. La v3 sigue siendo la propuesta principal por interpretabilidad y trazabilidad.",
+    "documento": "29_comparacion_ml_clasico.md"
+  },
+  "generalizacion": {
+    "objetivo": "Comprobar si la v3 generaliza a datos no usados para formular reglas, sin reajustar reglas ni umbrales.",
+    "august_week2": "El núcleo fuerte generaliza: recall binario 0.993 excluyendo spam; vertical_scan recall 0.853. El recall agregado baja por el spam masivo (36,8 M).",
+    "april_week2": "Contiene solo familias débiles (sshscan 4,5 M, spam 380 k) y ninguna del núcleo: la v3 detecta ~0, confirmando esos límites a escala.",
+    "udp_scan": "No evaluable: ausente en august.week2 y april.week2; solo aparece en august.week1 (semana de diseño). Queda como trabajo futuro.",
+    "mayo": "No existe dataset de mayo en el proyecto; se auditó y descartó por falta de datos.",
+    "documento": "28_evaluacion_generalizacion_v3.md"
+  },
+  "limitaciones": [
+    "Análisis sobre ventanas extraídas, no sobre el flujo completo en tiempo real.",
+    "Reglas heurísticas con umbrales empíricos (no ML como propuesta principal).",
+    "Familias débiles: nerisbotnet (requiere coordinación distribuida), anomaly-sshscan (low-and-slow) y anomaly-spam (indistinguible del SMTP legítimo) son límites estructurales sobre metadatos de flujo.",
+    "El subtipo scan11/scan44 es menos estable entre semanas.",
+    "Parte del background real contiene escaneos automatizados que penalizan artificialmente la precisión."
+  ],
+  "trabajo_futuro": [
+    "Obtener una semana de UGR'16 que contenga anomaly-udpscan para cerrar su generalización externa.",
+    "Refinar nerisbotnet con el split high/low confidence explorado en la v4 (experimental).",
+    "Agregación temporal entre ventanas para patrones low-and-slow (sshscan).",
+    "Desarrollar la web interactiva (este bloque) y, más adelante, integrar el modo IA ON con NotebookLM."
+  ]
+}

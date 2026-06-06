@@ -1,0 +1,145 @@
+{
+  "clasificador_principal": "Clasificador contextual por traza v5 integrated (v3 + tercer pase global SSH por fan-out)",
+  "version_base_estable": "v3 (dos pases: contexto local + global/temporal); se conserva como base estable/conservadora",
+  "nota_decision": "La v5 integrated se adopta como versión principal recomendada: mantiene el rendimiento de la v3 en week1/august.week2 y añade detección fuerte de anomaly-sshscan en april.week2 (F1 0,951). Ver documento 33.",
+  "fuente_datos": "Documentación y summaries del TFG (no se usan los CSV grandes en la web)",
+  "deteccion_binaria_v3": {
+    "precision": 0.930,
+    "recall": 0.991,
+    "f1_ataque_aprox": 0.960,
+    "nota": "Detección ataque/background por traza; las métricas por familia son a nivel de subtipo."
+  },
+  "estados": {
+    "fuerte": "Patrón estructurado y bien detectado; generaliza.",
+    "parcial": "Se detecta en parte; confusión o cobertura limitada.",
+    "exploratorio": "Baja evidencia; no usar como validación fuerte."
+  },
+  "ataques": [
+    {
+      "id": "scan11",
+      "nombre": "scan11",
+      "familia_conductual": "vertical_scan",
+      "categoria_automatizacion": "Servicios del host objetivo (Single-Source Vertical Scan)",
+      "descripcion": "Escaneo vertical TCP SYN de un único origen contra un único host, recorriendo muchos puertos destino.",
+      "patron_tecnico": "1->1 a nivel IP, 1->muchos a nivel de puertos. TCP SYN, flujos atómicos (1 paquete, duración 0), ~44 bytes, baja entropía.",
+      "senales_v3": [
+        "verticalidad: muchos puertos destino para el mismo par src->dst",
+        "flujos SYN atómicos (duración ~0, 1 paquete)",
+        "bytes pequeños y baja varianza",
+        "dominancia de un único origen (top_share alto)"
+      ],
+      "metricas": { "precision": 0.763, "recall": 0.997 },
+      "limitaciones": "La separación scan11/scan44 depende de la dominancia local y es menos estable entre semanas.",
+      "estado": "fuerte",
+      "documentos_relacionados": ["14_analisis_scan11.md", "26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md"]
+    },
+    {
+      "id": "scan44",
+      "nombre": "scan44",
+      "familia_conductual": "vertical_scan",
+      "categoria_automatizacion": "Red coordinada + servicios destino (Distributed Vertical Scan)",
+      "descripcion": "Escaneo vertical TCP SYN distribuido: varios orígenes coordinados barren puertos de varios destinos.",
+      "patron_tecnico": "muchos->muchos, TCP SYN, sincronización temporal entre orígenes, flujos atómicos de baja entropía.",
+      "senales_v3": [
+        "verticalidad repartida entre varios orígenes",
+        "reparto entre orígenes (no domina uno solo)",
+        "sincronización temporal",
+        "baja entropía de bytes"
+      ],
+      "metricas": { "precision": 0.762, "recall": 0.796 },
+      "limitaciones": "A nivel de subtipo, parte de scan44 se etiqueta como scan11 cuando un origen domina el contexto local.",
+      "estado": "fuerte",
+      "documentos_relacionados": ["15_analisis_scan44.md", "26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md"]
+    },
+    {
+      "id": "anomaly-udpscan",
+      "nombre": "anomaly-udpscan",
+      "familia_conductual": "udp_scan",
+      "categoria_automatizacion": "Espacio de destino/red (UDP Low-Entropy Scan)",
+      "descripcion": "Escaneo UDP desde un origen estable hacia múltiples IPs y puertos destino, con flujos atómicos de baja entropía.",
+      "patron_tecnico": "1->muchos, UDP, 1 paquete, duración 0, puertos destino dispersos/secuenciales, baja varianza de bytes; se descarta el tráfico DNS.",
+      "senales_v3": [
+        "origen estable con dispersión a muchas IPs destino",
+        "muchos puertos destino (barrido)",
+        "1 paquete por flujo, duración ~0",
+        "baja varianza de bytes; exclusión de DNS (puerto 53)"
+      ],
+      "metricas": { "precision": 0.938, "recall": 1.000 },
+      "limitaciones": "No aparece en august.week2 ni april.week2: su generalización externa no se ha podido evaluar (trabajo futuro).",
+      "estado": "fuerte",
+      "documentos_relacionados": ["08_analisis_udp_scan.md", "26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md"]
+    },
+    {
+      "id": "dos",
+      "nombre": "dos",
+      "familia_conductual": "tcp_flood",
+      "categoria_automatizacion": "Origen y concentración hacia servicio (Distributed TCP Flood)",
+      "descripcion": "Inundación TCP dirigida a un servicio concreto, con muchos flujos rápidos y puerto destino fijo.",
+      "patron_tecnico": "Concentración hacia dst_ip:puerto fijo, baja diversidad de puertos destino, duración ~0, puertos origen secuenciales o ráfaga densa.",
+      "senales_v3": [
+        "concentración de volumen hacia un puerto destino fijo",
+        "baja diversidad de puertos destino del par",
+        "secuencialidad de puerto origen o ráfaga temporal",
+        "baja varianza de bytes"
+      ],
+      "metricas": { "precision": 0.554, "recall": 0.488 },
+      "limitaciones": "Se confunde parcialmente con el barrido vertical distribuido (frontera concentración vs dispersión de puerto).",
+      "estado": "parcial",
+      "documentos_relacionados": ["07_analisis_dos.md", "26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md"]
+    },
+    {
+      "id": "nerisbotnet",
+      "nombre": "nerisbotnet",
+      "familia_conductual": "coordinated_botnet",
+      "categoria_automatizacion": "Red distribuida / C2 (Botnet multivector)",
+      "descripcion": "Actividad coordinada de un clúster de nodos con métricas homogéneas y posible comunicación C2.",
+      "patron_tecnico": "Coordinación multinodo en buckets temporales: varios src_ip con métricas idénticas (bytes/paquetes/puerto) en el mismo instante; puertos C2 (25/6667/2077) suman confianza.",
+      "senales_v3": [
+        "clúster de varios orígenes con métricas idénticas en el mismo bucket temporal",
+        "homogeneidad de bytes/paquetes/duración",
+        "puertos C2 conocidos como evidencia adicional (no como única regla)"
+      ],
+      "metricas": { "precision": 0.269, "recall": 0.044 },
+      "limitaciones": "La señal reside en la correlación entre nodos; la variante de un solo origen no es detectable como coordinación. Alta precisión solo en el subconjunto C2.",
+      "estado": "parcial",
+      "documentos_relacionados": ["09_analisis_nerisbotnet.md", "26_validacion_clasificador_contextual_v3.md", "30_experimento_mejora_familias_debiles_v4.md"]
+    },
+    {
+      "id": "anomaly-sshscan",
+      "nombre": "anomaly-sshscan",
+      "familia_conductual": "ssh_horizontal_scan",
+      "categoria_automatizacion": "Selección de IPs destino (Low-and-Slow SSH Horizontal Scan)",
+      "descripcion": "Sondeo horizontal de baja intensidad desde un origen hacia múltiples destinos en el puerto 22.",
+      "patron_tecnico": "1->muchos hacia puerto 22, flujos atómicos incompletos (1 paquete, RST/control), sin sesiones SSH completas; patrón low-and-slow.",
+      "senales_v3": [
+        "persistencia por src_ip hacia el puerto 22",
+        "múltiples destinos distintos",
+        "alto ratio de flujos incompletos y ausencia de sesiones completas"
+      ],
+      "metricas": {
+        "v3_estandar": { "precision": 0.0, "recall": 0.0 },
+        "v5_integrated_april_week2": { "precision": 0.999, "recall": 0.907, "f1": 0.951 }
+      },
+      "limitaciones": "Low-and-slow: indetectable con contexto local (v3). El tercer pase global por fan-out de la v5 lo detecta cuando el escaneo procede de un origen con fan-out alto al puerto 22 (april.week2, F1 0,951); no probado en sshscan distribuido de bajo fan-out, y en semanas sin sshscan etiquetado puede marcar escáneres SSH de fondo no etiquetados.",
+      "estado": "detectable con contexto largo (v5)",
+      "documentos_relacionados": ["16_analisis_anomaly_sshscan.md", "26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md", "32_experimento_contexto_largo_sshscan_spam_april.md", "33_validacion_clasificador_contextual_v5_integrated.md"]
+    },
+    {
+      "id": "anomaly-spam",
+      "nombre": "anomaly-spam",
+      "familia_conductual": "smtp_campaign",
+      "categoria_automatizacion": "Campaña SMTP de baja evidencia (SMTP Spam Burst)",
+      "descripcion": "Campaña de spam de bajo volumen sobre el puerto 25, con métricas de paquetes/bytes repetitivas.",
+      "patron_tecnico": "TCP hacia puerto 25, fan-out a múltiples destinos, repetición de métricas, baja varianza; sin firmas de bytes exactos.",
+      "senales_v3": [
+        "tráfico TCP hacia el puerto 25",
+        "fan-out hacia múltiples destinos",
+        "repetición de métricas y baja varianza de bytes"
+      ],
+      "metricas": { "precision": 0.0, "recall": 0.0 },
+      "limitaciones": "Casi indistinguible del SMTP legítimo con solo metadatos de flujo. No se detecta ni siquiera con spam abundante (week2: 36,8 M de trazas). Caso exploratorio.",
+      "estado": "exploratorio",
+      "documentos_relacionados": ["26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md", "30_experimento_mejora_familias_debiles_v4.md"]
+    }
+  ]
+}
