@@ -11,7 +11,31 @@ Se comparan cuatro componentes:
 - detector por ventana,
 - clasificador contextual v1,
 - clasificador contextual v2,
-- clasificador contextual v3.
+- clasificador contextual v3,
+- candidata integrada **v5** (v3 + tercer pase global SSH).
+
+> ## ✅ Decisión vigente (actualizada)
+>
+> **Versión principal recomendada: `v5 integrated`** (`detect_attack_flows_contextual_v5_integrated.py`).
+> **`v3` queda como versión base estable / conservadora.**
+>
+> **Evolución de la decisión.** Las secciones siguientes (3–9) recogen el razonamiento original,
+> que adoptaba la **v3** como principal y trataba la v5 como candidata pendiente. Tras la
+> validación completa (documento 33), se **actualiza** la decisión: la v5 **mantiene
+> prácticamente intacto** el rendimiento de la v3 en week1 y august.week2 (mismo recall binario
+> 0,991 en week1; núcleo scan/dos/udp/vertical idéntico; recall excluyendo spam 0,993 en
+> august.week2) y **añade una detección fuerte de `anomaly-sshscan`** en april.week2
+> (precisión 0,999 / recall 0,907 / F1 0,951). Por tanto, la v5 no se interpreta como
+> sobreajuste a april.week2, sino como una **ampliación conductual** de la v3 mediante un tercer
+> pase global por origen.
+>
+> **Matiz mantenido.** En week1 la v5 añade ~8.337 falsos positivos de SSH y en august.week2
+> relabela ~6.401, todos sobre trazas etiquetadas como `background` pero con comportamiento
+> compatible con **escaneo horizontal SSH** (orígenes con ≥50 destinos distintos al puerto 22).
+> Se documentan como **posible tráfico anómalo no etiquetado**, no como errores claros: la
+> precisión binaria en week1 baja levemente (0,930 → 0,926) y en august.week2 es equivalente.
+> La **v3 se conserva** como versión base estable para usos donde se priorice la máxima
+> precisión frente a la etiqueta oficial.
 
 ---
 
@@ -151,3 +175,16 @@ y la v1 como paso experimental intermedio.
 > separar `nerisbotnet` en alta/baja confianza (precisión 0,757 en el subconjunto de alta
 > confianza, sin ganar recall). La **v3 sigue siendo el clasificador principal**; la v4 queda
 > como variante experimental y posible trabajo futuro.
+>
+> **Nota (candidata v5 integrada, documento 33).** Se evaluó una versión candidata `v5`
+> (v3 + un tercer pase global por origen para `ssh_horizontal_scan` por fan-out). Mejora de forma
+> rotunda el sshscan en april.week2 (F1 0,951; recall 0 → 0,907) **manteniendo el núcleo de la v3
+> idéntico**, pero **introduce falsos positivos de SSH en week1 y august.week2** (escáneres SSH
+> de fondo no etiquetados), bajando levemente la precisión binaria en week1 (0,930 → 0,926). Por
+> ello, en el momento de esta nota, se conservaba como candidata pendiente de refinar el umbral
+> de fan-out y de una evaluación consciente de la etiqueta.
+>
+> **Actualización**: tras revisar estos resultados se ha decidido **adoptar la v5 como versión
+> principal recomendada** (ver "Decisión vigente" al inicio del documento), interpretando esos
+> FP de SSH como posible tráfico anómalo no etiquetado y manteniendo los matices. La **v3 pasa a
+> ser la versión base estable**.

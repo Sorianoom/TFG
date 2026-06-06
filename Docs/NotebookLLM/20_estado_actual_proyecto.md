@@ -24,6 +24,9 @@
 - Selección de v3 como versión principal del clasificador contextual por traza.
 - Experimento v4 (variante experimental) para mejorar familias débiles; no sustituye a la v3.
 - Evaluación de generalización de la v3 sobre datos nuevos (`august.week2`).
+- Auditoría de etiquetas de los datasets disponibles (caso anomaly-udpscan).
+- Experimento de contexto largo para sshscan en april.week2 (mejora a F1 0,951; experimental).
+- Versión integrada v5 (v3 + tercer pase global SSH): validada y **adoptada como versión principal recomendada**; la v3 queda como versión base estable.
 - Actualización de documentación técnica.
 - Actualización del README.
 - Actualización del borrador de memoria.
@@ -64,7 +67,14 @@
 | anomaly-sshscan | Validación limitada |
 | anomaly-spam | Caso exploratorio |
 
-### Clasificador contextual por traza (v3, versión principal)
+### Clasificador contextual por traza
+
+> **Versión final recomendada: `v5 integrated`** (v3 + tercer pase global SSH por fan-out).
+> **`v3` = versión base estable / conservadora.** La v5 mantiene el rendimiento de la v3 en
+> week1 y august.week2 y añade detección fuerte de `anomaly-sshscan` en april.week2
+> (precisión 0,999 / recall 0,907 / F1 0,951). Detalle y matices en el documento 33.
+
+Métricas de la base v3 (que la v5 conserva):
 
 - La v3 mantiene un recall binario de ataque de **0,991**.
 - La v3 obtiene una precisión binaria de ataque de **0,930**.

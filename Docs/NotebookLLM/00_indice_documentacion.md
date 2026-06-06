@@ -73,8 +73,10 @@ Estos documentos corresponden a la fase de clasificación de **trazas concretas*
 | `27_recomendacion_version_clasificador.md` | Comparación de versiones y elección de v3 como clasificador principal |
 | `28_evaluacion_generalizacion_v3.md` | Evaluación de generalización temporal de la v3 sobre datos nuevos (`august.week2` y `april.week2`) |
 | `30_experimento_mejora_familias_debiles_v4.md` | Experimento v4 (variante experimental) para familias débiles; **no sustituye a la v3** |
+| `32_experimento_contexto_largo_sshscan_spam_april.md` | Experimento de contexto largo para sshscan/spam en april.week2 (mejora sshscan a F1 0,951; experimental) |
+| `33_validacion_clasificador_contextual_v5_integrated.md` | Validación de la **v5 integrated** (v3 + pase SSH fan-out): **versión principal recomendada**; v3 = versión base estable |
 
-(El número 25 no se utiliza. El documento 29 recoge la comparación con ML clásico, fuera de esta fase.)
+(El número 25 no se utiliza. El documento 29 recoge la comparación con ML clásico; el 31 no se utiliza.)
 
 ---
 
