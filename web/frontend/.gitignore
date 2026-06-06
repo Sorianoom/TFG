@@ -1,0 +1,9 @@
+# Dependencias y build del frontend (no versionar)
+node_modules/
+dist/
+.vite/
+
+# Entorno local
+.env
+.env.local
+*.local
