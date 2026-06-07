@@ -20,6 +20,8 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 import config  # carga web/backend/.env si existe (sin dependencias externas)
@@ -39,6 +41,12 @@ BASE_CLASSIFIER = "v3"
 # Ruta a web/data/ resuelta respecto a ESTE archivo (no al directorio de trabajo),
 # de modo que funcione tanto desde la raíz del proyecto como desde web/backend.
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+
+# Frontend compilado por Vite (web/frontend/dist). Se sirve en "/" si existe.
+DIST_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+INDEX_FILE = DIST_DIR / "index.html"
+ASSETS_DIR = DIST_DIR / "assets"
+NOT_BUILT_MSG = "Frontend no compilado. Ejecuta: cd web/frontend && npm run build"
 
 # Orígenes permitidos para el frontend de desarrollo (Vite).
 ALLOWED_ORIGINS = [
@@ -114,9 +122,9 @@ def load_json(filename: str):
 # Endpoints
 # ---------------------------------------------------------------------------
 
-@app.get("/")
-def index():
-    """Índice de endpoints disponibles."""
+@app.get("/api")
+def api_index():
+    """Índice de endpoints disponibles (antes en '/'; ahora '/' sirve la web React)."""
     return {
         "project": PROJECT_NAME,
         "api_version": API_VERSION,
@@ -346,3 +354,38 @@ def classifier_run(req: ClassifierRunRequest):
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
     return result
+
+
+# ---------------------------------------------------------------------------
+# Frontend compilado (Vite). Debe ir AL FINAL: las rutas /api/* de arriba tienen
+# prioridad; el resto se sirve desde web/frontend/dist.
+# ---------------------------------------------------------------------------
+
+# Assets con cabeceras de estático (hash en el nombre -> cacheables).
+if ASSETS_DIR.is_dir():
+    app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
+
+
+@app.get("/")
+def serve_root():
+    """Sirve la web React compilada; si no está compilada, un mensaje claro."""
+    if INDEX_FILE.is_file():
+        return FileResponse(str(INDEX_FILE))
+    return PlainTextResponse(NOT_BUILT_MSG, status_code=200)
+
+
+@app.get("/{full_path:path}")
+def spa_fallback(full_path: str):
+    """Sirve archivos del build (favicon, etc.) y hace fallback a index.html.
+
+    No interfiere con la API: cualquier ruta que empiece por 'api' devuelve 404
+    (las rutas /api/* reales ya se han resuelto antes que este catch-all).
+    """
+    if full_path == "api" or full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not found")
+    if not INDEX_FILE.is_file():
+        return PlainTextResponse(NOT_BUILT_MSG, status_code=200)
+    candidate = (DIST_DIR / full_path).resolve()
+    if candidate.is_file() and DIST_DIR.resolve() in candidate.parents:
+        return FileResponse(str(candidate))
+    return FileResponse(str(INDEX_FILE))
