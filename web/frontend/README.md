@@ -1,11 +1,13 @@
-# frontend/ — React + Vite (Fase 5, web pública, modo IA OFF)
+# frontend/ — React + Vite (web pública, modo IA OFF/ON)
 
 Web pública, simple e interactiva del TFG: detección explicativa de anomalías NetFlow (UGR'16) con
-LLMs + clasificador contextual v5. **Modo IA OFF**: consume el backend FastAPI (datos locales de
-`web/data/attacks.json`); no integra ningún LLM todavía.
+LLMs + clasificador contextual v5. Consume el backend FastAPI.
 
 - Versión principal: **v5 integrated** · base estable: **v3**.
 - Sin librerías de routing: navegación interna por **hash** (`#/attacks/<id>`), sin dependencias extra.
+- **Interruptor IA global** (arriba, en todas las páginas): **OFF** (plantillas locales y respuestas
+  básicas) / **ON** (NotebookLM por cuaderno de ataque). El estado se guarda en `localStorage`
+  (`aiMode.js`). Si IA ON no está disponible, se muestra un aviso y todo cae a IA OFF.
 
 ## Estructura de la web
 
@@ -20,6 +22,11 @@ LLMs + clasificador contextual v5. **Modo IA OFF**: consume el backend FastAPI (
   semana en que se mide), *Versiones del clasificador* (timeline v1→v5) y una caja mini *IA explicativa
   — próximamente*. La sección explica que un único F1 macro de la v5 no sería justo porque sus familias
   se validan en escenarios distintos (núcleo en august.week1, SSH Scan en april.week2).
+- **Probar el clasificador v5** (`components/ClassifierRunner.jsx`): opción principal de la home.
+  Sube una ventana CSV pequeña (≤5 MB), valida columnas y la clasifica traza a traza mostrando
+  resumen (filas, ataque/normal, ataque dominante, confianza media, acierto) y una tabla por traza.
+  Distingue **confianza** (certeza de la regla) de **acierto** (solo si el CSV trae etiqueta real).
+  Consume `GET /api/classifier/expected-columns` y `POST /api/classifier/run`.
 
 ### Página de ataque (`#/attacks/<id>`)
 
@@ -30,6 +37,19 @@ entre paréntesis): botón volver, título + familia, estado, descripción, **di
 *Proceso de detección* (pasos numerados), *Regla simplificada* (pseudocódigo ilustrativo), *Qué no usa*
 (chips), *Cómo se ve en NetFlow*, *Métricas* (con su significado), *Contexto de validación*,
 *Limitaciones*, *Para explicarlo al tribunal* y *Documentos relacionados*.
+
+Además, cada página de ataque incluye:
+
+- **Simulación del patrón** (`components/AttackSimulator.jsx`): botón *Generar ventana sintética*,
+  selector de trazas de ataque (20/50/100) y tabla que distingue visualmente las 5 trazas normales
+  antes, el ataque y las 5 normales después; con explicación, señales y descarga CSV. Usa el modo IA
+  global: OFF → plantilla local; ON → cuaderno NotebookLM del ataque (con fallback a OFF si falla).
+Además, en las páginas de ataque aparece un **chat flotante contextual**
+(`components/FloatingAttackChat.jsx`, renderizado desde `App.jsx`): botón "💬 Preguntar" fijo abajo a
+la derecha que abre un panel pequeño. Usa el ataque de la ruta actual como contexto. En IA OFF
+responde con la explicación local del ataque (de `TECH`) e invita a activar IA ON; en IA ON consulta
+`POST /api/notebooklm/chat` con el `attack_id` actual. Si IA ON no está disponible para ese ataque,
+muestra un aviso y sigue funcionando. Mantiene un historial mínimo de preguntas/respuestas.
 
 Los textos didácticos por ataque viven en `attackMeta.js` (`TECH`, `NOT_USED_COMMON`); los datos duros
 (métricas, patrón, limitaciones, documentos) siguen viniendo de `web/data/attacks.json` vía backend.
@@ -60,21 +80,27 @@ Abrir `http://localhost:5173`. La URL del backend se configura en `src/config.js
 ```text
 web/frontend/src/
 ├── main.jsx              # entrada React
-├── App.jsx               # fetch de datos + router por hash (Home / AttackDetail)
+├── App.jsx               # barra global + fetch de datos + router por hash (Home / AttackDetail)
 ├── config.js             # URL base del backend
+├── aiMode.js             # estado global del modo IA (localStorage) + hook useAiMode()
 ├── useHashRoute.js       # hook de routing por hash, navigate(), parseAttackId()
 ├── format.js             # fmt(), metricRows(), mainMetric()
 ├── attackMeta.js         # metadatos de presentación (orden, posiciones, textos, pases, versiones)
 ├── styles.css            # tema oscuro, hero, burbujas flotantes, detalle, responsive
 └── components/
-    ├── Home.jsx          # hero + secciones compactas
+    ├── Home.jsx          # hero + clasificador + secciones compactas
     ├── FloatingAttacks.jsx  # zona central flotante con parallax
-    ├── AttackDetail.jsx  # página de detalle de un ataque
-    └── AttackDiagram.jsx # diagrama SVG del patrón por ataque
+    ├── AttackDetail.jsx  # página de detalle de un ataque (+ simulación)
+    ├── AttackDiagram.jsx # diagrama SVG del patrón por ataque
+    ├── AttackSimulator.jsx  # simulación por ventana (5 normal + N ataque + 5 normal)
+    ├── FloatingAttackChat.jsx # chat flotante contextual (NotebookLM en IA ON)
+    ├── ClassifierRunner.jsx # subida de CSV y ejecución del clasificador v5
+    └── AiToggle.jsx      # interruptor IA global (OFF/ON)
 ```
 
 ## Nota
 
-Si el backend no está disponible, la web muestra un aviso claro. No se integran LLMs reales en esta
-fase (modo IA OFF). El modo defensa y las tablas extensas de fases anteriores se han retirado de la
+Si el backend no está disponible, la web muestra un aviso claro. El modo IA ON usa NotebookLM solo
+si está configurado (ver backend); por defecto funciona en IA OFF. El modo defensa y las tablas
+extensas de fases anteriores se han retirado de la
 portada para mantenerla limpia.

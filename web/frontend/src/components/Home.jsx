@@ -1,4 +1,5 @@
 import FloatingAttacks from "./FloatingAttacks";
+import ClassifierRunner from "./ClassifierRunner";
 import { PASSES, VERSIONS, INTERP, ML_COMPARISON, V5_FAMILY, V5_BINARY, estadoMeta } from "../attackMeta";
 import { mainMetric, fmt } from "../format";
 import { navigate } from "../useHashRoute";
@@ -20,6 +21,9 @@ export default function Home({ attacks }) {
       </section>
 
       <div className="home-sections" id="detalles">
+        {/* Probar el clasificador v5 (subida de CSV) */}
+        <ClassifierRunner />
+
         {/* Cómo funciona el clasificador v5 */}
         <section className="csec">
           <h2 className="csec-title">Cómo funciona el clasificador v5</h2>

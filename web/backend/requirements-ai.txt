@@ -1,0 +1,5 @@
+# Dependencias OPCIONALES del modo IA ON (NotebookLM).
+# La web funciona sin esto en modo IA OFF (plantillas locales).
+# Instálalo solo si vas a usar NotebookLM:
+#     pip install -r requirements-ai.txt
+notebooklm-py

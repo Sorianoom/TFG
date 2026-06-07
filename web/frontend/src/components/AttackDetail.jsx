@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import AttackDiagram from "./AttackDiagram";
+import AttackSimulator from "./AttackSimulator";
 import { estadoMeta, TECH, NOT_USED_COMMON } from "../attackMeta";
 import { navigate } from "../useHashRoute";
 import { fmt, metricRows } from "../format";
@@ -159,6 +160,8 @@ export default function AttackDetail({ attack }) {
             <p>{tech.defense_explanation}</p>
           </section>
         )}
+
+        <AttackSimulator attack={attack} />
 
         <section className="detail-block">
           <h2>Documentos relacionados</h2>

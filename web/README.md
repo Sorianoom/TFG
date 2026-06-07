@@ -1,71 +1,52 @@
-# Web interactiva del TFG
+# web/ — Web interactiva del TFG
 
-Visualización del sistema de **detección explicativa de ataques NetFlow (UGR'16)** basado en
-**LLMs + clasificador contextual v3**.
-
-## Objetivo
-
-Ofrecer una interfaz sencilla para explorar, de forma interpretable:
-
-- el modelo de comportamiento por familia de ataque,
-- las señales conductuales que usa el clasificador contextual **v3**,
-- las métricas reales (detección binaria, por familia y subtipo),
-- el estado de cada familia (fuerte / parcial / exploratorio),
-- el resumen del proyecto (metodología, generalización, limitaciones).
-
-La web **no ejecuta el clasificador ni usa los CSV grandes**: trabaja con **JSON pequeños**
-generados a partir de la documentación y los *summaries* del proyecto.
-
-## Arquitectura propuesta
+Web pública y explicativa de la detección de anomalías NetFlow (UGR'16) con LLMs + clasificador
+contextual **v5** (base estable: v3). Pensada para profesores/tribunal: lenguaje claro, jerga
+explicada.
 
 ```text
 web/
-├── frontend/   # React + Vite (UI; pendiente)
-├── backend/    # FastAPI (sirve los JSON y, en el futuro, el modo IA ON; pendiente)
-├── data/       # JSON locales (attacks.json, project_summary.json)  [LISTO]
-├── services/   # Lógica de servicios (carga de datos, futura integración NotebookLM; pendiente)
-└── README.md
+├── backend/   # API FastAPI (datos, simulador, chat NotebookLM, clasificador v5)
+├── frontend/  # React + Vite (portada con ataques flotantes, páginas por ataque)
+└── data/      # JSON pequeños del proyecto (resumen, fichas por ataque)
 ```
 
-- **Frontend**: React + Vite, estilo simple y moderno (oscuro si es sencillo).
-- **Backend**: FastAPI, expone los JSON locales mediante una API mínima.
-- **Datos**: JSON local en `web/data/` (sin datos pesados).
+## Arranque rápido
 
-## Modos de funcionamiento
-
-- **IA OFF (primera fase, en curso)**: la web funciona con **datos locales** (los JSON de
-  `web/data/`). No requiere conexión ni LLM. Es el modo por defecto.
-- **IA ON / NotebookLM (preparado, NO integrado)**: en el futuro permitirá consultar
-  explicaciones generadas por el LLM. Se deja la estructura (`services/`) preparada, pero **no
-  se integra todavía**.
-
-## Fases
-
-1. **Fase 1 (actual)**: estructura base + JSON iniciales (`attacks.json`, `project_summary.json`).
-2. **Fase 2**: backend FastAPI mínimo que sirva los JSON (`/api/attacks`, `/api/summary`).
-3. **Fase 3**: frontend React + Vite que consuma la API y muestre fichas por ataque y resumen.
-4. **Fase 4**: pulido de UI (tema oscuro, navegación, enlaces a documentos).
-5. **Fase 5 (futuro)**: modo IA ON con NotebookLM (sin integrar aún).
-
-## Cómo se ejecutará (futuro)
-
-```text
-# Backend (cuando exista)
-cd web/backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-
-# Frontend (cuando exista)
-cd web/frontend
-npm install
-npm run dev
+```bash
+# 1) Backend
+cd web/backend && pip install -r requirements.txt && uvicorn main:app --reload
+# 2) Frontend (otra terminal)
+cd web/frontend && npm install && npm run dev   # http://localhost:5173
 ```
 
-De momento **no se instalan dependencias** ni se levanta nada: solo existe la estructura y los
-datos locales.
+## Modos IA (OFF / ON)
 
-## Fuente de datos
+Interruptor global arriba de la web (se guarda en el navegador):
 
-Los JSON de `web/data/` se han generado a partir de la documentación del proyecto
-(`Docs/NotebookLLM/`) y de los *summaries* (`data/**/summaries`). Las métricas son las reales
-de la validación del clasificador **v3** (documentos 26, 27, 28).
+- **IA OFF** (por defecto, siempre funciona): el simulador usa plantillas locales y el chat da
+  respuestas locales básicas. No depende de NotebookLM.
+- **IA ON**: el simulador y el chat de cada ataque usan **su propio cuaderno de NotebookLM**. Si un
+  ataque no tiene cuaderno o NotebookLM no está disponible, esa función avisa y se vuelve a IA OFF.
+
+NotebookLM se configura **por ataque** con variables de entorno en `web/backend/.env` (no se
+versiona; ver `web/backend/.env.example`). Nunca se guardan credenciales en el repositorio.
+
+## Qué se puede hacer
+
+- **Explorar ataques**: portada con los 7 ataques flotantes; cada uno abre su página con explicación,
+  diagrama, señales, regla simplificada, métricas y limitaciones.
+- **Simular un ataque**: genera una ventana sintética (5 trazas normales + N de ataque + 5 normales)
+  y descárgala en CSV. Son datos sintéticos para enseñar el patrón; la validación real se hizo con
+  UGR'16.
+- **Preguntar por ataque**: chat conectado al cuaderno NotebookLM del ataque (en IA ON).
+- **Probar el clasificador v5**: sube una ventana CSV pequeña (≤5 MB) y obtén la predicción por
+  traza. Si el CSV incluye la etiqueta real, se calcula el **acierto**; si no, solo se muestra la
+  **confianza** del detector.
+
+> El clasificador de la web es un **wrapper seguro basado en la lógica v5** para ventanas pequeñas
+> (reutiliza la v3 real sin modificarla + el override SSH de la v5). La validación científica
+> completa está en `scripts/02_attack_analysis/`.
+
+Detalles de endpoints y configuración: `web/backend/README.md`. Detalles de la interfaz:
+`web/frontend/README.md`.
