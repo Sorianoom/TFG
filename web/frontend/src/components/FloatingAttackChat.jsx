@@ -64,7 +64,7 @@ export default function FloatingAttackChat({ attack, aiStatus }) {
         pushBot(data.answer, "notebooklm");
       }
     } catch {
-      pushBot(`No se pudo conectar con el backend (${API_BASE}).`, "aviso");
+      pushBot("No se ha podido consultar NotebookLM. Puedes seguir usando IA OFF.", "aviso");
     } finally {
       setLoading(false);
     }
@@ -95,9 +95,9 @@ export default function FloatingAttackChat({ attack, aiStatus }) {
           <p className="fchat-hint">
             {mode === "on"
               ? (attackIaReady
-                  ? "Pregunta lo que quieras: consultaré el cuaderno NotebookLM de este ataque."
-                  : "IA ON activo pero este ataque no tiene cuaderno; responderé con la explicación local.")
-              : "Modo IA OFF: respondo con la explicación local del ataque."}
+                  ? "Modo IA ON: consultaré el cuaderno de NotebookLM de este ataque. Puede tardar unos segundos."
+                  : "IA ON activo, pero este ataque aún no tiene cuaderno; responderé con el conocimiento local de la web.")
+              : "Modo IA OFF: respondo con el conocimiento local de la web (sin consultar NotebookLM)."}
           </p>
         )}
         {history.map((m, i) => (
@@ -110,7 +110,7 @@ export default function FloatingAttackChat({ attack, aiStatus }) {
             <p>{m.text}</p>
           </div>
         ))}
-        {loading && <div className="fchat-msg bot"><p className="fchat-loading">Consultando NotebookLM…</p></div>}
+        {loading && <div className="fchat-msg bot"><p className="fchat-loading">Consultando el cuaderno de NotebookLM. Esto puede tardar unos segundos…</p></div>}
       </div>
 
       <div className="fchat-bar">

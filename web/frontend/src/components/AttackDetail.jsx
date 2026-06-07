@@ -93,11 +93,13 @@ export default function AttackDetail({ attack }) {
         </section>
 
         <section className="detail-block">
-          <h2>Cómo se ve en NetFlow</h2>
+          <h2>¿Cómo se ve en una tabla NetFlow?</h2>
           <p>{attack.patron_tecnico}</p>
           <p className="muted small">
-            NetFlow son los metadatos de cada conexión de red (quién habla con quién, por qué puerto,
-            cuántos paquetes y bytes), sin el contenido del mensaje.
+            NetFlow es el resumen de cada conexión de red (quién habla con quién, por qué puerto,
+            cuántos paquetes y bytes), <strong>sin el contenido del mensaje</strong>. Cada fila de la
+            tabla es una conexión. Puedes ver una tabla de ejemplo de este patrón en
+            “Simulación del patrón”, más abajo.
           </p>
         </section>
 
@@ -161,14 +163,24 @@ export default function AttackDetail({ attack }) {
           </section>
         )}
 
-        <AttackSimulator attack={attack} />
-
         <section className="detail-block">
-          <h2>Documentos relacionados</h2>
-          <ul className="docs">
-            {(attack.documentos_relacionados || []).map((d, i) => <li key={i}><code>{d}</code></li>)}
+          <h2>¿Qué papel tiene NotebookLM en este ataque?</h2>
+          <p>
+            Este ataque tiene <strong>su propio cuaderno de NotebookLM</strong>: un modelo de lenguaje al
+            que se le ha dado la documentación y los resúmenes de <strong>{attack.nombre}</strong>. Cuando
+            activas el <strong>modo IA ON</strong>:
+          </p>
+          <ul>
+            <li>El <strong>chat</strong> (abajo a la derecha) responde tus preguntas consultando ese cuaderno.</li>
+            <li>El <strong>simulador</strong> le pide a ese cuaderno el patrón y unos rangos realistas; el backend genera las filas manteniendo la forma del ataque.</li>
           </ul>
+          <p className="muted small">
+            NotebookLM <strong>no decide la detección</strong> ni inventa datos libremente: aporta
+            interpretación y contexto. Quien detecta son las reglas explicables del clasificador v5.
+          </p>
         </section>
+
+        <AttackSimulator attack={attack} />
       </div>
     </div>
   );

@@ -10,9 +10,10 @@ export default function Home({ attacks }) {
       <section className="hero">
         <h1 className="hero-title">Detección explicativa de anomalías NetFlow con LLMs</h1>
         <p className="hero-sub">
-          Un sistema interactivo para explorar cómo los LLMs ayudan a interpretar tráfico UGR'16,
-          formalizar patrones conductuales y construir un clasificador contextual v5 basado en reglas
-          explicables.
+          Una web para entender cómo se detectan ataques en el tráfico de una red real (dataset
+          UGR'16). Los modelos de lenguaje (LLMs) ayudan a interpretar el tráfico y a formular reglas
+          claras; con ellas, el clasificador v5 explica <em>por qué</em> marca cada conexión como ataque
+          o como tráfico normal.
         </p>
 
         <FloatingAttacks attacks={attacks} />
@@ -21,6 +22,32 @@ export default function Home({ attacks }) {
       </section>
 
       <div className="home-sections" id="detalles">
+        {/* Qué puedes hacer aquí + glosario */}
+        <section className="csec intro-sec">
+          <div className="intro-box">
+            <h2 className="csec-title">Qué puedes hacer aquí</h2>
+            <ul className="intro-list">
+              <li><strong>Explorar cada ataque</strong> y ver, paso a paso, cómo lo detecta el sistema.</li>
+              <li><strong>Generar ventanas de ejemplo</strong> (con IA OFF o IA ON) para visualizar el patrón de cada ataque.</li>
+              <li><strong>Subir un CSV pequeño</strong> y ejecutar el clasificador v5 para que etiquete cada conexión.</li>
+            </ul>
+            <details className="glossary">
+              <summary>Glosario rápido (clic para abrir)</summary>
+              <dl>
+                <dt>NetFlow</dt><dd>Resumen de una comunicación de red (quién habla con quién, por qué puerto, cuántos bytes), sin el contenido del mensaje.</dd>
+                <dt>Puerto</dt><dd>Número que identifica el servicio usado en una conexión (p. ej. 22 = SSH, 25 = correo).</dd>
+                <dt>SSH (puerto 22)</dt><dd>Servicio para acceder y administrar máquinas de forma remota.</dd>
+                <dt>SMTP (puerto 25)</dt><dd>Servicio para enviar correo electrónico.</dd>
+                <dt>Fan-out</dt><dd>Un mismo origen que contacta con muchos destinos distintos.</dd>
+                <dt>Precisión</dt><dd>De todo lo que el sistema marca como ataque, qué parte acierta.</dd>
+                <dt>Recall</dt><dd>De los ataques que realmente hay, qué parte llega a detectar.</dd>
+                <dt>F1</dt><dd>Una sola nota que equilibra precisión y recall.</dd>
+                <dt>Confianza</dt><dd>Fuerza de la evidencia de las reglas (no es una probabilidad de Machine Learning).</dd>
+              </dl>
+            </details>
+          </div>
+        </section>
+
         {/* Probar el clasificador v5 (subida de CSV) */}
         <ClassifierRunner />
 
@@ -140,11 +167,30 @@ export default function Home({ attacks }) {
           </div>
         </section>
 
-        {/* IA mini */}
+        {/* Modo IA OFF / ON */}
         <section className="csec">
-          <div className="ia-mini">
-            <span className="ia-mini-pill">IA explicativa — próximamente</span>
-            <span className="muted">Integración con NotebookLM para consultas en lenguaje natural (aún no activa).</span>
+          <h2 className="csec-title">Modo IA: OFF y ON</h2>
+          <p className="csec-lead">
+            El interruptor de arriba a la derecha cambia cómo responde la web. Tu elección se recuerda en
+            el navegador.
+          </p>
+          <div className="ia-modes">
+            <div className="ia-mode-card">
+              <h3>IA OFF <span className="muted">· por defecto</span></h3>
+              <ul>
+                <li>Rápido y local.</li>
+                <li>No usa NotebookLM.</li>
+                <li>Responde con plantillas y textos propios de la web.</li>
+              </ul>
+            </div>
+            <div className="ia-mode-card on">
+              <h3>IA ON</h3>
+              <ul>
+                <li>Consulta los cuadernos de NotebookLM (uno por ataque).</li>
+                <li>Aporta el conocimiento acumulado en cada cuaderno.</li>
+                <li>Puede tardar unos segundos; si falla, se puede seguir en IA OFF.</li>
+              </ul>
+            </div>
           </div>
         </section>
       </div>

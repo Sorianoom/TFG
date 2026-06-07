@@ -201,8 +201,6 @@ body {
 .ssh-tag { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
 .ssh-card .muted { font-size: 0.8rem; }
 .note-ssh { margin-top: 12px !important; padding: 10px 12px; border-radius: 8px; background: var(--bg-3); border-left: 3px solid var(--v5); font-size: 0.84rem !important; }
-.docs { list-style: none; padding: 0 !important; }
-.docs code { font-size: 0.78rem; color: #b3c2d6; }
 code { background: rgba(110,118,129,0.16); padding: 1px 5px; border-radius: 4px; }
 
 /* ===== Footer ===== */
@@ -429,6 +427,30 @@ code { background: rgba(110,118,129,0.16); padding: 1px 5px; border-radius: 4px;
 .chat-answer p { margin: 6px 0 0; font-size: 0.9rem; white-space: pre-line; }
 .chat-src { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
 
+/* ===== Fase 9: cajas de ayuda y claridad ===== */
+.intro-box { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.intro-list { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+.glossary { margin-top: 14px; }
+.glossary > summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
+.glossary dl { margin: 10px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 5px 14px; font-size: 0.84rem; }
+.glossary dt { color: var(--text); font-weight: 600; }
+.glossary dd { margin: 0; color: var(--muted); }
+
+.help-box { margin: 12px 0; background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.help-box > summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
+.help-box p { font-size: 0.85rem; margin: 8px 0 0; }
+.help-box code { font-size: 0.78rem; }
+
+.ia-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ia-mode-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.ia-mode-card.on { border-color: var(--v5); }
+.ia-mode-card h3 { margin: 0 0 8px; font-size: 0.98rem; }
+.ia-mode-card ul { margin: 0; padding-left: 18px; font-size: 0.86rem; display: flex; flex-direction: column; gap: 5px; }
+
+.sim-howto { background: var(--bg-3); border-left: 3px solid var(--v5); padding: 9px 12px; border-radius: 6px; }
+.clf-right { color: #56d364; font-weight: 600; }
+.clf-wrong { color: #ff9a93; font-weight: 600; }
+
 /* ===== Chat flotante por ataque ===== */
 .fchat-launch {
   position: fixed; bottom: 18px; right: 18px; z-index: 60;
@@ -472,7 +494,9 @@ code { background: rgba(110,118,129,0.16); padding: 1px 5px; border-radius: 4px;
 
 /* ===== Responsive ===== */
 @media (max-width: 760px) {
-  .detail-grid, .ssh-metrics, .cmp-grid, .sim-cols { grid-template-columns: 1fr; }
+  .detail-grid, .ssh-metrics, .cmp-grid, .sim-cols, .ia-modes { grid-template-columns: 1fr; }
+  .glossary dl { grid-template-columns: 1fr; gap: 2px 0; }
+  .glossary dt { margin-top: 6px; }
   .fchat-panel { width: calc(100vw - 20px); right: 10px; bottom: 10px; max-height: 78vh; }
   .fchat-launch { right: 12px; bottom: 12px; }
   .hero { min-height: auto; padding-top: 3vh; }

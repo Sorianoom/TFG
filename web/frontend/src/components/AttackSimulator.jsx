@@ -61,8 +61,17 @@ export default function AttackSimulator({ attack }) {
     <section className="detail-block detail-wide sim-section">
       <h2>Simulación del patrón</h2>
       <p className="muted small">
-        Genera una ventana sintética con 5 trazas normales antes, el ataque en medio y 5 normales después.
-        Modo IA actual: <strong>{mode === "on" ? "ON (NotebookLM)" : "OFF (plantilla local)"}</strong>.
+        Crea una <strong>ventana de ejemplo</strong> (datos inventados, no tráfico real) con esta forma:
+        <strong> 5 conexiones normales antes</strong>, las <strong>trazas del ataque</strong> en medio y
+        <strong> 5 conexiones normales después</strong>. Así se ve el patrón del ataque rodeado de tráfico
+        corriente, como aparecería en una captura real.
+        Modo IA actual: <strong>{mode === "on" ? "ON (cuaderno NotebookLM del ataque)" : "OFF (plantilla local)"}</strong>.
+      </p>
+      <p className="sim-howto muted small">
+        <strong>IA OFF</strong> usa una plantilla local de la web. <strong>IA ON</strong> consulta el
+        cuaderno de NotebookLM de este ataque. En ambos casos:
+        <em> NotebookLM no genera libremente el CSV: propone el patrón y unos rangos aproximados, y el
+        backend genera las filas y comprueba que el ataque mantenga su forma correcta.</em>
       </p>
 
       <div className="sim-controls">

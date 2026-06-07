@@ -36,7 +36,8 @@ entre paréntesis): botón volver, título + familia, estado, descripción, **di
 *En palabras simples*, *Características que mira el detector* (señal · qué mide · por qué importa),
 *Proceso de detección* (pasos numerados), *Regla simplificada* (pseudocódigo ilustrativo), *Qué no usa*
 (chips), *Cómo se ve en NetFlow*, *Métricas* (con su significado), *Contexto de validación*,
-*Limitaciones*, *Para explicarlo al tribunal* y *Documentos relacionados*.
+*Limitaciones*, *Para explicarlo al tribunal* y *¿Qué papel tiene NotebookLM?*. (La sección de
+documentos relacionados se mostrará más adelante, cuando la memoria final esté cerrada.)
 
 Además, cada página de ataque incluye:
 

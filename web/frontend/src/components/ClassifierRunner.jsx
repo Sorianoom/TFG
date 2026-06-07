@@ -7,6 +7,13 @@ function fmtPct(x) {
   return x === null || x === undefined ? null : `${(x * 100).toFixed(1)} %`;
 }
 
+// Predicción legible (el backend usa los términos internos attack/background/...).
+const PRED_LABEL = {
+  attack: "ataque",
+  background: "normal",
+  insufficient_evidence: "evidencia insuficiente",
+};
+
 export default function ClassifierRunner() {
   const [expected, setExpected] = useState(null);
   const [file, setFile] = useState(null);
@@ -70,9 +77,9 @@ export default function ClassifierRunner() {
     <section className="csec" id="clasificador">
       <h2 className="csec-title">Probar el clasificador v5</h2>
       <p className="csec-lead">
-        Sube una <strong>ventana CSV pequeña</strong> (máximo 5 MB) y el clasificador la analiza traza a
-        traza, marcando cada flujo como ataque o tráfico normal y explicando por qué. Si el CSV incluye la
-        etiqueta real, también se calcula el acierto.
+        Sube una <strong>ventana CSV pequeña</strong> (máximo 5 MB). La web ejecuta una versión segura del
+        clasificador v5 para etiquetar cada traza (cada conexión de red) como <strong>ataque</strong> o
+        <strong> tráfico normal</strong>, y explica por qué lo marca así.
       </p>
 
       <div className="clf-bar">
@@ -85,12 +92,26 @@ export default function ClassifierRunner() {
         </button>
       </div>
 
-      {expected && (
-        <p className="muted small">
-          Columnas esperadas: <code>{expected.expected_columns.join(", ")}</code>. También acepta el
-          formato de UGR'16 (13 columnas, sin cabecera). Motor: {expected.engine}.
+      <details className="help-box">
+        <summary>¿Qué CSV necesito y cómo se leen los resultados?</summary>
+        <p>
+          <strong>Columnas esperadas:</strong> <code>timestamp, src_ip, dst_ip, protocol, src_port,
+          dst_port, packets, bytes, flags</code> y <code>label</code> (opcional). También se acepta el
+          formato original de UGR'16 (13 columnas, sin cabecera).
         </p>
-      )}
+        <p>
+          <strong>Acierto vs confianza.</strong> Si el CSV trae la columna de etiqueta real
+          (<code>label</code>, <code>true_label</code> o <code>etiqueta</code>), se calcula el
+          <strong> acierto</strong> comparando la predicción con esa etiqueta. Si <em>no</em> hay
+          etiqueta, no se puede calcular el acierto: en su lugar se muestra la <strong>confianza</strong>,
+          que es la fuerza de la evidencia de las reglas (no es una probabilidad de Machine Learning).
+        </p>
+        <p className="muted">
+          Cómo leer la confianza: <strong>alta (0,92)</strong> = evidencia fuerte ·
+          <strong> media (0,61)</strong> = evidencia moderada · <strong>baja (0,35)</strong> = señal débil.
+        </p>
+        {expected && <p className="muted small">Motor: {expected.engine}.</p>}
+      </details>
 
       {error && <div className="banner-error">{error.message}</div>}
 
@@ -110,11 +131,16 @@ export default function ClassifierRunner() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>#</th><th>Protocolo</th><th>Puerto destino</th>
-                  <th>Predicción</th><th>Familia</th><th>Subtipo</th><th>Confianza</th>
-                  {hasLabels && <th>Etiqueta real</th>}
-                  {hasLabels && <th>Correcto</th>}
-                  <th>Explicación</th>
+                  <th>#</th>
+                  <th title="Protocolo de red de la conexión (TCP o UDP)">Protocolo</th>
+                  <th title="Puerto del destino: identifica el servicio (22=SSH, 25=correo, 80/443=web)">Puerto destino</th>
+                  <th title="Qué decide el clasificador: ataque o tráfico normal">Predicción</th>
+                  <th title="Tipo de comportamiento detectado">Familia</th>
+                  <th title="Nombre concreto del ataque dentro de la familia">Subtipo</th>
+                  <th title="Fuerza de la evidencia de las reglas (no es probabilidad de ML)">Confianza</th>
+                  {hasLabels && <th title="Etiqueta real incluida en el CSV">Etiqueta real</th>}
+                  {hasLabels && <th title="¿La predicción coincide con la etiqueta real?">Correcto</th>}
+                  <th title="Motivo por el que el clasificador decide esa etiqueta">Explicación</th>
                 </tr>
               </thead>
               <tbody>
@@ -123,12 +149,12 @@ export default function ClassifierRunner() {
                     <td>{r.row}</td>
                     <td>{r.protocol || "—"}</td>
                     <td>{r.dst_port}</td>
-                    <td>{r.prediction}</td>
+                    <td><strong>{PRED_LABEL[r.prediction] || r.prediction}</strong></td>
                     <td>{r.family || "—"}</td>
                     <td>{r.subtype || "—"}</td>
                     <td>{r.confidence} <span className="muted">({r.confidence_score})</span></td>
                     {hasLabels && <td>{r.true_label || "—"}</td>}
-                    {hasLabels && <td>{r.correct === null ? "—" : r.correct ? "✓" : "✗"}</td>}
+                    {hasLabels && <td className={r.correct === false ? "clf-wrong" : r.correct ? "clf-right" : ""}>{r.correct === null ? "—" : r.correct ? "✓" : "✗"}</td>}
                     <td className="explanation-cell">{r.explanation || "Sin explicación disponible"}</td>
                   </tr>
                 ))}
