@@ -1,0 +1,84 @@
+\chapter{Estado del arte}
+\label{cap:estado_arte}
+
+Este capítulo revisa los enfoques existentes relacionados con el trabajo y sirve para situar la propuesta dentro de ellos. Se recorren los sistemas de detección de intrusiones, los datasets y las trazas NetFlow, el aprendizaje automático clásico aplicado a este problema, la detección basada en comportamiento, la explicabilidad y el uso reciente de modelos de lenguaje en ciberseguridad. Al final se resume en qué se diferencia este TFG de los enfoques revisados. No se incluyen aquí resultados propios, que corresponden al Capítulo~\ref{cap:experimentos}.
+
+\section{Sistemas de detección de intrusiones en tráfico de red}
+\label{sec:arte_ids}
+
+Un sistema de detección de intrusiones (IDS) tiene como objetivo identificar actividad maliciosa o no autorizada en un sistema o en una red. Cuando el análisis se hace sobre el tráfico de red se habla de IDS de red. De forma clásica, los IDS se agrupan en dos familias según cómo deciden qué es un ataque \cite{garciateodoro2009anomaly}.
+
+Los \textbf{IDS basados en firmas} comparan el tráfico con una base de patrones de ataques ya conocidos. Su principal ventaja es la precisión cuando el ataque está descrito: si existe la firma, la detección es fiable y genera pocas falsas alarmas. Su limitación es que no reconocen ataques nuevos ni variantes que no estén recogidas, de modo que una amenaza sin firma pasa inadvertida.
+
+Los \textbf{IDS basados en anomalías} construyen un modelo de lo que se considera comportamiento normal y marcan como sospechoso lo que se desvía de él \cite{chandola2009anomaly}. Su ventaja es que pueden detectar amenazas no vistas antes, ya que no dependen de conocer el ataque de antemano. Sus limitaciones también son conocidas: tienden a producir más falsos positivos, dependen de la calidad de los datos con los que se modela la normalidad y, sobre todo, sus decisiones suelen ser difíciles de interpretar. Las revisiones del área coinciden en que ese coste de interpretación es uno de los frenos para su adopción práctica \cite{buczak2016survey}.
+
+Este TFG se sitúa más cerca de la detección basada en anomalías y, en concreto, en el comportamiento del tráfico, pero busca evitar su punto débil más señalado. En lugar de un modelo opaco que solo dice si algo es anómalo, se persigue un enfoque \textbf{conductual e interpretable}, en el que cada decisión pueda explicarse con la señal concreta que la provoca.
+
+\section{Datasets y trazas NetFlow para detección de intrusiones}
+\label{sec:arte_datasets}
+
+La calidad de un IDS basado en datos depende en gran parte del conjunto de datos con el que se diseña y se evalúa. Por eso los datasets ocupan un lugar central en la investigación del área \cite{ring2019survey}. Un problema recurrente es que muchos conjuntos clásicos son artificiales o poco realistas: se generan en entornos controlados, con ataques inyectados y sin el ruido general propio de una red real, lo que hace que los resultados obtenidos sobre ellos no siempre se trasladen a la práctica \cite{ring2019survey}.
+
+Una alternativa habitual es trabajar con \textbf{trazas NetFlow}, es decir, resúmenes de cada comunicación mediante metadatos en lugar del contenido completo \cite{rfc3954}. Este enfoque, conocido como detección basada en flujos, tiene varias ventajas ampliamente reconocidas \cite{sperotto2010overview}: no necesita inspeccionar el \emph{payload}, por lo que mantiene la privacidad, escala mucho mejor a redes grandes porque maneja menos volumen por comunicación, y esto permite analizar el comportamiento de la red a partir de quién habla con quién, por qué puerto y con qué volumen. Sus limitaciones son la otra cara de lo mismo, al no ver el contenido, algunos ataques solo se aprecian de forma parcial, y el análisis hereda el ruido y el fuerte desbalance del tráfico real, donde lo normal domina sobre lo malicioso.
+
+En este contexto se sitúa \textbf{UGR'16}, un dataset construido a partir de tráfico real de un proveedor de servicios de Internet (ISP), con ataques etiquetados de distintas familias \cite{ugr16}. Su interés es precisamente que ofrece tráfico real y variado, frente a los conjuntos generados en laboratorio. Es el dataset sobre el que se apoya este trabajo. Sus características concretas y el detalle de su uso se tratan en los Capítulos~\ref{cap:herramientas_datos} y~\ref{cap:algoritmos}.
+
+\section{Aprendizaje automático clásico aplicado a IDS}
+\label{sec:arte_ml}
+
+Una línea muy común en la detección de intrusiones es el uso de modelos de aprendizaje automático clásico (más conocido como machine learning), como la regresión logística, los $k$ vecinos más cercanos, las máquinas de vectores soporte \cite{cortes1995support}, los bosques aleatorios \cite{breiman2001random} o las redes neuronales de tipo perceptrón multicapa \cite{hastie2009elements}. Las revisiones del área recogen un uso muy amplio de estas técnicas sobre datos de red \cite{buczak2016survey}.
+
+Sus ventajas son claras: automatizan la clasificación, ofrecen buena capacidad predictiva sobre el dataset con el que se entrenan y permiten una comparación objetiva mediante métricas estándar. Sin embargo, también arrastran limitaciones bien documentadas. Dependen mucho del dataset concreto, pueden aprender artefactos de los datos en lugar del fenómeno real, suelen ser menos interpretables que un conjunto de reglas explícitas y tienen dificultades para generalizar a tráfico distinto del de entrenamiento. Un trabajo de referencia sobre el uso de aprendizaje automático en detección de intrusiones advierte precisamente de estos riesgos y de por qué la evaluación en este dominio es especialmente delicada \cite{sommer2010outside}. A ello se añade la necesidad de conjuntos bien balanceados o cuidadosamente diseñados para que los resultados sean significativos.
+
+En este TFG, el aprendizaje automático clásico se utiliza como \textbf{línea base de comparación} (\emph{baseline}), no como propuesta principal. El objetivo del trabajo no es entrenar una caja negra que prediga bien sobre una muestra, sino construir reglas contextuales interpretables. Los modelos clásicos sirven, por tanto, como referencia frente a la que situar el enfoque propuesto.
+
+\section{Detección basada en comportamiento y análisis contextual}
+\label{sec:arte_comportamiento}
+
+Una idea persistente en la detección basada en flujos es que algunos ataques no se reconocen bien mirando trazas aisladas, sino observando grupos de flujos o ventanas temporales \cite{sperotto2010overview}. Un único flujo puede parecer inofensivo, mientras que el patrón solo emerge al considerar el conjunto: la acumulación de muchos flujos parecidos en poco tiempo, o repartidos hacia muchos destinos y puertos.
+
+Varios comportamientos típicos ilustran esta idea, y se describen en lenguaje claro porque son los que guían el enfoque del trabajo:
+
+\begin{itemize}
+  \item \textbf{Escaneo vertical}: un origen contacta muchos puertos de un mismo destino, buscando qué servicios tiene abiertos.
+  \item \textbf{Escaneo horizontal}: un origen contacta muchos destinos por un mismo servicio, buscando qué máquinas lo exponen.
+  \item \textbf{Denegación de servicio (DoS)}: el tráfico se concentra de forma intensa contra un objetivo concreto.
+  \item \textbf{Botnet}: varios orígenes distintos actúan de forma coordinada y muy parecida en el mismo intervalo.
+  \item \textbf{Fan-out}: número de destinos distintos contactados por un mismo origen, una medida útil para detectar escaneos horizontales.
+\end{itemize}
+
+Lo común a todos ellos es que la señal reside en relaciones entre flujos (cuántos puertos, cuántos destinos, qué se concentra, qué se coordina), y no en una traza suelta. Este es el punto de partida del enfoque del TFG: se abandona la clasificación centrada en filas aisladas y se trabaja con \textbf{ventanas de tráfico}, sobre las que se aplican \textbf{señales conductuales} traducidas en reglas explicables. El detalle de cómo se implementa esto se desarrolla en el Capítulo~\ref{cap:algoritmos}.
+
+\section{Explicabilidad e interpretabilidad en IDS}
+\label{sec:arte_explicabilidad}
+
+En seguridad no basta con detectar, también hay que poder justificar la detección. Cuando un sistema genera una alerta sin explicar qué la ha provocado, el analista se ve obligado a revisar cada caso uno por uno y puede terminar desconfiando de la herramienta, sobre todo si abundan los falsos positivos. Por eso la explicabilidad se ha convertido en un requisito y no en un añadido.
+
+El problema de los modelos opacos es conocido más allá de la seguridad: pueden funcionar bien y, aun así, resultar difíciles de auditar, depurar o justificar \cite{guidotti2018survey}. En dominios de decisiones sensibles se ha defendido directamente el uso de modelos interpretables por diseño en lugar de explicar a posteriori una caja negra \cite{rudin2019stop}. Esta postura encaja especialmente bien con la detección de intrusiones, donde la confianza del analista es parte del valor de la herramienta.
+
+El TFG adopta esa filosofía. Cada decisión del clasificador se vincula a una señal observable del comportamiento del tráfico, y las reglas permiten explicar el motivo concreto de cada clasificación. Además, la aplicación web desarrollada ayuda a visualizar los patrones, las evidencias y los resultados, de modo que el enfoque no solo detecta, sino que se puede explorar y entender.
+
+\section{Modelos de lenguaje aplicados a ciberseguridad}
+\label{sec:arte_llms}
+
+Los modelos de lenguaje grandes (LLM), basados en la arquitectura \emph{transformer} \cite{vaswani2017attention} y con una notable capacidad para trabajar sobre texto a partir de instrucciones \cite{brown2020language}, se han empezado a utilizar en ciberseguridad como \textbf{apoyo al analista}. Entre sus usos habituales están el análisis y resumen de registros (\emph{logs}), la generación de documentación, la asistencia en tareas de programación o de redacción de reglas, y la interpretación preliminar de patrones.
+
+Hay que delimitar bien ese papel. Estos modelos ayudan a interpretar y a documentar, pero no constituyen por sí mismos un detector fiable de tráfico malicioso a partir de metadatos NetFlow, ni se debería tratarlos como tal. En este TFG, los LLMs (en particular NotebookLM \cite{notebooklm}) se usan precisamente con ese rol de apoyo: ayudar a interpretar patrones, comparar ventanas de tráfico y documentar hipótesis sobre las señales de cada ataque. La detección final no la realiza un modelo de lenguaje, sino reglas implementadas y verificadas con código y datos. Dicho de otro modo, NotebookLM no clasifica el tráfico, sino que contribuye al análisis, y la decisión queda siempre en un algoritmo explícito y revisable.
+
+\section{Conclusiones del estado del arte}
+\label{sec:arte_conclusiones}
+
+La revisión anterior muestra un panorama con enfoques potentes pero con matices conocidos: las firmas son bastante eficaces ante amenazas conocidas, pero tienen menor capacidad frente a ataques nuevos o variantes no recogidas en la base de firmas, los modelos de aprendizaje automático predicen bien pero son opacos y dependientes del dataset, y la interpretabilidad se reconoce como una necesidad todavía poco resuelta en la práctica.
+
+Frente a este panorama, este TFG se diferencia en varios puntos:
+
+\begin{itemize}
+  \item Usa trazas NetFlow \textbf{reales} del dataset UGR'16, en lugar de tráfico generado en laboratorio.
+  \item Trabaja con \textbf{ventanas de contexto} y no con flujos aislados.
+  \item Busca \textbf{reglas conductuales interpretables}, de modo que cada alerta lleve su justificación.
+\item Evita depender de \textbf{valores concretos del dataset o de características particulares de las muestras analizadas}, como direcciones IP específicas, y prioriza patrones conductuales generalizables.
+  \item Compara con \textbf{métodos clásicos de aprendizaje automático} a modo de referencia.
+  \item Complementa el trabajo con una \textbf{aplicación web interactiva} para la exploración y la visualización de los patrones.
+\end{itemize}
+
+En conjunto, la propuesta no se limita a optimizar una métrica de clasificación, sino que busca ofrecer una detección conductual, interpretable y explícita sobre sus límites, apoyada en datos reales y en herramientas que facilitan la comprensión de las decisiones del sistema.

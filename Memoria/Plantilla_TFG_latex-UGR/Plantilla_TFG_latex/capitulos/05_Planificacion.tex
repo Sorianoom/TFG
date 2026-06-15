@@ -1,0 +1,187 @@
+\chapter{Planificación}
+\label{cap:planificacion}
+
+En este capítulo se describe cómo se ha organizado el trabajo a lo largo del proyecto: la planificación general, las fases en que se ha dividido, su distribución temporal aproximada, una estimación del presupuesto y los principales riesgos identificados con sus medidas de mitigación.
+
+\section{Descripción general de la planificación}
+\label{sec:plan_general}
+
+El Trabajo de Fin de Grado se ha planteado como un proyecto incremental, en el que cada fase se apoya en los resultados de la anterior. La idea de partida era sencilla: primero entender bien el problema y los datos, después analizar el comportamiento de los ataques, y solo entonces diseñar y validar un clasificador interpretable. La aplicación web y la redacción de la memoria se han ido construyendo en paralelo a las últimas fases, una vez el enfoque estaba suficientemente consolidado.
+
+Dado que se trata de un proyecto de investigación aplicada, la planificación no ha sido completamente rígida. Algunas fases, como el análisis del tráfico o el diseño del clasificador, han sido iterativas: a medida que se obtenían resultados, se revisaban hipótesis y se ajustaban las reglas. Por eso la planificación se ha entendido como una guía de trabajo, con margen para reajustes, más que como un calendario cerrado. Para reflejar esto sin inventar fechas exactas, la distribución temporal se expresa en \textbf{meses aproximados} dentro del desarrollo del proyecto, en lugar de fechas concretas.
+
+\section{Fases del proyecto}
+\label{sec:plan_fases}
+
+El proyecto se ha dividido en las siguientes fases, ordenadas según su inicio:
+
+\begin{enumerate}
+  \item \textbf{Estudio inicial del problema y del dataset.} Comprensión del problema de detección de anomalías en tráfico de red y primer contacto con el dataset UGR'16: origen, estructura y familias de ataque etiquetadas.
+  \item \textbf{Revisión bibliográfica y estado del arte.} Lectura de trabajos sobre detección de intrusiones, métodos clásicos de aprendizaje automático, detección basada en anomalías, interpretabilidad y uso de modelos de lenguaje en ciberseguridad.
+  \item \textbf{Preparación y limpieza de datos.} Acondicionamiento de los datos NetFlow a un formato manejable, filtrado y validación previa al análisis.
+  \item \textbf{Extracción de muestras y ventanas de ataque.} Generación de ventanas de tráfico que contienen cada ataque junto con su contexto, para poder estudiar el comportamiento en conjunto y no traza a traza.
+  \item \textbf{Análisis asistido con LLMs.} Uso de NotebookLM y modelos de lenguaje como apoyo para interpretar patrones y formular hipótesis sobre las señales de cada familia.
+  \item \textbf{Diseño del clasificador contextual.} Traducción de las hipótesis en reglas conductuales explicables y definición de la estrategia de clasificación por pases.
+  \item \textbf{Implementación de algoritmos y scripts.} Desarrollo del clasificador y de los scripts de apoyo (extracción, evaluación, utilidades).
+  \item \textbf{Validación experimental.} Ejecución del clasificador sobre los datos y medición de su rendimiento mediante métricas adecuadas.
+  \item \textbf{Comparación con métodos clásicos de ML.} Entrenamiento de modelos clásicos como referencia (\textit{baseline}) y comparación con el clasificador propuesto.
+  \item \textbf{Desarrollo de la web interactiva.} Construcción de la plataforma para explorar las familias de ataque, generar ventanas sintéticas y ejecutar el clasificador sobre ficheros pequeños.
+  \item \textbf{Redacción de la memoria.} Documentación del trabajo, desarrollada de forma transversal durante buena parte del proyecto.
+  \item \textbf{Revisión final y preparación de la entrega.} Repaso global, correcciones y ajustes finales antes de la entrega.
+\end{enumerate}
+
+\section{Planificación temporal}
+\label{sec:plan_temporal}
+
+La duración total del proyecto se ha estimado en torno a nueve meses de trabajo, repartidos de forma desigual entre las distintas fases. Las primeras fases (estudio del problema, revisión bibliográfica y preparación de datos) se concentran al inicio. El núcleo técnico del proyecto (análisis, diseño, implementación y validación) ocupa la parte central y es donde se ha invertido más esfuerzo, debido a su carácter iterativo. Las fases finales (web, redacción y revisión) se solapan parcialmente con las anteriores y se intensifican hacia el final.
+
+La \textbf{redacción de la memoria} no se ha dejado para el final, sino que se ha realizado de forma continua desde fases tempranas, lo que ha permitido documentar las decisiones mientras estaban frescas y reducir la carga de trabajo en las últimas semanas.
+
+\section{Diagrama de Gantt}
+\label{sec:plan_gantt}
+
+La Tabla~\ref{tab:gantt} muestra una versión simplificada del diagrama de Gantt del proyecto. Las columnas representan meses aproximados de trabajo (M1 a M9) y las celdas sombreadas indican los periodos en los que cada fase estuvo activa. Como puede observarse, varias fases se solapan, especialmente las del núcleo técnico y la redacción de la memoria.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Fase} & \textbf{M1} & \textbf{M2} & \textbf{M3} & \textbf{M4} & \textbf{M5} & \textbf{M6} & \textbf{M7} & \textbf{M8} & \textbf{M9} \\
+\hline
+Estudio inicial y dataset            & \cellcolor{gray75} &                    &                    &                    &                    &                    &                    &                    &                    \\
+\hline
+Revisión bibliográfica               & \cellcolor{gray75} & \cellcolor{gray75} &                    &                    &                    &                    &                    &                    &                    \\
+\hline
+Preparación y limpieza de datos      &                    & \cellcolor{gray75} &                    &                    &                    &                    &                    &                    &                    \\
+\hline
+Extracción de ventanas               &                    & \cellcolor{gray75} & \cellcolor{gray75} &                    &                    &                    &                    &                    &                    \\
+\hline
+Análisis asistido con LLMs           &                    &                    & \cellcolor{gray75} & \cellcolor{gray75} &                    &                    &                    &                    &                    \\
+\hline
+Diseño del clasificador             &                    &                    &                    & \cellcolor{gray75} & \cellcolor{gray75} &                    &                    &                    &                    \\
+\hline
+Implementación de algoritmos         &                    &                    &                    & \cellcolor{gray75} & \cellcolor{gray75} & \cellcolor{gray75} &                    &                    &                    \\
+\hline
+Validación experimental              &                    &                    &                    &                    &                    & \cellcolor{gray75} & \cellcolor{gray75} &                    &                    \\
+\hline
+Comparación con ML clásico           &                    &                    &                    &                    &                    &                    & \cellcolor{gray75} &                    &                    \\
+\hline
+Desarrollo de la web                 &                    &                    &                    &                    &                    &                    & \cellcolor{gray75} & \cellcolor{gray75} &                    \\
+\hline
+Redacción de la memoria              &                    &                    & \cellcolor{gray75} & \cellcolor{gray75} & \cellcolor{gray75} & \cellcolor{gray75} & \cellcolor{gray75} & \cellcolor{gray75} & \cellcolor{gray75} \\
+\hline
+Revisión final y entrega             &                    &                    &                    &                    &                    &                    &                    &                    & \cellcolor{gray75} \\
+\hline
+\end{tabular}
+\caption{Diagrama de Gantt simplificado del proyecto (meses aproximados M1--M9).}
+\label{tab:gantt}
+\end{table}
+
+\section{Presupuesto}
+\label{sec:plan_presupuesto}
+
+A continuación se presenta una estimación del coste del proyecto. El presupuesto se ha calculado como el \textbf{coste real equivalente} que tendría este trabajo si se realizara en un \textbf{entorno profesional}, valorando el tiempo de las personas implicadas a precios de mercado y los recursos materiales utilizados. No corresponde, por tanto, a un coste académico realmente desembolsado por el estudiante, sino a una estimación de cuánto costaría desarrollar un proyecto de estas características (procesamiento de datos, desarrollo de algoritmos, validación experimental, uso de modelos de lenguaje y desarrollo de una plataforma web) en un contexto empresarial.
+
+\subsection{Costes de personal}
+\label{sec:plan_personal}
+
+El coste principal es el del personal. Se distinguen dos perfiles: el del estudiante, que asume el grueso del desarrollo con un perfil de \textbf{ingeniero junior}, y el de la tutorización, con un perfil \textbf{senior/analista} que cubre la dirección y revisión del trabajo. Las horas se estiman a partir de la dedicación habitual de un TFG y de las reuniones de seguimiento.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Perfil} & \textbf{Horas} & \textbf{Coste/hora} & \textbf{Subtotal} \\
+\hline
+Estudiante (ingeniero junior) & 420 & 22,00 € & 9.240,00 € \\
+\hline
+Tutorización (perfil senior/analista) & 35 & 50,00 € & 1.750,00 € \\
+\hline
+\multicolumn{3}{|l|}{\textbf{Total personal}} & \textbf{10.990,00 €} \\
+\hline
+\end{tabular}
+\caption{Estimación de costes de personal.}
+\label{tab:coste_personal}
+\end{table}
+
+\subsection{Costes de software y hardware}
+\label{sec:plan_material}
+
+El proyecto se ha desarrollado íntegramente con \textbf{herramientas gratuitas, de código abierto o con licencia académica}: el lenguaje Python y sus bibliotecas de análisis de datos, herramientas de control de versiones, editores de código, la pila web (basada en tecnologías abiertas) y NotebookLM en su modalidad de uso disponible. Por tanto, el coste de licencias de software es nulo.
+
+En cuanto al hardware, se ha utilizado un equipo personal. Su coste se imputa únicamente como \textbf{amortización} correspondiente al periodo de uso del proyecto.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Concepto} & \textbf{Coste} \\
+\hline
+Licencias de software (open source / académicas) & 0,00 € \\
+\hline
+Amortización del equipo informático & 250,00 € \\
+\hline
+\textbf{Total material} & \textbf{250,00 €} \\
+\hline
+\end{tabular}
+\caption{Estimación de costes de software y hardware.}
+\label{tab:coste_material}
+\end{table}
+
+\subsection{Coste total estimado}
+\label{sec:plan_total}
+
+Sumando los costes de personal y de material, el coste total estimado del proyecto asciende a \textbf{11.240,00 €}, como recoge la Tabla~\ref{tab:coste_total}. El componente dominante es, con diferencia, el coste de personal, lo que es coherente con un proyecto cuyo valor reside en el trabajo de análisis, diseño y desarrollo.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Partida} & \textbf{Coste} \\
+\hline
+Personal & 10.990,00 € \\
+\hline
+Software y hardware & 250,00 € \\
+\hline
+\textbf{Total estimado} & \textbf{11.240,00 €} \\
+\hline
+\end{tabular}
+\caption{Coste total estimado del proyecto.}
+\label{tab:coste_total}
+\end{table}
+
+\section{Riesgos y medidas de mitigación}
+\label{sec:plan_riesgos}
+
+Durante la planificación se identificaron varios riesgos que podían afectar al desarrollo del proyecto. La Tabla~\ref{tab:riesgos} resume los principales, junto con la medida adoptada para mitigarlos.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|p{4.3cm}|p{8.5cm}|}
+\hline
+\textbf{Riesgo} & \textbf{Medida de mitigación} \\
+\hline
+Volumen muy grande de datos NetFlow difícil de manejar & Trabajar con ventanas y muestras representativas en lugar de procesar el dataset completo de una vez. \\
+\hline
+Dificultad para detectar algunas familias de ataque solo con metadatos & Asumir el límite de forma explícita, centrar el análisis en las familias caracterizables y documentar con honestidad las que no lo son. \\
+\hline
+Dependencia de hipótesis generadas con apoyo de LLMs & Validar siempre cada hipótesis con código y datos antes de incorporarla. La decisión final no recae en el modelo de lenguaje. \\
+\hline
+Carácter iterativo del diseño que podía alargar las fases técnicas & Fijar versiones intermedias del clasificador como puntos estables y avanzar de forma incremental. \\
+\hline
+Acumulación de la redacción al final del proyecto & Redactar la memoria de forma transversal, documentando las decisiones a medida que se tomaban. \\
+\hline
+Problemas técnicos en el equipo o pérdida de trabajo & Uso de control de versiones y copias del trabajo para minimizar el impacto de cualquier incidencia. \\
+\hline
+\end{tabular}
+\caption{Principales riesgos del proyecto y medidas de mitigación.}
+\label{tab:riesgos}
+\end{table}
+
+En conjunto, ninguno de estos riesgos llegó a comprometer el proyecto. Los dos que más influyeron en la planificación real fueron el carácter iterativo del diseño del clasificador y la dificultad intrínseca de algunas familias de ataque, que se gestionaron ajustando el alcance y documentando los límites del enfoque.

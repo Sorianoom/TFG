@@ -1,0 +1,48 @@
+\chapter{Manual de uso de la web}
+\label{ap:manual_web}
+
+Este apéndice resume, como apoyo práctico, cómo navegar por la aplicación web del trabajo y usar sus funciones principales. El diseño y la arquitectura de la web se describen en el Capítulo~\ref{cap:web}, y aquí solo se explica su uso. No se presentan resultados nuevos. Las figuras a las que se remite son las ya incluidas en ese capítulo.
+
+\section{Pantalla principal y navegación}
+\label{sec:apa_navegacion}
+
+Al abrir la aplicación se muestra la portada, con las familias de ataque estudiadas. Para consultar una familia basta con seleccionarla, y desde su página se puede volver a la portada para elegir otra. La navegación entre familias se hace siempre desde esta pantalla principal.
+
+En la parte superior hay un interruptor de \textbf{modo IA}. Por defecto está en \textbf{IA OFF}, que funciona en local sin configuración adicional. El modo \textbf{IA ON} es opcional y solo tiene sentido activarlo si NotebookLM está configurado.
+
+\section{Consulta de una familia de ataque}
+\label{sec:apa_familia}
+
+Al abrir una familia se muestra su ficha: el nombre y la familia conductual, una descripción del patrón, un diagrama esquemático del comportamiento, una explicación en lenguaje sencillo y un resumen técnico con las métricas de esa familia. La página recoge también lo que el detector no usa, cómo se aprecia el patrón en una tabla NetFlow y las limitaciones de la familia. La Figura~\ref{fig:web_detalle} muestra un ejemplo de esta pantalla.
+
+\section{Señales del detector}
+\label{sec:apa_senales}
+
+Dentro de la ficha de cada familia, la web muestra las \textbf{señales conductuales} que mira el detector, cada una con qué mide y por qué importa. Estas señales ayudan a interpretar la regla y a entender por qué se marca un ataque, pero no sustituyen a la evaluación experimental, que se desarrolla en el Capítulo~\ref{cap:experimentos}. La Figura~\ref{fig:web_senales} muestra esta visualización.
+
+\section{Simulador de ventanas sintéticas}
+\label{sec:apa_simulador}
+
+Cada familia incluye un simulador. El usuario elige cuántas trazas de ataque generar y la web crea una ventana de ejemplo con unas pocas trazas normales antes, las trazas del ataque en medio y unas pocas trazas normales después. En modo IA OFF, la generación usa una plantilla local de la propia web.
+
+Estas ventanas son \textbf{sintéticas e ilustrativas}: no son trazas reales del dataset, sino ejemplos para ver la forma del patrón. La validación real del detector se hizo siempre con UGR'16, no con estas ventanas. La Figura~\ref{fig:web_simulador} muestra el simulador en funcionamiento.
+
+\section{Clasificador desde la web}
+\label{sec:apa_clasificador}
+
+Desde la pantalla principal se puede probar el clasificador subiendo una ventana pequeña en formato CSV. Las columnas esperadas son la marca temporal, las IP y los puertos de origen y destino, el protocolo, los paquetes, los bytes y las banderas, y de forma opcional la etiqueta real.
+
+La web ejecuta el clasificador sobre cada traza y devuelve, por fila, la decisión (ataque o normal), la familia, el subtipo, un nivel de confianza, la señal que justifica la decisión y un resumen del conjunto. La \textbf{confianza} es la fuerza de la evidencia de la regla, no una probabilidad de un modelo. El \textbf{acierto} solo se calcula si el CSV incluye la etiqueta real. Esta función está pensada para ficheros pequeños, no para procesar grandes volúmenes desde la interfaz. La Figura~\ref{fig:web_clasificador} muestra un ejemplo de ejecución.
+
+\section{Recomendaciones de uso}
+\label{sec:apa_recomendaciones}
+
+Recomendaciones de uso:
+
+\begin{itemize}
+  \item Usar ficheros \textbf{pequeños} al probar el clasificador.
+  \item No subir \textbf{datos sensibles}.
+  \item Mantener el \textbf{modo IA OFF} si NotebookLM no está configurado.
+  \item Interpretar las simulaciones como \textbf{material didáctico}, no como datos reales.
+  \item Acudir al Capítulo~\ref{cap:experimentos} para los resultados y al Capítulo~\ref{cap:web} para el diseño técnico de la aplicación.
+\end{itemize}

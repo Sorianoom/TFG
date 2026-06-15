@@ -1,0 +1,112 @@
+\chapter{Tablas completas de resultados}
+\label{ap:tablas_resultados}
+
+Este apéndice recoge tablas de resultados ampliadas que sirven de soporte a la evaluación del Capítulo~\ref{cap:experimentos}. Algunas consolidan en un mismo lugar cifras ya presentadas allí y otras añaden detalle, en concreto los recuentos de confusión completos de la detección binaria y el desglose por clase de la línea base de aprendizaje automático. El análisis y la interpretación de estos números, con la discusión de los aciertos y los errores, se desarrollan en el Capítulo~\ref{cap:experimentos}.
+
+Todas las cifras provienen de los ficheros de resultados del proyecto. El escaneo SSH (\texttt{anomaly-sshscan}) apenas tiene muestras etiquetadas en \texttt{august.week1}, por lo que su evaluación representativa se hace en \texttt{april.week2}. La clase de campaña SMTP (\texttt{anomaly-spam}) se descartó del análisis y no se incluye como resultado activo.
+
+\section{Detección binaria: recuentos de confusión completos}
+\label{sec:apc_binaria}
+
+La Tabla~\ref{tab:apc_binaria} amplía la tabla binaria del Capítulo~\ref{cap:experimentos} con los recuentos de confusión completos (verdaderos y falsos positivos y negativos) de las versiones v3 y v5 sobre el conjunto principal de estudio.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|r|r|r|r|c|c|c|}
+\hline
+\textbf{Versión} & \textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} & \textbf{P} & \textbf{R} & \textbf{F1} \\
+\hline
+v3 (base estable) & 1\,816\,688 & 137\,365 & 17\,228 & 4\,899\,050 & 0,930 & 0,991 & 0,960$^{*}$ \\
+\hline
+v5 (final) & 1\,816\,688 & 145\,702 & 17\,228 & 4\,890\,713 & 0,926 & 0,991 & 0,957 \\
+\hline
+\end{tabular}
+\caption{Detección binaria en \texttt{august.week1}: recuentos de confusión completos. $^{*}$El F1 de la v3 se deriva de su precisión y recall. Fuente: \texttt{flow\_level\_detection\_summary\_v3.csv} y \texttt{\_v5\_integrated.csv}.}
+\label{tab:apc_binaria}
+\end{table}
+
+La diferencia entre las dos versiones está en los falsos positivos: la v5 añade 8\,337 falsas alarmas respecto a la v3, atribuibles al tercer pase de escaneo SSH en una semana donde ese ataque apenas aparece etiquetado.
+
+\section{Resultados por subtipo de la v5}
+\label{sec:apc_familia}
+
+La Tabla~\ref{tab:apc_familia} recoge, por subtipo, las trazas etiquetadas, las predichas y los aciertos sobre \texttt{august.week1}, junto con las métricas derivadas.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|r|r|r|c|c|c|}
+\hline
+\textbf{Subtipo} & \textbf{Etiquetadas} & \textbf{Predichas} & \textbf{Aciertos} & \textbf{P} & \textbf{R} & \textbf{F1} \\
+\hline
+anomaly-udpscan & 1\,001\,413 & 1\,067\,045 & 1\,001\,219 & 0,938 & 1,000 & 0,968 \\
+\hline
+scan11 & 102\,572 & 133\,989 & 102\,220 & 0,763 & 0,997 & 0,864 \\
+\hline
+scan44 & 382\,351 & 399\,411 & 304\,396 & 0,762 & 0,796 & 0,779 \\
+\hline
+dos & 247\,230 & 217\,724 & 120\,635 & 0,554 & 0,488 & 0,519 \\
+\hline
+nerisbotnet & 99\,762 & 16\,462 & 4\,420 & 0,269 & 0,044 & 0,076 \\
+\hline
+anomaly-sshscan & 44 & 8\,397 & 0 & 0,000 & 0,000 & 0,000 \\
+\hline
+\end{tabular}
+\caption{Resultados por subtipo de la v5 en \texttt{august.week1}. El escaneo SSH no es representativo en esta semana, con solo 44 trazas etiquetadas, y se evalúa en \texttt{april.week2} (Tabla~\ref{tab:apc_general}). Fuente: \texttt{flow\_level\_detection\_summary\_v5\_integrated.csv}.}
+\label{tab:apc_familia}
+\end{table}
+
+\section{Generalización por semana}
+\label{sec:apc_general}
+
+La Tabla~\ref{tab:apc_general} resume la detección binaria de la v5 en las tres semanas evaluadas. Son las cifras del resumen utilizado en el Capítulo~\ref{cap:experimentos}. No existe un fichero independiente de generalización en el repositorio, por lo que estos valores son los mismos que se presentan e interpretan en ese capítulo.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|c|c|c|p{5.0cm}|}
+\hline
+\textbf{Conjunto} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Familias presentes} \\
+\hline
+\texttt{august.week1} & 0,926 & 0,991 & 0,957 & Núcleo (udpscan, scan11/scan44, dos, nerisbotnet). \\
+\hline
+\texttt{august.week2} & 0,872 & 0,747 & 0,805 & Escaneo vertical, dos, nerisbotnet. Sin udpscan. \\
+\hline
+\texttt{april.week2} & 0,845 & 0,903 & 0,873 & Sobre todo escaneo SSH. \\
+\hline
+\end{tabular}
+\caption{Detección binaria de la v5 por semana. Cifras del resumen usado en el Capítulo~\ref{cap:experimentos}.}
+\label{tab:apc_general}
+\end{table}
+
+\section{Línea base de aprendizaje automático por clase}
+\label{sec:apc_ml}
+
+La Tabla~\ref{tab:apc_ml} desglosa por clase activa el F1 de cada modelo de la línea base, que el Capítulo~\ref{cap:experimentos} resume solo como F1 macro. El cálculo se hace sobre una muestra equilibrada con el mismo número de ejemplos por clase.
+
+\begin{table}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Modelo} & \textbf{background} & \textbf{anomaly-udpscan} & \textbf{dos} & \textbf{nerisbotnet} & \textbf{scan11} & \textbf{scan44} & \textbf{F1 macro} \\
+\hline
+Regresión logística & 0,703 & 0,982 & 0,995 & 0,869 & 0,705 & 0,304 & 0,760 \\
+\hline
+KNN & 0,821 & 0,990 & 0,999 & 0,987 & 0,934 & 0,924 & 0,942 \\
+\hline
+SVM & 0,767 & 0,990 & 0,995 & 0,912 & 0,707 & 0,311 & 0,780 \\
+\hline
+MLP & 0,833 & 0,990 & 1,000 & 0,992 & 0,801 & 0,721 & 0,889 \\
+\hline
+Random Forest$^{*}$ & 0,898 & 0,990 & 1,000 & 0,999 & 0,993 & 0,992 & 0,979 \\
+\hline
+\end{tabular}}
+\caption{F1 por clase activa de la línea base de aprendizaje automático (muestra equilibrada, 2\,778 ejemplos por clase). $^{*}$Random Forest se documenta pero no se usa como referencia principal en el Capítulo~\ref{cap:experimentos}: su rendimiento casi perfecto sobre una muestra preparada puede reflejar particularidades del conjunto más que una capacidad real de generalización. Fuente: \texttt{ml\_baseline\_summary\_active\_families.csv} y \texttt{ml\_baseline\_results\_active\_families.csv}.}
+\label{tab:apc_ml}
+\end{table}
+
+Las clases activas son el tráfico de fondo (\emph{background}) y los cinco tipos de ataque presentes en la muestra. Quedan fuera \texttt{anomaly-spam} y la etiqueta de listas negras (\emph{blacklist}), coherentemente con el enfoque del trabajo.
+
+Estas tablas son el soporte numérico ampliado de la evaluación.

@@ -1,0 +1,87 @@
+\chapter{Definición del problema}
+\label{cap:problema}
+
+Una vez introducidos los conceptos necesarios, este capítulo plantea de forma precisa el problema que aborda el Trabajo de Fin de Grado. Se describe qué se quiere resolver, cuál es la entrada y la salida del sistema, qué restricciones y supuestos se asumen y qué criterios permiten considerar que el trabajo ha tenido éxito. No se entra todavía en cómo se implementan los algoritmos (Capítulo~\ref{cap:algoritmos}) ni en los resultados obtenidos (Capítulo~\ref{cap:experimentos}).
+
+\section{Planteamiento general del problema}
+\label{sec:prob_planteamiento}
+
+El problema que se aborda en este trabajo es el de \textbf{analizar trazas de red de tipo NetFlow para identificar comportamientos compatibles con tráfico malicioso, de forma interpretable}. No se parte de un sistema en tiempo real ni de una red en producción, sino de tráfico ya capturado y disponible en el dataset UGR'16, lo que permite estudiar el comportamiento de cada tipo de ataque con detenimiento.
+
+El planteamiento se puede ver en varias capas:
+
+\begin{itemize}
+  \item \textbf{Analizar el tráfico.} A partir de los metadatos de flujo (sin acceso al contenido de las comunicaciones), estudiar cómo se comporta cada tipo de tráfico y qué lo distingue del tráfico normal.
+  \item \textbf{Identificar comportamientos sospechosos.} Reconocer patrones de comportamiento que se asocian a actividad maliciosa: por ejemplo, un origen que contacta con muchos destinos, la concentración de tráfico hacia un servicio o la actividad repartida entre varios orígenes.
+  \item \textbf{Detectar de forma interpretable.} Construir un enfoque de detección basado en \textbf{reglas contextuales}, apoyado por el análisis con modelos de lenguaje, de modo que cada decisión pueda justificarse con la señal concreta que la ha provocado.
+  \item \textbf{Mejorar la interpretabilidad.} Frente a enfoques puramente automáticos o de caja negra, que aciertan pero no explican, el objetivo es que el sistema indique \emph{por qué} marca una traza como sospechosa.
+  \item \textbf{Evaluar el enfoque.} Comprobar el comportamiento del sistema sobre un conjunto de familias de ataque representativas del dataset.
+\end{itemize}
+
+Un punto central del planteamiento es que el problema \textbf{no se reduce a clasificar}. Asignar una etiqueta a cada traza es necesario, pero no suficiente: se busca una detección \textbf{justificable}, en la que la salida vaya acompañada de la evidencia que la respalda. Esta exigencia de interpretabilidad condiciona todo el diseño posterior.
+
+En este planteamiento, los modelos de lenguaje y NotebookLM ocupan un papel \textbf{de apoyo}. Ayudan a interpretar patrones, a resumir el comportamiento observado y a documentar las hipótesis sobre las señales de cada ataque. No deciden qué tráfico es malicioso ni actúan como detectores automáticos: la detección final la realiza siempre el clasificador basado en reglas, que es explícito y revisable.
+
+El estudio se centra en \textbf{seis familias de ataque} del dataset, elegidas por ser representativas de comportamientos distintos: \texttt{scan11} y \texttt{scan44} (escaneo vertical desde uno o varios orígenes), \texttt{anomaly-udpscan} (escaneo UDP), \texttt{dos} (inundación de un servicio), \texttt{nerisbotnet} (actividad coordinada tipo red de bots) y \texttt{anomaly-sshscan} (escaneo horizontal por SSH). Estas familias cubren patrones diferentes (verticales, horizontales, de concentración y de coordinación), lo que las hace adecuadas para estudiar el alcance del enfoque.
+
+\section{Entrada del sistema}
+\label{sec:prob_entrada}
+
+La entrada del sistema son \textbf{registros NetFlow}, es decir, resúmenes de comunicaciones de red. Cada registro (flujo) describe una comunicación mediante metadatos, sin incluir el contenido transmitido. Los campos relevantes para este trabajo son, de forma general:
+
+\begin{itemize}
+  \item las direcciones IP de origen y de destino.
+  \item los puertos de origen y de destino.
+  \item el protocolo de transporte (TCP, UDP, etc.).
+  \item la duración del flujo.
+  \item el número de paquetes y de bytes.
+  \item las banderas (\emph{flags}) cuando proceden.
+\end{itemize}
+
+Estos registros no se analizan de forma completamente aislada. El sistema trabaja sobre \textbf{ventanas de tráfico}: conjuntos de flujos próximos en el tiempo que permiten observar el comportamiento en su contexto. La razón es que muchos ataques solo tienen sentido cuando se miran varias trazas en conjunto. Una traza suelta puede parecer inofensiva, mientras que el patrón aparece al considerar el grupo. Por tanto, la entrada efectiva del sistema es una ventana de flujos NetFlow, y cada flujo se interpreta teniendo en cuenta su entorno.
+
+\section{Salida esperada}
+\label{sec:prob_salida}
+
+La salida del sistema es, para cada traza analizada, una \textbf{clasificación acompañada de su justificación}. En concreto, se espera que el sistema proporcione:
+
+\begin{itemize}
+  \item una decisión \textbf{binaria}: si la traza corresponde a tráfico normal o a un comportamiento compatible con un ataque.
+  \item en caso de ataque, la \textbf{familia de comportamiento} asociada (por ejemplo, escaneo vertical, escaneo UDP, inundación de un servicio, coordinación tipo botnet o escaneo SSH).
+  \item una \textbf{explicación} de la decisión: las señales concretas que han llevado a clasificar la traza de esa forma (por ejemplo, ``un mismo origen contacta muchos puertos del mismo destino'').
+  \item una indicación de la \textbf{confianza} asociada, entendida como la fuerza de la evidencia de las reglas, y no como una probabilidad de un modelo estadístico.
+\end{itemize}
+
+Esta salida refleja la idea central del trabajo: no basta con un veredicto, sino que debe poder explicarse. La explicación es parte de la salida, no un añadido opcional. Cuando la evidencia es insuficiente, se considera preferible indicarlo explícitamente antes que forzar una clasificación con poco fundamento.
+
+\section{Restricciones y supuestos}
+\label{sec:prob_restricciones}
+
+El estudio se aborda bajo una serie de restricciones y supuestos que delimitan el enfoque:
+
+\begin{itemize}
+  \item \textbf{Solo metadatos de flujo.} No se dispone del contenido de las comunicaciones. El análisis se basa únicamente en los metadatos de NetFlow. Esto preserva la privacidad y permite escalar, pero limita lo que se puede observar.
+  \item \textbf{Sin direcciones IP concretas como regla.} El sistema no debe depender de IPs específicas ni de listas negras como criterio principal. Se busca detectar por comportamiento, no por identidad.
+  \item \textbf{Sin usar la etiqueta para detectar.} Las etiquetas del dataset se emplean solo para \emph{evaluar} el sistema, nunca como entrada para tomar la decisión de detección.
+  \item \textbf{Sin firmas de contenido.} No se usan firmas de bytes ni inspección del payload, coherentemente con el uso exclusivo de metadatos.
+  \item \textbf{Detección interpretable.} Cada decisión debe poder justificarse mediante reglas explícitas. Se descarta, como propuesta principal, cualquier enfoque cuyo razonamiento no sea revisable.
+  \item \textbf{LLMs como apoyo, no como detector.} Los modelos de lenguaje y NotebookLM se utilizan para interpretar, resumir y documentar, pero no deciden la detección. Toda hipótesis sugerida con su ayuda se valida después con código y datos.
+  \item \textbf{Análisis sobre ventanas.} El trabajo se realiza sobre ventanas de tráfico extraídas del dataset, y no sobre un flujo continuo en tiempo real.
+\end{itemize}
+
+Como supuesto de partida, se asume que el comportamiento de cada familia de ataque deja un \textbf{patrón observable} en los metadatos de flujo, al menos en una parte de los casos. Este supuesto no se cumple por igual para todas las familias, y precisamente uno de los objetivos del trabajo es delimitar hasta dónde es válido.
+
+\section{Criterios de éxito}
+\label{sec:prob_exito}
+
+Para valorar si el trabajo ha resuelto el problema planteado, se establecen los siguientes criterios de éxito, de carácter cualitativo (los resultados numéricos concretos se presentan en el Capítulo~\ref{cap:experimentos}):
+
+\begin{itemize}
+  \item \textbf{Detección razonable del núcleo de familias.} Que el sistema sea capaz de distinguir, de forma consistente, los comportamientos de las familias con patrones claros respecto del tráfico normal.
+  \item \textbf{Interpretabilidad efectiva.} Que cada decisión vaya acompañada de una explicación comprensible, basada en señales medibles del comportamiento del tráfico.
+  \item \textbf{Independencia de identidad.} Que la detección no dependa de IPs concretas, de valores concretos obtenidos en el estudio de patrones ni de la etiqueta real, sino del comportamiento estudiado.
+  \item \textbf{Aprovechamiento del apoyo de los LLMs.} Que el uso de NotebookLM aporte valor real al análisis (interpretación, síntesis y documentación de patrones), manteniendo siempre la decisión final en el clasificador de reglas.
+  \item \textbf{Honestidad sobre los límites.} Que el trabajo identifique con claridad qué familias se detectan bien y cuáles resultan difíciles con solo metadatos de flujo, sin tratar de ocultar las limitaciones del enfoque.
+\end{itemize}
+
+En conjunto, el éxito de este proyecto no se mide únicamente por una cifra de acierto, sino por el equilibrio entre una detección razonable y una explicación clara y honesta de lo que el sistema puede y no puede hacer.

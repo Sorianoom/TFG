@@ -1,0 +1,169 @@
+\chapter{Pseudocódigo extendido}
+\label{ap:pseudocodigo}
+
+Este apéndice amplía el Capítulo~\ref{cap:algoritmos} con una descripción más operativa del clasificador contextual, en especial de la versión v5. El objetivo es dejar clara la lógica principal del algoritmo de forma estructurada, no reproducir el código fuente. Los umbrales que se citan provienen de los scripts reales del proyecto. La interpretación de los resultados que produce esta lógica se desarrolla en el Capítulo~\ref{cap:experimentos}.
+
+El clasificador no es aprendizaje automático: aplica reglas explícitas sobre el comportamiento del tráfico. No usa las etiquetas del dataset para decidir (solo para evaluar) ni direcciones IP concretas como criterio (las IP se usan únicamente como clave de agrupación).
+
+\section{Estructura general}
+\label{sec:apd_general}
+
+El clasificador recorre las ventanas de tráfico en tres pases. El primero mira cada flujo en su contexto cercano, el segundo agrega la ventana completa para resolver subtipos y patrones globales, y el tercero (añadido en la v5) agrega el tráfico por origen para recuperar el escaneo SSH.
+
+\begin{small}
+\begin{verbatim}
+ENTRADA: ventanas de trazas NetFlow
+SALIDA:  por cada traza -> decision (ataque/normal), familia,
+         subtipo, confianza y evidencia
+
+PASE A (global por origen, sobre todas las ventanas):
+  acumular por src_ip el trafico TCP hacia el puerto 22 (fan-out)
+  marcar como escaner SSH los origenes con fan-out alto
+
+para cada ventana:
+  PASE 1 (local):   clasificar cada flujo por su contexto cercano
+  PASE 2 (ventana): agregar por origen/destino/puerto/tiempo y
+                    reconciliar la decision de cada flujo
+  PASE 3 (override): si el flujo va al puerto 22 desde un origen
+                    marcado en el PASE A, reetiquetar como SSH
+  escribir resultados de la ventana
+\end{verbatim}
+\end{small}
+
+\section{Pase 1: análisis local por flujo}
+\label{sec:apd_pase1}
+
+El primer pase decide flujo a flujo a partir de un contexto cercano de $\pm 30$ filas ($\pm 60$ si el flujo es UDP). Solo se analizan los flujos \emph{interesantes}: TCP atómicos (de duración casi nula y pocos paquetes), UDP de un paquete, o dirigidos a puertos sensibles como el 22 o el 25. Sobre ellos se prueban reglas locales sencillas.
+
+\begin{small}
+\begin{verbatim}
+para cada flujo "objetivo" interesante de la ventana:
+  tomar su contexto local (+-30 filas; +-60 si es UDP)
+  probar reglas locales:
+    - escaneo vertical: par origen->destino TCP SYN atomico
+      con muchos puertos destino (>= 8; parcial >= 4)
+    - inundacion TCP: >= 10 flujos al mismo destino y puerto,
+      puerto concentrado y baja diversidad de puertos
+    - escaneo UDP: origen UDP de 1 paquete (no DNS) hacia
+      muchas IPs (>= 4) y puertos (>= 6) destino
+    - anomalia sin firma: rafaga atomica densa (>= 20 flujos)
+      de entropia de bytes casi nula
+  decidir: ataque | evidencia_insuficiente | normal
+los flujos no interesantes se marcan como normal
+\end{verbatim}
+\end{small}
+
+Trabajar flujo a flujo es rápido y suficiente para patrones evidentes, pero tiene un límite claro: algunas familias solo se distinguen mirando relaciones entre muchos flujos. Por eso el pase 1 no emite por sí solo las familias de escaneo SSH, botnet ni campaña SMTP, que se delegan a los pases globales.
+
+\section{Pase 2: contexto global o temporal por ventana}
+\label{sec:apd_pase2}
+
+El segundo pase agrega toda la ventana. Agrupa los flujos por origen, destino, puerto y por intervalos temporales de 10 segundos, y con esos recuentos resuelve lo que el contexto local no puede.
+
+\begin{small}
+\begin{verbatim}
+calcular agregados de la ventana:
+  - subtipo vertical (scan11 vs scan44):
+      si el barrido viene de 1 origen (o uno domina, cuota >= 0.8)
+         -> scan11
+      si viene de varios origenes coordinados (cuota < 0.6 y
+         coincidencia temporal) -> scan44
+  - escaneo SSH local: origen al puerto 22 con >= 5 destinos,
+      sesiones incompletas (>= 0.8) y sin sesiones completas
+  - botnet: firma (puerto, bytes, paquetes) repetida por varios
+      origenes en un mismo intervalo de 10 s; en puertos C2
+      (25, 6667, 2077) basta coordinacion, fuera de C2 se exige
+      identidad persistente (>= 15 origenes en >= 4 intervalos)
+  - escaneo UDP global: origen con >= 6 destinos y >= 8 puertos
+
+reconciliar cada flujo: combinar la decision local (pase 1) con
+esta evidencia global y elegir por confianza y especificidad
+\end{verbatim}
+\end{small}
+
+La separación entre \texttt{scan11} y \texttt{scan44} es un ejemplo claro de por qué hace falta el contexto global: ambos son barridos verticales y solo se diferencian en si el barrido procede de un único origen o de varios coordinados, una propiedad que no se aprecia en una sola fila. La agrupación se hace siempre por comportamiento, sin usar ninguna IP concreta como regla.
+
+\section{Pase 3: fan-out SSH y contexto global por origen}
+\label{sec:apd_pase3}
+
+El tercer pase es la aportación principal de la v5. El escaneo SSH de tipo \emph{low-and-slow} es muy disperso y apenas deja señal en el contexto local. Para recuperarlo, la v5 acumula el tráfico por origen a lo largo de todas las ventanas y mide su \emph{fan-out}: cuántos destinos distintos contacta cada origen por el puerto 22.
+
+\begin{small}
+\begin{verbatim}
+PASE A (previo, global): por cada origen, contar destinos
+  distintos contactados por TCP al puerto 22 (fan-out)
+  un origen es escaner SSH si fan-out >= 50 destinos distintos
+
+PASE B (override): si un flujo va al puerto 22 desde un origen
+  marcado como escaner SSH:
+    familia   <- escaneo SSH horizontal (anomaly-sshscan)
+    decision  <- ataque
+    confianza <- alta / media / baja segun persistencia temporal
+                 y ligereza de los flujos
+\end{verbatim}
+\end{small}
+
+Este pase es lo que permite detectar \texttt{anomaly-sshscan} en \texttt{april.week2}, donde esa familia es abundante, con un $F_1$ de 0,951 (Capítulo~\ref{cap:experimentos}). Tiene una contrapartida reconocida: en semanas donde el escaneo SSH no aparece etiquetado, este pase puede marcar como ataque escáneres SSH de fondo y añadir falsos positivos. La v5 también reetiqueta la familia de botnet por nivel de confianza (alta o baja), pero esto no cambia qué trazas se detectan, solo su nombre.
+
+\section{Reglas por familia}
+\label{sec:apd_familias}
+
+La Tabla~\ref{tab:apd_familia} resume, para cada familia activa, las señales principales y el tipo de contexto que necesita el clasificador.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|p{5.4cm}|p{2.8cm}|p{2.4cm}|}
+\hline
+\textbf{Familia} & \textbf{Señales principales} & \textbf{Contexto usado} & \textbf{Comentario} \\
+\hline
+anomaly-udpscan & Origen UDP de 1 paquete (no DNS) hacia muchas IPs y puertos, bytes homogéneos & Local y global por origen & Mejor detectada \\
+\hline
+scan11 & Barrido TCP SYN atómico de un origen a muchos puertos de un destino & Local y ventana & Vertical desde un origen \\
+\hline
+scan44 & El mismo barrido repartido entre varios orígenes coordinados & Global por ventana & Vertical distribuido \\
+\hline
+dos & Muchos flujos al mismo destino y puerto, con concentración y ráfaga & Local & Inundación de servicio \\
+\hline
+nerisbotnet & Firma idéntica repetida por varios orígenes en el mismo intervalo & Global temporal (10 s) & Familia más difícil \\
+\hline
+anomaly-sshscan & Origen con fan-out alto al puerto 22 (muchos destinos distintos) & Global por origen (pase 3) & Recuperada en la v5 \\
+\hline
+\end{tabular}
+\caption{Señales y contexto por familia activa del clasificador contextual.}
+\label{tab:apd_familia}
+\end{table}
+
+El script conserva además un camino de baja evidencia para la campaña SMTP (fan-out hacia el puerto 25), pero esa clase se descartó del análisis y no figura como familia activa del trabajo.
+
+\section{Diferencias principales entre v3 y v5}
+\label{sec:apd_v3v5}
+
+La v3 es la base estable, con los dos primeros pases. La v5 es la versión final: reutiliza la v3 sin modificarla y le añade el tercer pase global por origen. La Tabla~\ref{tab:apd_v3v5} resume las diferencias.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|p{3.8cm}|p{4.4cm}|p{4.4cm}|}
+\hline
+\textbf{Aspecto} & \textbf{v3 (base estable)} & \textbf{v5 (versión final)} \\
+\hline
+Arquitectura & Dos pases: local y global por ventana & v3 sin cambios más un tercer pase global por origen \\
+\hline
+Escaneo SSH \emph{low-and-slow} & No se recupera de forma efectiva & Se detecta por fan-out al puerto 22 \\
+\hline
+$F_1$ de \texttt{anomaly-sshscan} (\texttt{april.week2}) & Próximo a cero & 0,951 \\
+\hline
+Falsos positivos en \texttt{august.week1} & 137\,365 & 145\,702 (unos 8\,337 más) \\
+\hline
+Familia de botnet & Detección base & Misma detección, solo reetiquetada por confianza \\
+\hline
+\end{tabular}
+\caption{Diferencias principales entre las versiones v3 y v5 del clasificador.}
+\label{tab:apd_v3v5}
+\end{table}
+
+\section{Cierre}
+\label{sec:apd_cierre}
+
+Con esto queda resumida la lógica de los tres pases y las reglas por familia.

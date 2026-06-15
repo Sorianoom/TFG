@@ -1,0 +1,109 @@
+\chapter*{}
+%\thispagestyle{empty}
+%\cleardoublepage
+
+%\thispagestyle{empty}
+
+\input{portada/portada_2}
+
+
+
+\cleardoublepage
+\thispagestyle{empty}
+
+\begin{center}
+{\large\bfseries Análisis de trazas de red con LLMs para mejorar las prestaciones de Sistemas de Detección de Intrusiones (IDSs)}\\[0.3cm]
+{\normalsize Detección explicativa de anomalías en tráfico NetFlow mediante LLMs y reglas conductuales}\\
+\end{center}
+\begin{center}
+Mario Soriano Morón\\
+\end{center}
+
+%\vspace{0.7cm}
+\noindent{\textbf{Palabras clave}: detección de intrusiones, NetFlow, UGR'16, reglas conductuales, explicabilidad, modelos de lenguaje, NotebookLM.}\\
+
+\vspace{0.7cm}
+\noindent{\textbf{Resumen}}\\
+
+Este Trabajo de Fin de Grado estudia cómo los modelos de lenguaje pueden ayudar a mejorar las prestaciones de un sistema de detección de intrusiones en red, sin convertirse en el motor de detección. El trabajo se apoya en el dataset UGR'16, construido a partir de tráfico real de un proveedor de servicios de Internet (ISP), y analiza sus trazas NetFlow, que resumen cada comunicación mediante metadatos, sin el contenido.
+
+La detección final no la realiza un modelo de lenguaje, sino un clasificador contextual basado en reglas conductuales (la versión v5). Ese clasificador trabaja en tres pases: un análisis local de cada flujo, una agregación global por ventana y un pase global por origen que recupera el escaneo SSH. Los modelos de lenguaje y NotebookLM intervienen solo como apoyo en la fase de análisis, para interpretar patrones y formular hipótesis que después se comprueban con código y datos.
+
+La evaluación, con precisión, recall y F1, muestra una detección binaria alta, con un F1 de 0,957 en el conjunto principal de estudio, y un buen comportamiento en las familias con patrones más claros, como el escaneo UDP y los escaneos verticales. El pase global por origen recupera el escaneo SSH, que pasa a detectarse con un F1 de 0,951 en una semana independiente. El trabajo incluye una comparación con aprendizaje automático clásico como referencia y una aplicación web que ayuda a visualizar, explicar y probar el detector. El enfoque prioriza la explicabilidad: cada decisión se acompaña de la señal que la justifica.
+
+\vspace{0.7cm}
+\noindent{\textbf{Keywords}: intrusion detection, NetFlow, UGR'16, behavioural rules, explainability, language models, NotebookLM.}\\
+
+\vspace{0.7cm}
+\noindent{\textbf{Abstract}}\\
+
+This Bachelor's thesis studies how language models can help improve the performance of a network intrusion detection system, without becoming the detection engine itself. The work builds on the UGR'16 dataset, made from real traffic of an Internet service provider (ISP), and analyses its NetFlow traces, which summarise each communication through metadata, without the payload.
+
+The final detection is not performed by a language model, but by a contextual classifier based on behavioural rules (version v5). This classifier works in three passes: a local analysis of each flow, a global per-window aggregation and a global per-source pass that recovers SSH scanning. Language models and NotebookLM are used only as support during the analysis phase, to interpret patterns and to formulate hypotheses that are later checked with code and data.
+
+The evaluation, using precision, recall and F1, shows a high binary detection, with an F1 of 0.957 on the main study set, and good behaviour on the families with clearer patterns, such as UDP scanning and vertical scans. The global per-source pass recovers SSH scanning, which is detected with an F1 of 0.951 on an independent week. The work also includes a comparison with classical machine learning as a baseline and an interactive web application that helps to visualise, explain and test the detector. The approach prioritises explainability: each decision is accompanied by the signal that justifies it.
+\cleardoublepage
+
+\chapter*{}
+\thispagestyle{empty}
+
+\noindent\rule[-1ex]{\textwidth}{2pt}\\[4.5ex]
+
+Yo, \textbf{Mario Soriano Morón}, alumno de la titulación Grado en Ingeniería Informática de la \textbf{Escuela Técnica Superior
+de Ingenierías Informática y de Telecomunicación de la Universidad de Granada}, con DNI 77766191V, autorizo la
+ubicación de la siguiente copia de mi Trabajo Fin de Grado en la biblioteca del centro para que pueda ser
+consultada por las personas que lo deseen.
+
+\vspace{6cm}
+
+\noindent Fdo: Mario Soriano Morón
+
+\vspace{2cm}
+
+\begin{flushright}
+Granada a 9 de junio de 2026.
+\end{flushright}
+
+
+\chapter*{}
+\thispagestyle{empty}
+
+\noindent\rule[-1ex]{\textwidth}{2pt}\\[4.5ex]
+
+D. \textbf{Antonio Miguel Mora García} y D. \textbf{Juan Francisco Valenzuela Valdés}, Profesores del Área de Ingeniería Telemática del Departamento de Teoría de la Señal, Telemática y Comunicaciones de la Universidad de Granada.
+
+
+\vspace{0.5cm}
+
+\textbf{Informa:}
+
+\vspace{0.5cm}
+
+Que el presente trabajo, titulado \textit{\textbf{Análisis de trazas de red con LLMs para mejorar las prestaciones de Sistemas de Detección de Intrusiones (IDSs)}},
+ha sido realizado bajo su supervisión por \textbf{Mario Soriano Morón}, y autorizan la defensa de dicho trabajo ante el tribunal
+que corresponda.
+
+\vspace{0.5cm}
+
+Y para que conste, expiden y firman el presente informe en Granada a 9 de junio de 2026.
+
+\vspace{1cm}
+
+\textbf{Los tutores:}
+
+\vspace{5cm}
+
+\noindent \textbf{Antonio Miguel Mora García} \hfill \textbf{Juan Francisco Valenzuela Valdés}
+
+\chapter*{Agradecimientos}
+\thispagestyle{empty}
+
+       \vspace{1cm}
+
+
+Quiero agradecer, en primer lugar, a los profesores que me han acompañado y orientado durante la realización de este Trabajo de Fin de Grado. Sus indicaciones, correcciones y consejos han sido fundamentales para dar forma al proyecto y para poder avanzar en los momentos en los que el trabajo se hacía más complejo.
+
+También quiero dar las gracias a mi familia, por el apoyo constante durante todo este camino. No solo por estar presente durante la elaboración de este trabajo, sino por haberme acompañado durante toda la etapa universitaria, incluso en los momentos de más carga o incertidumbre.
+
+Por último, quiero agradecer a mis amigos su compañía, sus ánimos y todos los momentos compartidos. Aunque no siempre se vea reflejado directamente en una memoria, tener cerca a personas que apoyan, escuchan y hacen más llevadero el proceso también forma parte de haber llegado hasta aquí.
+

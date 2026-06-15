@@ -1,0 +1,106 @@
+\chapter{Guía para lanzar la web}
+\label{ap:guia_lanzamiento}
+
+Este apéndice resume los pasos básicos para ejecutar la aplicación web del trabajo en un entorno local. La descripción de la aplicación y de su arquitectura está en el Capítulo~\ref{cap:web}. Los comandos se presentan de forma genérica, sin rutas ni credenciales concretas.
+
+\section{Requisitos previos}
+\label{sec:apb_requisitos}
+
+Para ejecutar la web hacen falta:
+
+\begin{itemize}
+  \item \textbf{Python} con soporte para entornos virtuales, para el backend.
+  \item \textbf{Node.js} y \textbf{npm}, para construir o servir el frontend.
+  \item Las \textbf{dependencias del backend}, que se instalan desde su fichero de requisitos.
+  \item Las \textbf{dependencias del frontend}, que se instalan con \texttt{npm}.
+\end{itemize}
+
+Las dependencias base del backend son \texttt{fastapi} y \texttt{uvicorn}, y bastan para toda la web en modo IA OFF. El frontend usa \texttt{React} y \texttt{Vite}.
+
+\section{Instalación y arranque del backend}
+\label{sec:apb_backend}
+
+Desde la raíz del proyecto se crea y activa un entorno virtual, se instalan las dependencias del backend y se lanza el servidor.
+
+\begin{small}
+\begin{verbatim}
+# crear y activar un entorno virtual
+python -m venv venv
+#   Windows:       venv\Scripts\activate
+#   Linux / macOS: source venv/bin/activate
+
+# instalar dependencias del backend
+cd web/backend
+pip install -r requirements.txt
+
+# lanzar el servidor (por defecto en el puerto 8000)
+uvicorn main:app --reload
+\end{verbatim}
+\end{small}
+
+Al arrancar, el backend queda disponible en \texttt{http://127.0.0.1:8000}.
+
+\section{Instalación del frontend}
+\label{sec:apb_frontend}
+
+El frontend puede ejecutarse con su servidor de desarrollo o compilarse para que lo sirva el propio backend.
+
+\begin{small}
+\begin{verbatim}
+cd web/frontend
+npm install
+
+# opcion A: servidor de desarrollo (frontend y backend por separado)
+npm run dev      # sirve el frontend en http://localhost:5173
+
+# opcion B: compilar para servir todo desde el backend
+npm run build    # genera web/frontend/dist, que sirve FastAPI
+\end{verbatim}
+\end{small}
+
+Con la opción B, una vez compilado el frontend, el backend sirve la web completa en una sola dirección (\texttt{http://127.0.0.1:8000}), de modo que no hace falta abrir dos servidores.
+
+\section{Variables de entorno y modo IA}
+\label{sec:apb_ia}
+
+La web funciona en modo \textbf{IA OFF} sin ninguna configuración adicional: las explicaciones y el simulador usan plantillas locales, y el clasificador se ejecuta con la librería estándar. Es el modo recomendado para reproducir el trabajo.
+
+El modo \textbf{IA ON} con NotebookLM es \textbf{opcional y experimental}. Necesita una biblioteca cliente adicional y configuración local en un fichero \texttt{.env} que \textbf{no se versiona}. En ese fichero van los identificadores de los cuadernos y las credenciales, que nunca se guardan en el repositorio. Si esa configuración no está, la web sigue funcionando en modo IA OFF.
+
+\begin{small}
+\begin{verbatim}
+# dependencia OPCIONAL, solo para el modo IA ON
+pip install notebooklm-py==0.6.0
+\end{verbatim}
+\end{small}
+
+\section{Ejecución básica}
+\label{sec:apb_ejecucion}
+
+Un flujo de uso típico es el siguiente:
+
+\begin{enumerate}
+  \item Lanzar el backend con \texttt{uvicorn}.
+  \item Abrir el navegador en \texttt{http://127.0.0.1:8000}.
+  \item Comprobar que la API responde en \texttt{http://127.0.0.1:8000/api/health}, que debe devolver un estado correcto.
+  \item Navegar por la interfaz: explorar las familias de ataque, generar una ventana en el simulador y probar el clasificador con un CSV pequeño.
+\end{enumerate}
+
+\section{Exposición temporal mediante túnel}
+\label{sec:apb_tunel}
+
+Para mostrar la web desde otro equipo sin desplegarla en un servidor permanente, se puede exponer de forma temporal mediante un túnel de Cloudflare. Es una solución pensada solo para demostración.
+
+\begin{small}
+\begin{verbatim}
+# con el backend activo en el puerto 8000
+cloudflared tunnel --url http://127.0.0.1:8000
+\end{verbatim}
+\end{small}
+
+El túnel genera una dirección pública temporal que deja de funcionar cuando se cierra el proceso.
+
+\section{Limitaciones}
+\label{sec:apb_limitaciones}
+
+La aplicación está pensada para \textbf{demostración y pruebas pequeñas}, no para un uso intensivo. No procesa datasets grandes desde la interfaz, ya que ese trabajo lo hacen los scripts de análisis. Depende de la configuración local, el modo IA ON puede no estar disponible y la exposición mediante túnel es temporal. En ningún caso constituye un despliegue de producción.

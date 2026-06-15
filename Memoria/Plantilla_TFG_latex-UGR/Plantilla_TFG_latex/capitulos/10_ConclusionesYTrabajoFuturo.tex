@@ -1,0 +1,116 @@
+\chapter{Conclusiones y trabajo futuro}
+\label{cap:conclusiones}
+
+Este capítulo cierra la memoria. Resume lo que se ha hecho, revisa el cumplimiento de los objetivos planteados en el Capítulo~\ref{cap:introduccion}, recoge los principales resultados y aportaciones, reconoce las limitaciones del trabajo y propone líneas de continuación.
+
+\section{Conclusiones generales}
+\label{sec:concl_resumen}
+
+A lo largo del trabajo se ha desarrollado un sistema para analizar trazas NetFlow del dataset UGR'16 \cite{ugr16} e identificar comportamientos compatibles con tráfico malicioso. El enfoque final combina dos piezas: un análisis previo apoyado en modelos de lenguaje y NotebookLM, que ayudó a interpretar los patrones de cada familia y a formular hipótesis, y un clasificador contextual basado en reglas conductuales, que es el que realmente toma las decisiones.
+
+El detector final no es un modelo de lenguaje, y así ha sido durante todo el trabajo. La detección la realiza la versión \textbf{v5} del clasificador, un conjunto de reglas explícitas y revisables que trabajan sobre ventanas de tráfico. Los modelos de lenguaje intervienen solo en la fase de análisis, como apoyo, y no en el cálculo de los resultados.
+
+Además del detector, se ha construido una aplicación web que ayuda a visualizar, explicar y probar el sistema. No sustituye a la evaluación experimental, pero acerca el funcionamiento del detector a quien quiera entenderlo.
+
+En conjunto, el trabajo cumple su objetivo general: estudiar cómo los modelos de lenguaje pueden apoyar la mejora de las prestaciones de un sistema de detección de intrusiones, sin convertirse en el motor de detección. El papel de los LLM queda acotado al análisis y la documentación, mientras que la decisión se mantiene en un componente verificable.
+
+\section{Cumplimiento de objetivos}
+\label{sec:concl_objetivos}
+
+La Tabla~\ref{tab:cumplimiento} revisa los objetivos específicos planteados en el Capítulo~\ref{cap:introduccion} y resume cómo se han abordado y en qué capítulo se desarrollan.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|p{5.6cm}|p{6.0cm}|c|}
+\hline
+\textbf{Objetivo} & \textbf{Cómo se ha abordado} & \textbf{Cap.} \\
+\hline
+Estudiar NetFlow y el dataset UGR'16 & Descripción del formato de flujo y del dataset, con sus etiquetas y capturas. & \ref{cap:conceptos}, \ref{cap:herramientas_datos} \\
+\hline
+Preparar y extraer ventanas de ataque & Limpieza, filtrado y extracción de ventanas por familia con varios criterios. & \ref{cap:herramientas_datos}, \ref{cap:algoritmos} \\
+\hline
+Usar NotebookLM y LLMs como apoyo & Interpretación de patrones y formulación de hipótesis, siempre validadas con código. & \ref{cap:algoritmos} \\
+\hline
+Diseñar reglas conductuales explicables & Traducción de las hipótesis en señales medibles y reglas por familia. & \ref{cap:algoritmos} \\
+\hline
+Implementar el clasificador contextual v5 & Tres pases en cascada (local, global por ventana y global por origen). & \ref{cap:algoritmos} \\
+\hline
+Evaluar con métricas por familia & Evaluación binaria y por familia con precisión, recall y $F_1$. & \ref{cap:experimentos} \\
+\hline
+Comparar con ML clásico (baseline) & Comparación secundaria con modelos clásicos sobre muestra equilibrada. & \ref{cap:experimentos} \\
+\hline
+Probar la generalización en UGR'16 & Pruebas en \texttt{august.week2} y \texttt{april.week2}, distintas de la de diseño. & \ref{cap:experimentos} \\
+\hline
+Desarrollar la web interactiva & Aplicación para explorar familias, simular ventanas y probar el clasificador. & \ref{cap:web} \\
+\hline
+\end{tabular}
+\caption{Objetivos específicos y capítulos donde se abordan.}
+\label{tab:cumplimiento}
+\end{table}
+
+En términos generales, los objetivos planteados se han cubierto. El último objetivo, identificar limitaciones y proponer trabajo futuro, se atiende en este mismo capítulo.
+
+\section{Principales resultados obtenidos}
+\label{sec:concl_resultados}
+
+Sin repetir el detalle del Capítulo~\ref{cap:experimentos}, los resultados se pueden resumir así. La versión \textbf{v5} queda como versión final del clasificador, la \textbf{v3} como base estable de la que parte, y la \textbf{v4} como un experimento que no se adoptó.
+
+En el conjunto principal de estudio (\texttt{august.week1}), la v5 mantiene una detección binaria alta, con un $F_1$ de 0,957. Por familias, los casos mejor resueltos son el escaneo UDP (\texttt{anomaly-udpscan}, $F_1$ de 0,968) y los escaneos verticales (\texttt{scan11} y \texttt{scan44}). La inundación de servicio (\texttt{dos}) obtiene un rendimiento intermedio, y la coordinación tipo botnet (\texttt{nerisbotnet}) sigue siendo la familia más difícil con solo metadatos de flujo.
+
+El resultado más característico de la v5 es la recuperación del escaneo SSH. Con solo contexto local no se detectaba, y al añadir la agregación global por origen pasa a detectarse con un $F_1$ de 0,951 en \texttt{april.week2}, la semana donde esa familia es abundante. En esa misma semana, la detección binaria alcanza un $F_1$ de 0,873. La clase de campaña SMTP (\texttt{anomaly-spam}) se descartó como resultado activo por su escasa señal con metadatos de flujo. El aprendizaje automático clásico se mantiene como referencia secundaria, no como propuesta principal.
+
+\section{Aportaciones del trabajo}
+\label{sec:concl_aportaciones}
+
+Las aportaciones del trabajo, sin sobrevalorarlas, son las siguientes:
+
+\begin{itemize}
+  \item Un \textbf{pipeline completo} que va desde los datos NetFlow en bruto hasta la evaluación, pasando por la limpieza, la extracción de ventanas y la clasificación.
+  \item Un clasificador de \textbf{reglas conductuales explicables}, en el que cada decisión se acompaña de la señal que la justifica.
+  \item Una \textbf{separación clara} entre el análisis asistido por LLMs y la detección final.
+  \item Pruebas de generalización sobre \textbf{varias semanas} de UGR'16, que ayudan a delimitar dónde se mantiene el enfoque y dónde no.
+  \item Una \textbf{comparación} con modelos clásicos de aprendizaje automático que sirve de referencia honesta.
+  \item Una \textbf{web interactiva} para explorar y explicar los ataques y probar el clasificador en casos pequeños.
+\end{itemize}
+
+El trabajo no pretende ser un IDS listo para producción, sino una base académica que muestra un enfoque explicable y reproducible.
+
+\section{Limitaciones}
+\label{sec:concl_limitaciones}
+
+El trabajo tiene varios límites que se deben declarar con claridad:
+
+\begin{itemize}
+  \item Toda la evaluación se apoya en \textbf{UGR'16}. No se ha probado sobre otras redes ni otros datasets.
+  \item La generalización comprobada es \textbf{parcial dentro de UGR'16}, sobre otras semanas, no una validación en cualquier red real.
+  \item Al trabajar con NetFlow \textbf{no hay payload}, lo que limita de forma estructural la detección de algunas familias.
+  \item Hay \textbf{familias difíciles}. La coordinación tipo botnet y la campaña SMTP no se resuelven bien con solo metadatos de flujo.
+  \item El \textbf{escaneo UDP} no se ha podido evaluar fuera de \texttt{august.week1}, porque no aparece en las otras semanas disponibles.
+  \item El \textbf{tercer pase global para SSH} mejora la detección de \texttt{anomaly-sshscan} donde esa familia es abundante, pero puede generar falsos positivos en semanas en las que ese ataque no aparece etiquetado. Es una contrapartida asumida del diseño.
+  \item Las etiquetas del dataset pueden contener \textbf{ruido}. Parte del tráfico de fondo con estructura anómala se contabiliza como falso positivo aunque no esté etiquetado como ataque.
+  \item La \textbf{web} está pensada para demostración y pruebas pequeñas, no para procesar grandes volúmenes.
+  \item El uso de \textbf{NotebookLM} es una integración experimental y auxiliar, que depende de configuración local.
+\end{itemize}
+
+\section{Trabajo futuro}
+\label{sec:concl_futuro}
+
+A partir de lo anterior, quedan abiertas varias líneas de continuación:
+
+\begin{itemize}
+  \item Probar el clasificador en \textbf{otros datasets} o en tráfico real controlado, para ver si el enfoque conductual se mantiene fuera de UGR'16.
+  \item Ampliar la evaluación del \textbf{escaneo UDP} y del \textbf{escaneo SSH} en más escenarios y semanas.
+  \item Mejorar la detección de \textbf{botnets} y de ataques de baja evidencia, quizá combinando señales adicionales.
+  \item Refinar los \textbf{falsos positivos} del tercer pase SSH en semanas donde ese ataque no está presente.
+  \item Integrar \textbf{capturas y figuras definitivas} en la web y en la memoria, donde ahora hay marcadores pendientes.
+  \item Mejorar el \textbf{empaquetado y las dependencias} de la web para facilitar su instalación.
+  \item Estudiar \textbf{modelos híbridos} que combinen capacidad predictiva y explicabilidad.
+  \item Añadir más \textbf{visualizaciones y trazabilidad} para el análisis de errores.
+  \item Preparar un \textbf{despliegue más robusto} si se quisiera usar la web fuera de un entorno académico.
+\end{itemize}
+
+\section{Cierre}
+\label{sec:concl_cierre}
+
+El trabajo muestra que los modelos de lenguaje pueden ayudar en el análisis y la documentación de patrones de tráfico, sin necesidad de que sean ellos quienes deciden qué es un ataque. La detección final se mantiene en un clasificador de reglas verificable y explicable, y la web ayuda a hacer comprensibles los resultados. Más que un sistema cerrado, el resultado es un punto de partida sobre el que se puede seguir trabajando, tanto en la parte de detección como en la de explicación.

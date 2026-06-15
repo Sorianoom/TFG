@@ -1,0 +1,17 @@
+# Artefactos de compilación LaTeX (regenerables con latexmk)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.toc
+*.log
+*.synctex.gz
+*.run.xml
+*.bcf
+
+# PDF compilado (salida de build; las figuras en imagenes/*.pdf SÍ se versionan)
+/proyecto.pdf

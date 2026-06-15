@@ -1,0 +1,95 @@
+\chapter{Herramientas y datos}
+\label{cap:herramientas_datos}
+
+Este capítulo describe los medios empleados para realizar la investigación: las herramientas software, el entorno de desarrollo y, sobre todo, los datos. Se explica qué es el dataset UGR'16, cómo son las trazas NetFlow con las que se trabaja, qué proceso de limpieza y preparación fue necesario, qué familias de tráfico se han analizado y qué limitaciones presentan los datos. No se incluyen resultados experimentales (Capítulo~\ref{cap:experimentos}) ni el detalle de los algoritmos (Capítulo~\ref{cap:algoritmos}).
+
+\section{Herramientas software utilizadas}
+\label{sec:herr_software}
+
+El desarrollo se ha apoyado en herramientas \textbf{de código abierto o con licencia académica}. Las principales son:
+
+\begin{itemize}
+  \item \textbf{Python} como lenguaje principal, porque es idóneo para el análisis de datos y el prototipado rápido.
+  \item \textbf{Bibliotecas de análisis de datos}, principalmente \texttt{pandas} y \texttt{NumPy}, junto con \texttt{Polars} para el procesamiento eficiente de los ficheros de mayor tamaño. Dado el gran volumen de los datos (en torno a 80~GB), se trabajó leyendo los ficheros por partes y generando subconjuntos más manejables.
+  \item \textbf{scikit-learn}, empleada para los modelos clásicos de aprendizaje automático que se usan como referencia (\textit{baseline}) en la comparación.
+  \item \textbf{Scripts propios} desarrollados a lo largo del proyecto para limpiar las diferentes fuentes de datos, extraer ventanas, ejecutar el clasificador y generar resúmenes.
+  \item \textbf{NotebookLM y modelos de lenguaje}, utilizados como \textbf{apoyo al análisis}: interpretación de patrones, síntesis del comportamiento observado y documentación de hipótesis. No participan en la decisión de detección.
+  \item \textbf{Pila web} basada en tecnologías abiertas (un backend en Python y un frontend web) para la aplicación interactiva descrita en el Capítulo~\ref{cap:web}.
+  \item \textbf{Control de versiones} (Git) para gestionar el código y la documentación.
+  \item \textbf{LaTeX} para la redacción de esta memoria.
+\end{itemize}
+
+\section{Entorno de desarrollo}
+\label{sec:herr_entorno}
+
+El proyecto se ha desarrollado en un equipo personal, utilizando un editor de código con soporte para Python y para control de versiones (Visual Studio Code). El trabajo combinó la ejecución de scripts de procesamiento y análisis sobre los datos con sesiones de análisis asistido mediante NotebookLM. La aplicación web se ejecuta en local durante el desarrollo y puede exponerse puntualmente para pruebas. No se ha requerido infraestructura especializada: el volumen de datos se gestionó mediante muestreo, filtrado y procesamiento por partes, en lugar de recurrir a grandes recursos de cómputo.
+
+\section{Dataset UGR'16}
+\label{sec:herr_ugr16}
+
+Los datos proceden del dataset público \textbf{UGR'16}. Su principal valor es que está construido a partir de \textbf{tráfico real} de un proveedor de servicios de Internet (ISP), y no de tráfico generado en laboratorio. Esto hace que el conjunto incluya toda la variedad y el ruido propios de una red en producción, lo que aporta realismo al proyecto.
+
+El dataset está formado por registros NetFlow y, además del tráfico background (normal), incluye \textbf{ataques etiquetados} de distintas familias. Esa etiqueta indica, para cada traza, si corresponde a tráfico normal o a un tipo concreto de ataque, y es lo que permite evaluar después el sistema. Estas etiquetas se usan \emph{solo para evaluar}, nunca como entrada para detectar.
+
+El conjunto cubre además un periodo amplio de tiempo, organizado en distintas capturas semanales. En este trabajo, una de las capturas se utiliza principalmente para el \textbf{diseño y ajuste inicial} del enfoque (la formulación de las reglas), mientras que otras capturas pueden emplearse posteriormente para estudiar la \textbf{generalización} del sistema, es decir, su comportamiento sobre tráfico que no se empleó para diseñar las reglas. El detalle de esa evaluación se presenta en el Capítulo~\ref{cap:experimentos}.
+
+\section{Estructura de las trazas NetFlow}
+\label{sec:herr_netflow}
+
+Cada traza del dataset es un \textbf{flujo NetFlow}: un resumen de una comunicación de red mediante metadatos, sin el contenido (\emph{payload}) transmitido. Los campos que se utilizan en el análisis son, de forma general:
+
+\begin{itemize}
+  \item direcciones IP de origen y de destino.
+  \item puertos de origen y de destino, que identifican el servicio utilizado.
+  \item protocolo de transporte (TCP, UDP, etc.).
+  \item marca temporal y duración del flujo.
+  \item número de paquetes y de bytes.
+  \item banderas (\emph{flags}) cuando proceden.
+\end{itemize}
+
+La consecuencia más importante de trabajar con NetFlow es que \textbf{no se observa el contenido} de las comunicaciones: solo se puede saber quién habla con quién, por qué puerto, cuándo y con qué volumen. Esto resulta útil por privacidad y escalabilidad, pero también supone un límite: hay ataques cuya naturaleza solo se aprecia mirando el contenido, y que por tanto son difíciles de caracterizar únicamente con metadatos.
+
+\section{Proceso de limpieza y preparación de datos}
+\label{sec:herr_preprocesado}
+
+El gran volumen de UGR'16 hizo inviable trabajar con el dataset completo de una sola vez, por lo que fue necesario un proceso de preparación en varias etapas:
+
+\begin{itemize}
+  \item \textbf{Limpieza y validación.} Lectura de los ficheros NetFlow, comprobación del formato de los campos y descarte de registros no válidos o incompletos.
+  \item \textbf{Filtrado y muestreo.} Separación del tráfico de interés y generación de subconjuntos manejables (por ejemplo, muestras de tráfico normal y conjuntos centrados en cada ataque), para poder analizar sin necesidad de procesar el conjunto entero.
+  \item \textbf{Extracción de ventanas.} Construcción de \textbf{ventanas de tráfico} que contienen cada ataque junto con su contexto. Esto permite estudiar el comportamiento en conjunto y no traza a traza, que es como realmente se manifiestan muchos patrones. Se generaron ventanas con distintos criterios (por número de trazas y por intervalos de tiempo) para observar cada familia con suficiente contexto.
+  \item \textbf{Preparación de subconjuntos para la comparación.} Para la comparación con modelos clásicos de aprendizaje automático se prepararon muestras equilibradas entre clases, de modo que la referencia fuese justa. El detalle de esa comparación se trata en el Capítulo~\ref{cap:experimentos}.
+\end{itemize}
+
+Todo este proceso se realizó mediante scripts propios, de forma reproducible: cada paso parte de los datos del paso anterior y deja resultados intermedios que pueden volver a generarse.
+
+\section{Familias de tráfico analizadas}
+\label{sec:herr_familias}
+
+El trabajo se centra en \textbf{seis familias de ataque}, escogidas por ser representativas de comportamientos distintos y por presentar patrones estudiables con metadatos de flujo:
+
+\begin{itemize}
+  \item \texttt{scan11} --- escaneo vertical desde un único origen contra un host (muchos puertos de una misma víctima).
+  \item \texttt{scan44} --- escaneo vertical distribuido (varios orígenes coordinados contra el mismo objetivo).
+  \item \texttt{anomaly-udpscan} --- escaneo UDP de un origen hacia muchos destinos y puertos, con flujos muy ligeros.
+  \item \texttt{dos} --- inundación de un servicio, con mucho tráfico concentrado hacia un mismo destino y puerto.
+  \item \texttt{nerisbotnet} --- actividad coordinada tipo red de bots, con varios orígenes de comportamiento muy similar.
+  \item \texttt{anomaly-sshscan} --- escaneo horizontal por SSH (un origen que contacta muchos destinos por el puerto 22).
+\end{itemize}
+
+Estas seis familias cubren comportamientos verticales, horizontales, de concentración y de coordinación, lo que las hace adecuadas para estudiar hasta dónde llega un enfoque basado en el comportamiento. Junto a ellas, el dataset contiene tráfico de fondo (\emph{background}), que representa la inmensa mayoría de las trazas y actúa como clase normal frente a la que se contrastan los ataques.
+
+\section{Limitaciones del dataset y decisiones tomadas}
+\label{sec:herr_limitaciones}
+
+Trabajar con UGR'16 implica asumir algunas limitaciones, que se declaran de forma transparente:
+
+\begin{itemize}
+  \item \textbf{Ausencia de contenido.} Al ser NetFlow, no hay payload. Algunas familias son difíciles de separar del tráfico normal solo con metadatos, lo que marca un límite estructural del enfoque.
+  \item \textbf{Fuerte desbalance.} El tráfico normal domina ampliamente sobre el malicioso. Esto es realista, pero obliga a elegir métricas adecuadas (Capítulo~\ref{cap:experimentos}) y a no fiarse de la simple proporción de aciertos.
+  \item \textbf{Ruido en el tráfico de fondo.} El tráfico etiquetado como normal contiene actividad automatizada (por ejemplo, escaneos de fondo no etiquetados) que puede parecerse a un ataque y dificultar la separación.
+  \item \textbf{Disponibilidad desigual de familias entre semanas.} No todas las familias aparecen en todas las capturas, lo que condiciona qué se puede evaluar y dónde, y limita el alcance de algunas pruebas de generalización.
+  \item \textbf{Etiquetas auxiliares no usadas como criterio.} El dataset incluye etiquetas adicionales (como la de listas negras) que no se emplean como criterio principal de detección, coherentemente con el enfoque conductual del trabajo.
+\end{itemize}
+
+En cuanto a las decisiones tomadas, el análisis se ha acotado a las seis familias anteriores por ser las más adecuadas para un enfoque basado en comportamiento. El dataset contiene además alguna clase adicional con muy pocas muestras y poca señal conductual representativa, que \textbf{se descartó del análisis principal} por aportar escaso valor aprovechable con solo metadatos. Se conserva únicamente como material histórico y no forma parte de las familias activas del trabajo. Esta decisión permite centrar el estudio en los comportamientos realmente caracterizables y mantener unos resultados coherentes y honestos.

@@ -1,0 +1,77 @@
+\chapter{Ejemplos de ventanas sintéticas}
+\label{ap:ejemplos_ventanas}
+
+Este apéndice recoge un par de ejemplos de ventanas \textbf{sintéticas}, del tipo que genera el simulador de la web (Figura~\ref{fig:web_simulador}). Son ejemplos ilustrativos y deben leerse como tales: \textbf{no proceden del dataset UGR'16}, \textbf{no se usan para calcular métricas} y solo sirven para visualizar de forma sencilla la forma de algunos patrones de tráfico. El análisis experimental real se desarrolla en el Capítulo~\ref{cap:experimentos}.
+
+Las direcciones IP son de rangos privados o de documentación, sin ningún dato real. Cada ventana se muestra con unas pocas filas: alguna de tráfico normal (\emph{background}) como contexto y varias del patrón de ataque.
+
+\section{Ejemplo: escaneo UDP (anomaly-udpscan)}
+\label{sec:ape_udpscan}
+
+La Tabla~\ref{tab:ape_udpscan} muestra una ventana sintética de escaneo UDP.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|l|r|c|r|r|c|l|}
+\hline
+\textbf{Origen} & \textbf{Destino} & \textbf{Puerto} & \textbf{Proto.} & \textbf{Paq.} & \textbf{Bytes} & \textbf{Flags} & \textbf{Etiqueta} \\
+\hline
+198.51.100.20 & 192.0.2.40 & 443 & TCP & 22 & 5800 & A & background \\
+\hline
+10.0.0.7 & 192.168.4.11 & 137 & UDP & 1 & 46 & . & anomaly-udpscan \\
+\hline
+10.0.0.7 & 192.168.9.83 & 1900 & UDP & 1 & 52 & . & anomaly-udpscan \\
+\hline
+10.0.0.7 & 192.168.20.5 & 161 & UDP & 1 & 44 & . & anomaly-udpscan \\
+\hline
+10.0.0.7 & 192.168.33.250 & 520 & UDP & 1 & 60 & . & anomaly-udpscan \\
+\hline
+10.0.0.7 & 192.168.51.7 & 111 & UDP & 1 & 48 & . & anomaly-udpscan \\
+\hline
+198.51.100.61 & 192.0.2.9 & 53 & UDP & 3 & 220 & . & background \\
+\hline
+\end{tabular}
+\caption{Ventana sintética de escaneo UDP (datos ilustrativos, no reales).}
+\label{tab:ape_udpscan}
+\end{table}
+
+El patrón es una dispersión desde un único origen (\texttt{10.0.0.7}) hacia muchos destinos y puertos distintos, con flujos UDP muy ligeros de un solo paquete y pocos bytes. Esa combinación de un origen, muchos destinos y flujos atómicos es lo que caracteriza al escaneo UDP, y se distingue del tráfico normal que lo rodea, más pesado y dirigido a servicios concretos.
+
+\section{Ejemplo: escaneo vertical (scan11)}
+\label{sec:ape_scan11}
+
+La Tabla~\ref{tab:ape_scan11} muestra una ventana sintética de escaneo vertical desde un único origen.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|l|r|c|r|r|c|l|}
+\hline
+\textbf{Origen} & \textbf{Destino} & \textbf{Puerto} & \textbf{Proto.} & \textbf{Paq.} & \textbf{Bytes} & \textbf{Flags} & \textbf{Etiqueta} \\
+\hline
+198.51.100.30 & 192.0.2.18 & 443 & TCP & 25 & 6100 & A & background \\
+\hline
+10.0.0.99 & 192.168.7.10 & 22 & TCP & 1 & 44 & S & scan11 \\
+\hline
+10.0.0.99 & 192.168.7.10 & 23 & TCP & 1 & 40 & S & scan11 \\
+\hline
+10.0.0.99 & 192.168.7.10 & 80 & TCP & 2 & 56 & S & scan11 \\
+\hline
+10.0.0.99 & 192.168.7.10 & 445 & TCP & 1 & 40 & S & scan11 \\
+\hline
+10.0.0.99 & 192.168.7.10 & 3306 & TCP & 1 & 48 & S & scan11 \\
+\hline
+198.51.100.77 & 192.0.2.55 & 993 & TCP & 19 & 4300 & SA & background \\
+\hline
+\end{tabular}
+\caption{Ventana sintética de escaneo vertical (datos ilustrativos, no reales).}
+\label{tab:ape_scan11}
+\end{table}
+
+Aquí un mismo origen (\texttt{10.0.0.99}) contacta muchos puertos distintos de una misma víctima (\texttt{192.168.7.10}) con conexiones TCP mínimas (un intento SYN por puerto, pocos paquetes y pocos bytes). Esa verticalidad, muchos puertos de un único destino desde un único origen, es la señal del escaneo vertical, frente al tráfico normal que abre conexiones completas hacia servicios concretos.
+
+\section{Cierre}
+\label{sec:ape_cierre}
+
+Estos ejemplos ayudan a interpretar las ventanas que genera el simulador de la web y a reconocer la forma de cada patrón. No sustituyen a las ventanas reales de UGR'16 ni a la evaluación del clasificador, que se presenta en el Capítulo~\ref{cap:experimentos}.

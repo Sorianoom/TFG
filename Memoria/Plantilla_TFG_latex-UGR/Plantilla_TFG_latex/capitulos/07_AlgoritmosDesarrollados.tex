@@ -1,0 +1,241 @@
+\chapter{Algoritmos desarrollados}
+\label{cap:algoritmos}
+
+Este capítulo describe la propuesta técnica del trabajo: el clasificador contextual basado en reglas conductuales. Se explica el enfoque general, los datos concretos empleados para diseñarlo, el papel de los modelos de lenguaje como apoyo, la evolución de las distintas versiones, las señales conductuales de cada familia, la lógica de decisión y las salidas que genera. Las métricas completas de evaluación se presentan en el Capítulo~\ref{cap:experimentos}. Cuando aquí se citan resultados puntuales es solo para justificar por qué una versión se mantuvo o se descartó.
+
+\section{Enfoque general de la propuesta}
+\label{sec:alg_enfoque}
+
+El sistema combina tres ideas: el análisis de trazas NetFlow, la extracción de patrones de comportamiento y la aplicación de reglas contextuales que tienen en cuenta el entorno de cada flujo. En lugar de entrenar un modelo estadístico, se definen reglas explícitas que describen \emph{cómo} se comporta cada tipo de ataque, de modo que cada decisión pueda justificarse con la señal que la ha provocado.
+
+La versión final del clasificador trabaja con \textbf{seis familias activas}: \texttt{scan11}, \texttt{scan44}, \texttt{anomaly-udpscan}, \texttt{dos}, \texttt{nerisbotnet} y \texttt{anomaly-sshscan}. Estas familias cubren comportamientos verticales, horizontales, de concentración y de coordinación.
+
+Un principio que se mantiene en todo el diseño es que las \textbf{etiquetas del dataset se usan solo para evaluar}, nunca como entrada para detectar. El clasificador decide a partir del comportamiento observado en los metadatos de flujo, no a partir de la etiqueta real ni de la identidad de las máquinas.
+
+\section{Datos utilizados para el desarrollo del clasificador}
+\label{sec:alg_datos}
+
+El diseño de las reglas se apoyó en la captura principal del dataset UGR'16, correspondiente a la primera semana de agosto. El fichero original (de aproximadamente 80~GB) se limpió y validó hasta obtener \texttt{august\_week1\_clean.csv}, con \textbf{100\,155\,976 trazas válidas}. De ellas, el tráfico de fondo (\emph{background}) supone la inmensa mayoría, con \textbf{98\,170\,672 trazas} (en torno al 98\,\%), de modo que el tráfico malicioso es una fracción pequeña (alrededor del 2\,\%).
+
+La distribución de las etiquetas maliciosas documentada en la captura principal es la siguiente:
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Familia} & \textbf{Trazas} \\
+\hline
+anomaly-udpscan & 989\,872 \\
+\hline
+dos & 391\,599 \\
+\hline
+scan44 & 190\,584 \\
+\hline
+nerisbotnet & 151\,525 \\
+\hline
+scan11 & 36\,144 \\
+\hline
+anomaly-sshscan & 8 \\
+\hline
+\end{tabular}
+\caption{Distribución de trazas de las seis familias activas en la captura principal (\texttt{august\_week1}). La etiqueta auxiliar \emph{blacklist} no es una familia activa.}
+\label{tab:distribucion_familias}
+\end{table}
+
+Esta distribución es muy desigual y condiciona el diseño. Por ejemplo, \texttt{anomaly-sshscan} apenas cuenta con 8 trazas etiquetadas en esta semana, lo que hace que su comportamiento solo pueda estudiarse con garantías en otra captura. El dataset incluye además una etiqueta auxiliar de listas negras (\emph{blacklist}, con 225\,525 trazas) que \textbf{no se utiliza como criterio de detección}, de forma coherente con el enfoque conductual.
+
+Para poder analizar sin procesar el conjunto completo de una sola vez, se generaron dos tipos de subconjuntos de trabajo, con papeles muy distintos en el resultado final.
+
+\textbf{Subconjuntos balanceados (fase inicial, no adoptada como eje).} En una fase inicial se generaron subconjuntos balanceados con distintas proporciones de tráfico normal y malicioso (50/50, 60/40 y 70/30, en las carpetas \texttt{balanced\_50\_50}, \texttt{balanced\_60\_40} y \texttt{balanced\_70\_30}), porque parecía la vía lógica para abordar el problema como una clasificación clásica. El inconveniente es que este enfoque trata cada flujo como una muestra independiente y pierde el contexto del ataque, y en este problema eso no basta, porque un ataque depende de las relaciones entre flujos. Un flujo aislado puede parecer completamente normal, pero cien flujos muy parecidos en pocos segundos hacia muchos puertos o muchos destinos ya revelan un patrón de ataque. El aprendizaje obtenido en esta fase fue que el problema no consistía únicamente en clasificar trazas individuales, sino en interpretar comportamientos agregados. Por ese motivo, el proyecto evolucionó desde los datasets balanceados hacia un enfoque de ventanas, contexto y reglas conductuales, y los subconjuntos balanceados se mantienen solo como material exploratorio o auxiliar (y como base de la comparación con modelos clásicos del Capítulo~\ref{cap:experimentos}), nunca como núcleo del algoritmo.
+
+\textbf{Ventanas de tráfico (eje del enfoque final).} El enfoque final se desplazó hacia ventanas representativas por familia, sobre las que se aplican las reglas conductuales. Para el análisis inicial se extrajeron 3 ventanas base por familia (18 en total). Después, creamos un proceso de extracción unificado (\texttt{extract\_attack\_windows\_unified.py}), que generó un conjunto sistemático de ventanas con tres criterios distintos, recogido en \texttt{window\_extraction\_summary.csv}: por número de filas (\texttt{rows\_2000}) y por intervalos de tiempo (\texttt{time\_10s} y \texttt{time\_60s}). Para las seis familias activas, ese proceso produjo \textbf{146 ventanas} en total, cuya distribución por familia y tipo se recoge en la Tabla~\ref{tab:ventanas}.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+\textbf{Familia} & \texttt{rows\_2000} & \texttt{time\_10s} & \texttt{time\_60s} & \textbf{Total} \\
+\hline
+dos & 10 & 10 & 5 & 25 \\
+\hline
+anomaly-udpscan & 10 & 10 & 5 & 25 \\
+\hline
+nerisbotnet & 10 & 10 & 5 & 25 \\
+\hline
+scan11 & 10 & 10 & 5 & 25 \\
+\hline
+scan44 & 10 & 10 & 5 & 25 \\
+\hline
+anomaly-sshscan & 8 & 8 & 5 & 21 \\
+\hline
+\textbf{Total} & \textbf{58} & \textbf{58} & \textbf{30} & \textbf{146} \\
+\hline
+\end{tabular}
+\caption{Ventanas extraídas por familia y tipo para las seis familias de ataque activas (fuente: \texttt{window\_extraction\_summary.csv}).}
+\label{tab:ventanas}
+\end{table}
+
+Como muestra la Tabla~\ref{tab:ventanas}, cinco de las familias activas (\texttt{dos}, \texttt{anomaly-udpscan}, \texttt{nerisbotnet}, \texttt{scan11} y \texttt{scan44}) cuentan con 25 ventanas cada una, repartidas en 10 de tipo \texttt{rows\_2000}, 10 de tipo \texttt{time\_10s} y 5 de tipo \texttt{time\_60s}. La familia \texttt{anomaly-sshscan} cuenta con 21 ventanas (8, 8 y 5, respectivamente), lo que da un total de 146 ventanas activas. Conviene aclarar que el número 30 corresponde únicamente a las ventanas de tipo \texttt{time\_60s}, no al total.
+
+Trabajar con ventanas es lo que permite observar el comportamiento alrededor del ataque, y no solo una línea aislada del dataset. Esto es importante porque muchos ataques no se reconocen por un flujo individual, sino por la acumulación de muchos flujos parecidos en poco tiempo o hacia muchos destinos y puertos. En una ventana se pueden apreciar las propiedades que de verdad distinguen cada familia: el número de destinos, los puertos, la concentración hacia un servicio, la coordinación entre orígenes, la dispersión temporal, el volumen y la duración.
+
+\section{Análisis asistido mediante LLMs}
+\label{sec:alg_llms}
+
+Durante el diseño se utilizaron modelos de lenguaje, en particular NotebookLM, como \textbf{apoyo al análisis}. Su función fue interpretar los patrones de cada familia, resumir el comportamiento observado y ayudar a formular hipótesis sobre las señales relevantes. En ningún caso decidieron la detección: cada hipótesis sugerida se tradujo en una regla y se comprobó después con código y datos.
+
+Para ese análisis se prepararon, por ataque, paquetes de material estructurado (mediante los scripts de automatización de NotebookLM). Cada paquete reunía las fuentes centradas en el ataque, las ventanas por número de filas y por tiempo, y un resumen de contexto. A partir de ese material, NotebookLM producía análisis intermedios (análisis estructural, comparación con el tráfico de fondo y síntesis de validación) que servían de guía, pero que siempre se contrastaban con la ejecución del clasificador. De este modo, el conocimiento aportado por los LLMs quedó incorporado en forma de reglas revisables, y no como una caja negra.
+
+\section{Evolución de versiones del clasificador}
+\label{sec:alg_versiones}
+
+El clasificador no surgió en una sola pieza, sino que fue evolucionando a lo largo de cinco versiones. La Tabla~\ref{tab:versiones} resume el objetivo, la mejora introducida, la limitación y el estado final de cada una.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|l|p{3.0cm}|p{3.4cm}|p{3.4cm}|p{2.0cm}|}
+\hline
+\textbf{Versión} & \textbf{Objetivo} & \textbf{Mejora introducida} & \textbf{Limitación} & \textbf{Estado} \\
+\hline
+v1 & Clasificar cada traza por su contexto local. & Contexto local (ventana de $\pm$30 filas) con señales básicas. & No separaba bien subtipos parecidos ni patrones repartidos. & Superada. \\
+\hline
+v2 & Dar estructura a la decisión. & Clasificación jerárquica: ataque/background, luego familia y subtipo, con incertidumbre. & El subtipo \texttt{scan11}/\texttt{scan44} seguía siendo bastante inestable. & Superada. \\
+\hline
+v3 & Añadir visión de conjunto. & Segundo pase global por ventana: separa \texttt{scan11} de \texttt{scan44} y confirma \texttt{anomaly-udpscan}. & No detectaba el escaneo SSH lento y disperso. & Base estable. \\
+\hline
+v4 & Mejorar familias débiles. & Reparto de confianza alto/bajo en la coordinación tipo botnet. & La mejora no resultó concluyente. & Experimental, no adoptada. \\
+\hline
+v5 integrated & Recuperar el escaneo SSH. & Tercer pase global por origen que detecta el fan-out al puerto 22. & Depende de un fan-out suficiente del origen. & Final / principal. \\
+\hline
+\end{tabular}
+\caption{Evolución de las versiones del clasificador contextual.}
+\label{tab:versiones}
+\end{table}
+
+A continuación se explica cada versión con más detalle, indicando el script correspondiente.
+
+\textbf{v1 --- reglas locales} (\texttt{detect\_attack\_flows\_contextual.py}). La primera aproximación clasificaba cada traza a partir de su contexto local, una ventana de $\pm$30 filas, con señales simples (atomicidad de los flujos, ráfagas, concentración). Sirvió para validar que sí existían patrones detectables en los metadatos, pero tenía una limitación clara: al mirar solo el entorno cercano, costaba separar familias parecidas y se escapaban los patrones que dependen de un contexto más amplio.
+
+\textbf{v2 --- decisión jerárquica} (\texttt{detect\_attack\_flows\_contextual\_v2.py}). Para ordenar la decisión, la v2 introdujo una clasificación por niveles: primero detectaba ataque o tráfico background, después la familia del ataque y, por último, el subtipo, dejando margen para la incertidumbre. La salida se volvió más estructurada e interpretable, pero el subtipo \texttt{scan11} frente a \texttt{scan44} seguía siendo inestable, porque distinguir un origen único de varios orígenes no se resuelve bien sin una visión de conjunto.
+
+\textbf{v3 --- contexto global por ventana} (\texttt{detect\_attack\_flows\_contextual\_v3.py}). La v3 añadió un segundo pase que agregaba la información de toda la ventana. Con esa visión global pudo separar \texttt{scan11} (un origen domina el barrido) de \texttt{scan44} (el barrido se reparte entre varios orígenes) y confirmar \texttt{anomaly-udpscan} por la dispersión del origen hacia muchos destinos. El cambio tenía sentido porque resolvía justo lo que fallaba antes: los patrones que solo se ven al mirar el conjunto, no flujo a flujo. La v3 se consolidó como base estable, con una detección binaria de ataque frente a normal fuerte. La limitación restante era el escaneo horizontal SSH, lento y disperso, que no dejaba ninguna señal en el contexto local.
+
+\textbf{v4 --- familias débiles, experimental} (\texttt{detect\_attack\_flows\_contextual\_v4\_experimental.py}). En la v4 se probó a mejorar las familias más difíciles, en particular la coordinación tipo botnet, mediante un reparto de la confianza en niveles alto y bajo. La idea era razonable, pero el resultado no fue concluyente: no se resolvía el problema de fondo y añadía complejidad sin ganancia clara. Por eso la mantuvimos como variante \textbf{experimental} y \textbf{no sustituyó} a la versión principal, la v5.
+
+\textbf{v5 integrated --- versión final} (\texttt{detect\_attack\_flows\_contextual\_v5\_integrated.py}). En la versión final reutilizamos la lógica estable de la v3 y le añadimos un tercer pase que agrega por origen y detecta el fan-out al puerto 22, es decir, un origen que contacta al menos 50 destinos distintos por SSH. Este cambio ataca directamente la limitación de la v3: el escaneo SSH, que con solo contexto local era indetectable (precisión y recall nulos), pasa a detectarse con un F1 de 0,951 en una semana con más presencia de este ataque (\texttt{april.week2}), cifra que se detalla y se contextualiza en el Capítulo~\ref{cap:experimentos}. La v5 consolida así las reglas más estables, integra las señales contextuales de los tres pases y mantiene el principio de no depender de direcciones IP concretas ni de las etiquetas del dataset. Es la versión \textbf{principal} del trabajo. El resto de cifras se detalla en el Capítulo~\ref{cap:experimentos}.
+
+\section{Señales conductuales por familia}
+\label{sec:alg_senales}
+
+Cada familia se detecta a partir de señales medibles del comportamiento del tráfico, nunca a partir de direcciones IP concretas. La Tabla~\ref{tab:senales} resume, para las seis familias activas, el patrón esperado, las señales empleadas y su interpretación.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{|l|p{3.2cm}|p{5.0cm}|p{3.0cm}|}
+\hline
+\textbf{Familia} & \textbf{Patrón esperado} & \textbf{Señales usadas} & \textbf{Interpretación} \\
+\hline
+\texttt{scan11} & Un origen recorre muchos puertos de una misma víctima. & Muchos puertos destino para el mismo par origen-destino, flujos SYN atómicos (1 paquete, duración $\approx$0), bytes pequeños y un único origen dominante. & Escaneo vertical de un solo origen. \\
+\hline
+\texttt{scan44} & Varios orígenes escanean el mismo objetivo. & Verticalidad repartida entre varios orígenes, sin que domine uno solo, con sincronización temporal y baja entropía de bytes. & Escaneo vertical distribuido. \\
+\hline
+\texttt{anomaly-udpscan} & Un origen lanza muchos mensajes UDP ligeros a muchos destinos. & Protocolo UDP, dispersión a muchas IP y puertos, 1 paquete por flujo, baja varianza de bytes, exclusión del DNS (puerto 53). & Escaneo UDP de baja entropía. \\
+\hline
+\texttt{dos} & Mucho tráfico concentrado contra un servicio. & Concentración hacia un destino y puerto fijos, baja diversidad de puertos destino, ráfaga temporal y baja varianza de bytes. & Inundación de un servicio. \\
+\hline
+\texttt{nerisbotnet} & Varios equipos actúan de forma casi idéntica. & Grupo de orígenes con métricas iguales (bytes, paquetes, puerto) en el mismo intervalo temporal, con puertos de control conocidos como evidencia adicional. & Coordinación tipo red de bots. \\
+\hline
+\texttt{anomaly-sshscan} & Un origen contacta muchos destinos por SSH. & Persistencia de un origen hacia el puerto 22, muchos destinos distintos (fan-out) y alta proporción de flujos incompletos. & Escaneo horizontal SSH. \\
+\hline
+\end{tabular}
+\caption{Señales conductuales de las seis familias activas.}
+\label{tab:senales}
+\end{table}
+
+Para dejarlo más claro, cada familia responde a una idea clara:
+
+\begin{itemize}
+  \item \textbf{\texttt{scan11}}: escaneo vertical de un origen contra una víctima. La pista no es una IP concreta, sino que un mismo origen prueba muchos puertos del mismo destino.
+  \item \textbf{\texttt{scan44}}: igual que \texttt{scan11}, pero repartido entre varios orígenes. Por eso hizo falta el pase global. Mirando flujo a flujo puede confundirse, pero mirando la ventana se ve que el ataque está distribuido.
+  \item \textbf{\texttt{anomaly-udpscan}}: muchos flujos UDP pequeños y dispersos, con pocos paquetes y poca duración. La clave es la dispersión hacia muchos destinos y puertos.
+  \item \textbf{\texttt{dos}}: el patrón contrario al escaneo. En lugar de dispersarse, el tráfico se concentra mucho en un destino y un servicio concretos.
+  \item \textbf{\texttt{nerisbotnet}}: varios orígenes se comportan de forma parecida en el mismo intervalo. La señal importante no es un flujo individual, sino la coordinación.
+  \item \textbf{\texttt{anomaly-sshscan}}: un origen contacta muchos destinos por SSH. La clave es el fan-out al puerto 22.
+\end{itemize}
+
+En una sola frase, el escaneo vertical busca muchos puertos de una misma víctima, el escaneo horizontal muchos destinos por un mismo servicio, el DoS concentra mucho tráfico en un objetivo, la botnet reúne a muchos equipos comportándose de forma parecida, el escaneo UDP genera muchos contactos pequeños y dispersos, y el escaneo SSH lanza muchos intentos a destinos distintos.
+
+Ninguna de estas señales es una dirección IP concreta. Se miden recuentos (cuántos puertos, cuántos destinos), proporciones (qué parte del tráfico domina un origen) y propiedades de los flujos (tamaño, duración, protocolo). Esto es lo que hace que el enfoque no dependa de la identidad de las máquinas.
+
+\section{Lógica general de decisión}
+\label{sec:alg_logica}
+
+La decisión combina reglas \textbf{locales} (lo que se ve alrededor de cada flujo) con un \textbf{contexto global} de la ventana y, en la v5, una agregación \textbf{por origen}. El sistema funciona en tres pases en cascada, de lo local a lo global, sin usar la etiqueta real ni IP concretas.
+
+Por contexto se entienden aquí tres cosas distintas:
+
+\begin{itemize}
+  \item \textbf{Contexto local}: lo que ocurre cerca de una traza concreta, por ejemplo en las 30 filas anteriores y posteriores. Sirve para ver si un flujo forma parte de una ráfaga o de una repetición inmediata.
+  \item \textbf{Contexto global de la ventana}: lo que ocurre en toda la ventana, por ejemplo si muchos flujos comparten el mismo origen, el mismo destino o el mismo puerto. Sirve para apreciar la forma del conjunto.
+  \item \textbf{Contexto por origen}: lo que hace un mismo origen a lo largo de la ventana, por ejemplo a cuántos destinos distintos intenta conectarse. Sirve para descubrir comportamientos repartidos que no se ven flujo a flujo.
+\end{itemize}
+
+\begin{verbatim}
+para cada ventana de flujos NetFlow:
+
+    # Pase 1 - contexto local (ventana de +-30 filas)
+    para cada traza:
+        evaluar senales locales (atomicidad, rafaga, concentracion)
+        asignar familia provisional y registrar la evidencia
+
+    # Pase 2 - contexto global por ventana
+    agregar por (origen, destino) y por servicio
+    separar scan11 (un origen domina) de scan44 (reparto)
+    confirmar anomaly-udpscan por dispersion del origen
+
+    # Pase 3 - fan-out SSH por origen (v5)
+    agrupar los flujos al puerto 22 por origen
+    si un origen contacta >= 50 destinos distintos por SSH:
+        marcar anomaly-sshscan
+
+    devolver por traza: binario, familia, subtipo, confianza, evidencia
+\end{verbatim}
+
+En este trabajo, el término \emph{fan-out} designa el número de destinos distintos contactados por un mismo origen. Si una máquina intenta conectarse por SSH al puerto 22 de muchos destinos diferentes, cada flujo individual puede parecer poco llamativo, pero el conjunto revela un comportamiento típico de escaneo horizontal. El umbral del tercer pase (un origen que contacta al menos 50 destinos distintos por el puerto 22) no es una regla arbitraria: se introduce precisamente para capturar ese patrón, que con el contexto local pasaba inadvertido. La idea de fondo es que el ataque, lento y disperso, no deja señal mirando flujos aislados, pero sí cuando se observa el comportamiento global de cada origen. El pseudocódigo anterior es una vista de alto nivel, y el detalle ampliado se recoge en el apéndice de pseudocódigo.
+
+\section{Salidas generadas por el sistema}
+\label{sec:alg_salidas}
+
+El clasificador no produce solo una etiqueta. Para cada traza devuelve una decisión binaria (ataque o normal), la familia de comportamiento, el subtipo cuando procede, un nivel de confianza (entendido como la fuerza de la evidencia de las reglas, no como una probabilidad estadística) y una explicación con la señal concreta que ha activado la regla.
+
+A partir de esas decisiones, el proceso genera varios ficheros de resultados, que sirven de base para la evaluación del Capítulo~\ref{cap:experimentos}:
+
+\begin{itemize}
+  \item Resultados \textbf{por traza}, como \texttt{flow\_level\_detection\_results\_v3.csv}.
+  \item Resúmenes \textbf{por familia}, como \texttt{flow\_level\_detection\_summary\_v3.csv} \\
+        y \texttt{flow\_level\_detection\_summary\_v5\_integrated.csv}.
+  \item Resúmenes de los experimentos de \textbf{generalización} sobre otras semanas.
+  \item El resumen del \textbf{baseline} de aprendizaje automático clásico (\texttt{ml\_baseline\_summary.csv}).
+  \item Los ficheros de datos que alimentan la \textbf{aplicación web} (\texttt{attacks.json} y \texttt{project\_summary.json}).
+\end{itemize}
+
+\section{Limitaciones técnicas de la propuesta}
+\label{sec:alg_limitaciones}
+
+La propuesta tiene límites que se declaran de forma explícita:
+
+\begin{itemize}
+  \item \textbf{Familias difíciles.} La coordinación tipo botnet (\texttt{nerisbotnet}) solo es detectable cuando la actividad de los nodos es realmente simultánea y homogénea. Si cada nodo actúa por separado, no hay coordinación observable.
+  \item \textbf{Dependencia de los metadatos NetFlow.} Al no disponer del contenido, hay comportamientos que no pueden caracterizarse solo con metadatos. Esto marca un límite estructural del enfoque.
+  \item \textbf{Ruido del tráfico de fondo.} El tráfico etiquetado como normal contiene actividad automatizada (por ejemplo, escáneres de fondo no etiquetados) que puede parecerse a un ataque y penalizar la precisión.
+\end{itemize}
+
+En conjunto, el clasificador resuelve bien los comportamientos estructurados (los escaneos y, con la v5, el escaneo SSH por fan-out), mantiene la interpretabilidad como prioridad y deja documentados, sin ocultarlos, los casos que siguen siendo difíciles con solo metadatos de flujo.
+
+La conclusión técnica del capítulo es la que guió todo el diseño. El trabajo empezó explorando una clasificación con datos balanceados, pero la conclusión fue que los ataques no se entienden bien como filas aisladas. Se entienden mirando el comportamiento: quién contacta con quién, a cuántos destinos toca, cuántos puertos prueba, si el tráfico se concentra, si se dispersa o si varios orígenes actúan de forma coordinada. Por eso el enfoque final se apoya en ventanas de tráfico y reglas contextuales, y no en la clasificación de flujos individuales.
