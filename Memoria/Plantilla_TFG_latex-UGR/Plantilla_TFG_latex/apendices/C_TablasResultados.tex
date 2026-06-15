@@ -5,6 +5,8 @@ Este apéndice recoge tablas de resultados ampliadas que sirven de soporte a la 
 
 Todas las cifras provienen de los ficheros de resultados del proyecto. El escaneo SSH (\texttt{anomaly-sshscan}) apenas tiene muestras etiquetadas en \texttt{august.week1}, por lo que su evaluación representativa se hace en \texttt{april.week2}. La clase de campaña SMTP (\texttt{anomaly-spam}) se descartó del análisis y no se incluye como resultado activo.
 
+Las tablas de este apéndice proceden de ficheros CSV derivados de los resultados del clasificador y de la línea base. Son de tres tipos: un \textbf{resumen binario}, con los recuentos de confusión (VP, FP, FN, VN) y las métricas de precisión, recall y $F_1$; un \textbf{resumen por familia y subtipo}, con la clase, las trazas etiquetadas, las predichas, los aciertos y sus métricas; y un \textbf{resumen de la línea base de aprendizaje automático}, con el modelo, la clase, la precisión, el recall, el $F_1$ y el soporte. Los nombres concretos de cada fichero se citan en las fuentes de las tablas, a efectos de reproducibilidad.
+
 \section{Detección binaria: recuentos de confusión completos}
 \label{sec:apc_binaria}
 
