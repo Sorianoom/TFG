@@ -105,6 +105,22 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 .\venv\Scripts\Activate.ps1
 ```
 
+Instalar las dependencias del backend (solo la primera vez):
+
+```powershell
+cd D:\homeMario\Home\web\backend
+
+pip install -r requirements.txt
+```
+
+Estas dependencias base (FastAPI y uvicorn) bastan para toda la web en modo IA OFF: portada, páginas de ataque, simulador de ventanas sintéticas y ejecución del clasificador v5.
+
+**Dependencia opcional (solo modo IA ON).** El chat y la propuesta de patrones con NotebookLM necesitan, además, un cliente de NotebookLM instalado aparte y configuración local (los identificadores de cuaderno y las credenciales en `web/backend/.env`, que no se versiona). Si no se instala, la web sigue funcionando en modo IA OFF.
+
+```powershell
+pip install notebooklm-py==0.6.0
+```
+
 Después lanzar el backend:
 
 ```powershell
@@ -256,7 +272,6 @@ scan44
 anomaly-udpscan
 nerisbotnet
 anomaly-sshscan
-anomaly-spam
 ```
 
 En IA ON, la web puede:

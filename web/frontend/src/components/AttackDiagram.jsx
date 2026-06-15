@@ -72,8 +72,6 @@ export default function AttackDiagram({ id, accent }) {
     body = <FanOut accent={accent} portLabel="destinos UDP" />;
   } else if (id === "anomaly-sshscan") {
     body = <FanOut accent={accent} portLabel="destinos · puerto 22" />;
-  } else if (id === "anomaly-spam") {
-    body = <FanOut accent={accent} portLabel="destinos SMTP · puerto 25" />;
   } else if (id === "dos") {
     // muchos flujos -> un servicio
     const ys = [28, 64, 100, 136];

@@ -649,6 +649,8 @@ def classify_flow(target, context):
 # ---------------------------------------------------------------------------
 
 def is_window_file(path):
+    if "descartados" in path.parts:  # material retirado del análisis principal
+        return False
     if path.name in SKIP_NAMES:
         return False
     if any(path.name.endswith(s) for s in SKIP_SUFFIXES):

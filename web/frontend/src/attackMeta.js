@@ -1,4 +1,4 @@
-// Metadatos de presentación del frontend (no son datos del backend).
+// Metadatos de interfaz del frontend (no son datos del backend).
 // Los datos "duros" (descripción, señales, métricas, limitaciones) vienen de
 // web/data/attacks.json servido por el backend.
 
@@ -10,7 +10,6 @@ export const ATTACK_ORDER = [
   "dos",
   "anomaly-sshscan",
   "nerisbotnet",
-  "anomaly-spam",
 ];
 
 // Nombre corto para la burbuja.
@@ -21,7 +20,6 @@ export const SHORT_NAME = {
   "scan44": "scan44",
   "nerisbotnet": "Nerisbotnet",
   "anomaly-sshscan": "SSH Scan",
-  "anomaly-spam": "Spam",
 };
 
 // Posición (en %) y profundidad de parallax de cada burbuja en la zona central.
@@ -32,7 +30,6 @@ export const FLOAT_POS = {
   "dos": { left: 10, top: 52, depth: 1.0 },
   "anomaly-sshscan": { left: 48, top: 38, depth: 0.5 }, // central, destacado
   "nerisbotnet": { left: 74, top: 78, depth: 1.3 },
-  "anomaly-spam": { left: 24, top: 84, depth: 1.1 },
 };
 
 // Color por estado (CSS var --ec).
@@ -47,7 +44,7 @@ export function estadoMeta(estado) {
   return ESTADO_META[estado] || { label: estado, color: "#6e7681" };
 }
 
-// "Cómo lo detecta v5" — explicación por ataque (presentación).
+// "Cómo lo detecta v5" — explicación por ataque (texto de interfaz).
 export const COMO_DETECTA_V5 = {
   "scan11":
     "El pase 1 (contexto local) detecta la verticalidad y los flujos SYN atómicos; el pase 2 (global por ventana) confirma que un único origen domina el barrido y lo separa de scan44.",
@@ -61,8 +58,6 @@ export const COMO_DETECTA_V5 = {
     "El pase global agrupa por buckets temporales y busca varios orígenes con métricas idénticas en el mismo instante (coordinación C2). Los puertos C2 conocidos suman confianza, no son la única regla.",
   "anomaly-sshscan":
     "Con solo contexto local (v3) es indetectable: 0/0. El tercer pase global de la v5 agrega por origen y detecta el fan-out SSH (un src_ip que contacta muchos destinos en el puerto 22). En april.week2: P 0,999 / R 0,907 / F1 0,951. Matiz: en semanas sin sshscan etiquetado, este pase puede marcar escáneres SSH de fondo no etiquetados como background.",
-  "anomaly-spam":
-    "Aun con los tres pases, el SMTP de spam es casi indistinguible del SMTP legítimo usando solo metadatos de flujo; queda documentado como caso exploratorio (límite estructural).",
 };
 
 // Los 3 pases del clasificador v5.
@@ -102,7 +97,6 @@ export const INTERP = {
   "dos": "Inundación TCP; se confunde en parte con el escaneo distribuido.",
   "nerisbotnet": "Coordinación de varios equipos; parcial. Niveles de confianza como línea futura.",
   "anomaly-sshscan": "Sondeo SSH lento y disperso; v5 lo recupera mirando el comportamiento global de cada origen.",
-  "anomaly-spam": "Correo SMTP de bajo volumen; exploratorio, no resuelto.",
 };
 
 // "Qué NO usa" el clasificador (común a todos los ataques).
@@ -278,34 +272,6 @@ if source_contacts_many_ssh_destinations:
     defense_explanation:
       "Es el mejor ejemplo del proyecto: con una mirada local el ataque era invisible (0 de detección); al mirar el comportamiento global de cada origen pasa a detectarse casi perfectamente. Demuestra que la clave es el contexto, no conocer IPs concretas.",
   },
-
-  "anomaly-spam": {
-    plain_explanation:
-      "El detector intenta marcar el spam cuando ve mucho tráfico hacia servicios de correo, pero aquí choca con un límite honesto: mirando solo los metadatos de red (puertos, tamaños y tiempos, sin el contenido del mensaje), el correo basura se parece demasiado al correo normal.",
-    technical_features: [
-      { name: "Tráfico al puerto 25 (SMTP)", description: "El tráfico va al puerto 25, usado por SMTP (el protocolo para enviar correo).", why_it_matters: "Una campaña de spam envía correo, así que pasa por ahí." },
-      { name: "Muchos destinos de correo", description: "Un origen contacta muchos servidores de correo distintos.", why_it_matters: "Enviar a muchos destinatarios es lo propio de una campaña masiva." },
-      { name: "Repetición", description: "Los envíos se repiten con tamaños parecidos.", why_it_matters: "El envío automatizado tiende a ser uniforme." },
-      { name: "Concentración temporal", description: "Los envíos se agrupan en el tiempo.", why_it_matters: "Las campañas suelen llegar en oleadas." },
-    ],
-    detection_steps: [
-      "Quedarse con el tráfico hacia el puerto 25 (correo SMTP).",
-      "Agrupar por origen y ver cuántos servidores de correo contacta.",
-      "Buscar repetición y concentración en el tiempo.",
-      "Si hay indicios, marcarlo como posible campaña SMTP, pero con baja confianza.",
-      "Si no hay evidencia suficiente, no marcar nada: el correo normal se parece demasiado.",
-    ],
-    rule_pseudocode:
-`# Campaña SMTP (caso exploratorio, baja confianza)
-if destination_port == 25 and many_mail_destinations:
-    possible_attack = "smtp_campaign_low_confidence"
-else:
-    not_enough_evidence`,
-    validation_context:
-      "Caso exploratorio y no resuelto: ni siquiera con gran volumen de spam se logra separarlo del correo legítimo, porque NetFlow no contiene el contenido del mensaje (solo metadatos como puertos, tamaños y tiempos).",
-    defense_explanation:
-      "El spam marca el límite honesto del proyecto: sin ver el contenido del correo, el tráfico de spam y el legítimo son casi iguales. Se deja documentado como caso no resuelto.",
-  },
 };
 
 // Comparación de modelos ML clásicos (F1 macro), SIN Random Forest en la vista principal.
@@ -330,7 +296,6 @@ export const V5_FAMILY = [
   { name: "scan44", f1: 0.779, p: 0.762, r: 0.796, dataset: "august.week1" },
   { name: "dos", f1: 0.519, p: 0.554, r: 0.488, dataset: "august.week1" },
   { name: "nerisbotnet", f1: 0.076, p: 0.269, r: 0.044, dataset: "august.week1" },
-  { name: "anomaly-spam", f1: 0.000, p: 0.000, r: 0.000, dataset: "august.week1" },
 ];
 
 // Detección binaria (ataque/normal) de la v5 en week1 — contexto adicional, no es el F1 por familia.

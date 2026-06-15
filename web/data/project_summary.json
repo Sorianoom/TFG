@@ -31,8 +31,8 @@
   },
   "generalizacion": {
     "objetivo": "Comprobar si la v3 generaliza a datos no usados para formular reglas, sin reajustar reglas ni umbrales.",
-    "august_week2": "El núcleo fuerte generaliza: recall binario 0.993 excluyendo spam; vertical_scan recall 0.853. El recall agregado baja por el spam masivo (36,8 M).",
-    "april_week2": "Contiene solo familias débiles (sshscan 4,5 M, spam 380 k) y ninguna del núcleo: la v3 detecta ~0, confirmando esos límites a escala.",
+    "august_week2": "El núcleo fuerte generaliza: recall binario ≈ 0,99 sobre las familias del núcleo; vertical_scan recall 0.853.",
+    "april_week2": "Contiene solo familias débiles (sshscan 4,5 M) y ninguna del núcleo: la v3 detecta ~0, confirmando esos límites a escala.",
     "udp_scan": "No evaluable: ausente en august.week2 y april.week2; solo aparece en august.week1 (semana de diseño). Queda como trabajo futuro.",
     "mayo": "No existe dataset de mayo en el proyecto; se auditó y descartó por falta de datos.",
     "documento": "28_evaluacion_generalizacion_v3.md"
@@ -40,7 +40,7 @@
   "limitaciones": [
     "Análisis sobre ventanas extraídas, no sobre el flujo completo en tiempo real.",
     "Reglas heurísticas con umbrales empíricos (no ML como propuesta principal).",
-    "Familias débiles: nerisbotnet (requiere coordinación distribuida), anomaly-sshscan (low-and-slow) y anomaly-spam (indistinguible del SMTP legítimo) son límites estructurales sobre metadatos de flujo.",
+    "Familias débiles: nerisbotnet (requiere coordinación distribuida) y anomaly-sshscan (low-and-slow) son límites estructurales sobre metadatos de flujo.",
     "El subtipo scan11/scan44 es menos estable entre semanas.",
     "Parte del background real contiene escaneos automatizados que penalizan artificialmente la precisión."
   ],

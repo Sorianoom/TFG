@@ -37,12 +37,11 @@ SSH_FANOUT_MIN = 50              # umbral de fan-out SSH (constante de la v5: LC
 _V3_PATH = Path(__file__).resolve().parents[3] / "scripts" / "02_attack_analysis" / "detect_attack_flows_contextual_v3.py"
 
 ATTACK_LABELS = {"dos", "anomaly-udpscan", "nerisbotnet", "scan11", "scan44",
-                 "anomaly-sshscan", "anomaly-spam"}
+                 "anomaly-sshscan"}
 LABEL_TO_FAMILY = {
     "scan11": "vertical_scan", "scan44": "vertical_scan",
     "anomaly-udpscan": "udp_scan", "dos": "tcp_flood",
     "nerisbotnet": "coordinated_botnet", "anomaly-sshscan": "ssh_horizontal_scan",
-    "anomaly-spam": "smtp_campaign",
 }
 CONF_SCORE = {"alta": 0.9, "media": 0.65, "baja": 0.4, "insuficiente": 0.2}
 
@@ -208,7 +207,6 @@ def _classify_demo(rows: list[dict]) -> list[dict]:
     fanout22 = defaultdict(set)
     udp_by_src = defaultdict(set)
     flood = defaultdict(int)
-    smtp_by_src = defaultdict(set)
     vert_ports = defaultdict(set)
     botnet_sig = Counter()
     for t in rows:
@@ -216,8 +214,6 @@ def _classify_demo(rows: list[dict]) -> list[dict]:
             fanout22[t["src_ip"]].add(t["dst_ip"])
         if t["protocol"] == "UDP":
             udp_by_src[t["src_ip"]].add(t["dst_ip"])
-        if t["dst_port"] == 25:
-            smtp_by_src[t["src_ip"]].add(t["dst_ip"])
         flood[(t["dst_ip"], t["dst_port"])] += 1
         vert_ports[(t["src_ip"], t["dst_ip"])].add(t["dst_port"])
         botnet_sig[(t["dst_port"], t["bytes"], t["packets"])] += 1
@@ -236,9 +232,6 @@ def _classify_demo(rows: list[dict]) -> list[dict]:
         elif t["protocol"] == "UDP" and len(udp_by_src[t["src_ip"]]) >= 6 and t["dst_port"] != 53:
             fam, sub, binary, conf, score = "udp_scan", "anomaly-udpscan", "attack", "media", 0.7
             ev = f"dispersión UDP: {len(udp_by_src[t['src_ip']])} destinos"
-        elif t["dst_port"] == 25 and len(smtp_by_src[t["src_ip"]]) >= 5:
-            fam, sub, binary, conf, score = "smtp_campaign", "anomaly-spam", "attack", "baja", 0.4
-            ev = f"fan-out SMTP: {len(smtp_by_src[t['src_ip']])} servidores de correo (baja confianza)"
         results.append({"binary": binary, "family": fam, "subtype": sub,
                         "confidence": conf, "score": score, "evidence": ev})
     return results

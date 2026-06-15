@@ -18,6 +18,22 @@ La metodología seguida combina:
 
 ---
 
+## Material entregado
+
+La memoria del TFG se entrega aparte como documento PDF. Este repositorio contiene el material de apoyo: código, aplicación web, resultados derivados ligeros y una muestra de datos.
+
+* **Scripts de análisis** (`scripts/02_attack_analysis/`): preparación, extracción de ventanas y los clasificadores contextuales por traza. La versión final documentada en la memoria es la **v5 integrada** (tres pases: contexto local, contexto global por ventana y agregación global por origen para el escaneo SSH).
+* **Línea base de Machine Learning** (`scripts/03_ml_baselines/`): comparación con modelos clásicos, usada solo como referencia.
+* **Aplicación web interactiva** (`web/`): backend (FastAPI) y frontend (React + Vite) para explorar los ataques, simular ventanas y probar el clasificador. Las instrucciones de lanzamiento están en `web/GUIA_LANZAR_WEB.md`.
+* **Resultados derivados ligeros** (`data/attack_analysis/*summary*.csv` y resúmenes del baseline): respaldan las tablas de la memoria.
+* **Muestra de datos sintética** (`data/pruebas/muestra_*_sintetica.csv`): ventanas pequeñas en el formato CSV de trazas NetFlow descrito en la memoria, con IPs privadas o de documentación, para probar el formato, el clasificador y la web.
+
+**No se incluyen los datasets completos por su tamaño**: UGR'16 ocupa en torno a 80 GB y es de acceso público, y los volcados de resultados por traza (`flow_level_detection_results*.csv`) ocupan varios GB. El formato de los datos se describe en la memoria, en el capítulo de herramientas y datos.
+
+> Las secciones siguientes describen también fases intermedias del proyecto (versiones previas del detector, automatización de NotebookLM); la versión final y los resultados definitivos son los recogidos en la memoria.
+
+---
+
 ## Objetivo del proyecto
 
 El objetivo general del proyecto es estudiar el uso de modelos de lenguaje grandes como apoyo al análisis explicativo de anomalías en tráfico NetFlow.
@@ -82,10 +98,15 @@ Durante el trabajo se han estudiado las siguientes familias de tráfico:
 | `scan11`              | Single-Source Vertical Scan                           |
 | `scan44`              | Distributed Vertical Scan                             |
 | `anomaly-sshscan`     | Low-and-Slow SSH Horizontal Scan                      |
-| `anomaly-spam`        | SMTP Spam Burst / caso exploratorio de baja evidencia |
 | `background` / `none` | Tráfico normal o ruido de fondo                       |
 
 La etiqueta `blacklist` no se utiliza como criterio principal de detección, ya que el enfoque del proyecto se basa en comportamiento y no en listas negras.
+
+> **Nota.** La clase `anomaly-spam` (campaña SMTP) **se ha descartado del análisis principal**
+> por su escasa evidencia conductual y porque, sin el contenido del correo, es casi
+> indistinguible del SMTP legítimo. Sus datos se conservan únicamente como material histórico en
+> `data/attack_analysis/descartados/anomaly-spam/` y no forman parte de la web, las tablas de
+> resultados ni las métricas finales. Cualquier mención posterior en este documento es histórica.
 
 ---
 
@@ -111,8 +132,8 @@ data/
 │   ├── scan11/
 │   ├── scan44/
 │   ├── anomaly-sshscan/
-│   ├── anomaly-spam/
 │   ├── normal/
+│   ├── descartados/           # anomaly-spam (retirado del análisis principal)
 │   ├── behavior_detection_results.csv
 │   ├── behavior_detection_results_extended.csv
 │   ├── flow_level_detection_results_v3.csv
@@ -124,8 +145,7 @@ data/
 │   ├── nerisbotnet/
 │   ├── scan11/
 │   ├── scan44/
-│   ├── anomaly-sshscan/
-│   └── anomaly-spam/
+│   └── anomaly-sshscan/
 │
 └── notebooklm_outputs/
     ├── dos/
@@ -133,9 +153,11 @@ data/
     ├── nerisbotnet/
     ├── scan11/
     ├── scan44/
-    ├── anomaly-sshscan/
-    └── anomaly-spam/
+    └── anomaly-sshscan/
 ```
+
+> El material de `anomaly-spam` (ventanas, paquetes y salidas de NotebookLM) está consolidado en
+> `data/attack_analysis/descartados/anomaly-spam/` como material histórico.
 
 ```text
 scripts/
@@ -283,7 +305,6 @@ El proyecto organiza los ataques no solo por su etiqueta, sino por la localizaci
 | `scan44`          | Distributed Vertical Scan                   | Red coordinada + servicios destino    |
 | `anomaly-sshscan` | Low-and-Slow SSH Horizontal Scan            | Selección de IPs destino hacia SSH    |
 | `nerisbotnet`     | Botnet multivector / Distributed C2         | Red distribuida/C2                    |
-| `anomaly-spam`    | SMTP Spam Burst / Low-Entropy SMTP Campaign | Campaña SMTP de baja evidencia        |
 
 ---
 
@@ -324,7 +345,6 @@ Resultados aproximados por familia:
 | `dos`             |       14 |    29 |           48.3% |
 | `nerisbotnet`     |       13 |    28 |           46.4% |
 | `anomaly-sshscan` |        5 |    24 |           20.8% |
-| `anomaly-spam`    |        0 |    26 |            0.0% |
 
 Los resultados muestran que el enfoque funciona mejor en patrones estructurados de baja entropía, especialmente escaneos. Los ataques distribuidos, low-and-slow o con baja evidencia requieren mayor contexto y deben interpretarse con cautela.
 
@@ -384,7 +404,6 @@ Las principales limitaciones del proyecto son:
 * dependencia del diseño de prompts
 * necesidad de validar cualquier hipótesis generada por LLM
 * dificultad para detectar patrones distribuidos o low-and-slow
-* baja evidencia en `anomaly-spam`
 * presencia de ruido automatizado en tráfico background real
 
 ---
@@ -397,7 +416,6 @@ Como trabajo futuro se plantea:
 * estudiar distintas configuraciones de umbrales
 * mejorar la detección de botnets mediante correlación temporal más amplia
 * analizar patrones low-and-slow con ventanas más largas
-* buscar más evidencia para `anomaly-spam`
 * comparar distintos LLMs
 * automatizar más fases del pipeline
 * desarrollar visualizaciones interactivas de los patrones detectados

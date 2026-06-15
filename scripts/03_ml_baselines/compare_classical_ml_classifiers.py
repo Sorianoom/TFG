@@ -117,6 +117,8 @@ ATTACK_FAMILIES = [
 # ---------------------------------------------------------------------------
 
 def _is_window_file(path: Path) -> bool:
+    if "descartados" in path.parts:  # material retirado del análisis principal
+        return False
     if path.name in SKIP_NAMES:
         return False
     if any(path.name.endswith(s) for s in SKIP_SUFFIXES):

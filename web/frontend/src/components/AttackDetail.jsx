@@ -158,7 +158,7 @@ export default function AttackDetail({ attack }) {
 
         {tech.defense_explanation && (
           <section className="detail-block defense-block">
-            <h2>Para explicarlo al tribunal</h2>
+            <h2>Interpretación clara</h2>
             <p>{tech.defense_explanation}</p>
           </section>
         )}

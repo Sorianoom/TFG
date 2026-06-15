@@ -21,15 +21,16 @@ export default function AttackSimulator({ attack }) {
     setLoading(true);
     setError(null);
     try {
+      const body = {
+        attack_id: attack.id,
+        attack_flows: attackFlows,
+        include_context_background: true,
+        mode: useMode,
+      };
       const res = await fetch(`${API_BASE}/api/simulator/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          attack_id: attack.id,
-          attack_flows: attackFlows,
-          include_context_background: true,
-          mode: useMode,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -66,6 +67,12 @@ export default function AttackSimulator({ attack }) {
         <strong> 5 conexiones normales después</strong>. Así se ve el patrón del ataque rodeado de tráfico
         corriente, como aparecería en una captura real.
         Modo IA actual: <strong>{mode === "on" ? "ON (cuaderno NotebookLM del ataque)" : "OFF (plantilla local)"}</strong>.
+      </p>
+      <p className="sim-howto muted small">
+        <strong>Esto no es un dataset sintético fijo.</strong> Es un <strong>generador de ventanas
+        sintéticas</strong>: cada ejecución crea una variante distinta del mismo patrón. Cambian las IPs,
+        los puertos y los valores, pero se mantiene la estructura del ataque. Esto ayuda a comprobar que
+        el patrón <strong>no depende de una IP concreta, sino del comportamiento</strong>.
       </p>
       <p className="sim-howto muted small">
         <strong>IA OFF</strong> usa una plantilla local de la web. <strong>IA ON</strong> consulta el

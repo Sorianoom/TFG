@@ -36,7 +36,7 @@ entre paréntesis): botón volver, título + familia, estado, descripción, **di
 *En palabras simples*, *Características que mira el detector* (señal · qué mide · por qué importa),
 *Proceso de detección* (pasos numerados), *Regla simplificada* (pseudocódigo ilustrativo), *Qué no usa*
 (chips), *Cómo se ve en NetFlow*, *Métricas* (con su significado), *Contexto de validación*,
-*Limitaciones*, *Para explicarlo al tribunal* y *¿Qué papel tiene NotebookLM?*. (La sección de
+*Limitaciones*, *Interpretación clara* y *¿Qué papel tiene NotebookLM?*. (La sección de
 documentos relacionados se mostrará más adelante, cuando la memoria final esté cerrada.)
 
 Además, cada página de ataque incluye:
@@ -45,6 +45,8 @@ Además, cada página de ataque incluye:
   selector de trazas de ataque (20/50/100) y tabla que distingue visualmente las 5 trazas normales
   antes, el ataque y las 5 normales después; con explicación, señales y descarga CSV. Usa el modo IA
   global: OFF → plantilla local; ON → cuaderno NotebookLM del ataque (con fallback a OFF si falla).
+  **No es un dataset fijo:** cada ejecución genera una ventana de demo distinta del mismo patrón
+  (cambian IPs, puertos y valores; se mantiene la estructura del ataque).
 Además, en las páginas de ataque aparece un **chat flotante contextual**
 (`components/FloatingAttackChat.jsx`, renderizado desde `App.jsx`): botón "💬 Preguntar" fijo abajo a
 la derecha que abre un panel pequeño. Usa el ataque de la ruta actual como contexto. En IA OFF
@@ -56,7 +58,7 @@ Los textos didácticos por ataque viven en `attackMeta.js` (`TECH`, `NOT_USED_CO
 (métricas, patrón, limitaciones, documentos) siguen viniendo de `web/data/attacks.json` vía backend.
 
 Rutas: `#/attacks/scan11`, `#/attacks/scan44`, `#/attacks/anomaly-udpscan`, `#/attacks/dos`,
-`#/attacks/nerisbotnet`, `#/attacks/anomaly-sshscan`, `#/attacks/anomaly-spam`.
+`#/attacks/nerisbotnet`, `#/attacks/anomaly-sshscan`.
 
 `anomaly-sshscan` recibe trato especial: v3 estándar 0/0 vs v5 integrated P 0,999 / R 0,907 / F1 0,951
 (april.week2), explicación del fan-out SSH por origen y el matiz de posibles escáneres SSH de fondo no
@@ -86,7 +88,7 @@ web/frontend/src/
 ├── aiMode.js             # estado global del modo IA (localStorage) + hook useAiMode()
 ├── useHashRoute.js       # hook de routing por hash, navigate(), parseAttackId()
 ├── format.js             # fmt(), metricRows(), mainMetric()
-├── attackMeta.js         # metadatos de presentación (orden, posiciones, textos, pases, versiones)
+├── attackMeta.js         # metadatos de interfaz (orden, posiciones, textos, pases, versiones)
 ├── styles.css            # tema oscuro, hero, burbujas flotantes, detalle, responsive
 └── components/
     ├── Home.jsx          # hero + clasificador + secciones compactas
@@ -102,6 +104,5 @@ web/frontend/src/
 ## Nota
 
 Si el backend no está disponible, la web muestra un aviso claro. El modo IA ON usa NotebookLM solo
-si está configurado (ver backend); por defecto funciona en IA OFF. El modo defensa y las tablas
-extensas de fases anteriores se han retirado de la
-portada para mantenerla limpia.
+si está configurado (ver backend); por defecto funciona en IA OFF. Las tablas extensas de fases
+anteriores se han retirado de la portada para mantenerla limpia.

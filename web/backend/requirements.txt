@@ -1,3 +1,11 @@
-# Backend FastAPI mínimo de la web del TFG (Fase 2)
+# Dependencias base del backend FastAPI de la web del TFG.
+# Bastan para toda la web en modo IA OFF: servir datos, simulador de ventanas
+# sintéticas y ejecución del clasificador v5 (que solo usa la librería estándar).
 fastapi
 uvicorn[standard]
+
+# Dependencia OPCIONAL: solo para el modo IA ON (chat y propuesta de patrones con
+# NotebookLM). Necesita además configuración local en web/backend/.env (no versionado).
+# Si no se instala, la web funciona igualmente en modo IA OFF. Instalar aparte con:
+#   pip install notebooklm-py==0.6.0
+# notebooklm-py==0.6.0

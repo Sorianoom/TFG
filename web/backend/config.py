@@ -49,7 +49,6 @@ ATTACK_NOTEBOOK_ENV = {
     "anomaly-udpscan": "NOTEBOOKLM_UDPSCAN_ID",
     "nerisbotnet": "NOTEBOOKLM_NERISBOTNET_ID",
     "anomaly-sshscan": "NOTEBOOKLM_SSHSCAN_ID",
-    "anomaly-spam": "NOTEBOOKLM_SPAM_ID",
 }
 
 

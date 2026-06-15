@@ -1097,6 +1097,8 @@ def analyze_window(file_path: Path) -> dict:
 # ---------------------------------------------------------------------------
 
 def is_window_file(path: Path) -> bool:
+    if "descartados" in path.parts:  # material retirado del análisis principal
+        return False
     if path.name in SKIP_NAMES:
         return False
     if any(path.name.endswith(suf) for suf in SKIP_SUFFIXES):

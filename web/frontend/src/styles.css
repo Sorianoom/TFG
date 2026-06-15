@@ -302,8 +302,6 @@ code { background: rgba(110,118,129,0.16); padding: 1px 5px; border-radius: 4px;
   background: var(--bg-3); border: 1px solid var(--border); color: var(--text);
   border-radius: 8px; padding: 8px 10px; font-size: 0.88rem;
 }
-.sim-check { flex-direction: row; align-items: center; gap: 8px; }
-.sim-check input { width: 16px; height: 16px; }
 .sim-mode { grid-column: 1 / -1; }
 .sim-radios { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
 .sim-radios label {

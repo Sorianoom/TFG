@@ -1,0 +1,6 @@
+model,n_classes,precision_macro,recall_macro,f1_macro
+RandomForest,7,0.9511,0.9467,0.9486
+KNN,7,0.8988,0.8959,0.8966
+MLPClassifier,7,0.8648,0.8456,0.8464
+SVM,7,0.812,0.7494,0.7247
+LogisticRegression,7,0.7453,0.7109,0.6746

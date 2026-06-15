@@ -45,3 +45,22 @@ data/balanced_70_30/
 # Nota: se MANTIENEN versionados (no ignorados):
 #   data/generalization/summaries/*.csv
 #   data/attack_analysis/*summary*.csv  y  *label*.csv pequeños
+
+# Excepciones: resúmenes pequeños del baseline ML citados en la memoria
+# (apenas unos cientos de bytes; NO afecta a los volcados grandes results*.csv).
+!data/attack_analysis/ml_baseline_results_active_families.csv
+!data/attack_analysis/ml_baseline_results_no_spam.csv
+
+# ===== Material local no entregable =====
+.vscode/
+\#Reunion/
+NOTAS_MEMORIA.md
+Guion.md
+/package-lock.json
+Docs/RELEVO_CLAUDE_TFG.md
+Docs/PENDIENTES_MEMORIA.md
+Docs/00_RESUMEN_MAESTRO_TFG.md
+
+# Muestras locales con IPs reales del dataset (no se entregan; se usan las sintéticas)
+data/pruebas/pruebaScan11.csv
+data/pruebas/pruebaScan44.csv

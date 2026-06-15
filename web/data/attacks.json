@@ -123,23 +123,6 @@
       "limitaciones": "Low-and-slow: indetectable con contexto local (v3). El tercer pase global por fan-out de la v5 lo detecta cuando el escaneo procede de un origen con fan-out alto al puerto 22 (april.week2, F1 0,951); no probado en sshscan distribuido de bajo fan-out, y en semanas sin sshscan etiquetado puede marcar escáneres SSH de fondo no etiquetados.",
       "estado": "detectable con contexto largo (v5)",
       "documentos_relacionados": ["16_analisis_anomaly_sshscan.md", "26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md", "32_experimento_contexto_largo_sshscan_spam_april.md", "33_validacion_clasificador_contextual_v5_integrated.md"]
-    },
-    {
-      "id": "anomaly-spam",
-      "nombre": "anomaly-spam",
-      "familia_conductual": "smtp_campaign",
-      "categoria_automatizacion": "Campaña SMTP de baja evidencia (SMTP Spam Burst)",
-      "descripcion": "Campaña de spam de bajo volumen sobre el puerto 25, con métricas de paquetes/bytes repetitivas.",
-      "patron_tecnico": "TCP hacia puerto 25, fan-out a múltiples destinos, repetición de métricas, baja varianza; sin firmas de bytes exactos.",
-      "senales_v3": [
-        "tráfico TCP hacia el puerto 25",
-        "fan-out hacia múltiples destinos",
-        "repetición de métricas y baja varianza de bytes"
-      ],
-      "metricas": { "precision": 0.0, "recall": 0.0 },
-      "limitaciones": "Casi indistinguible del SMTP legítimo con solo metadatos de flujo. No se detecta ni siquiera con spam abundante (week2: 36,8 M de trazas). Caso exploratorio.",
-      "estado": "exploratorio",
-      "documentos_relacionados": ["26_validacion_clasificador_contextual_v3.md", "28_evaluacion_generalizacion_v3.md", "30_experimento_mejora_familias_debiles_v4.md"]
     }
   ]
 }

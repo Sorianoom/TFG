@@ -86,6 +86,8 @@ def ts_seconds(ts):
 
 
 def is_window_file(path):
+    if "descartados" in Path(path).parts:  # material retirado del análisis principal
+        return False
     n = Path(path).name.lower()
     bad = ("results", "summary", "label", "audit", "extraction")
     return not any(b in n for b in bad)

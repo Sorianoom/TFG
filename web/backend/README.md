@@ -77,11 +77,16 @@ Entrada:
 }
 ```
 
-`mode` ∈ `offline | notebooklm`; `attack_flows` se limita a 2000. Ataques soportados: `scan11`,
-`scan44`, `anomaly-udpscan`, `dos`, `nerisbotnet`, `anomaly-sshscan`, `anomaly-spam`.
+`mode` ∈ `offline | notebooklm`; `attack_flows` se limita a 2000. Ataques
+soportados: `scan11`, `scan44`, `anomaly-udpscan`, `dos`, `nerisbotnet`, `anomaly-sshscan`.
 
-Salida: `mode_used`, `attack_id`, `notebook_used`, `window_structure`, `pattern_summary`, `signals`,
-`explanation_for_teacher`, `rows`, `summary`, `columns`, `csv_preview`, `synthetic_notice`. Cada fila
+**No es un dataset sintético fijo, es un generador de ventanas de demo.** Cada llamada crea una
+variante distinta del mismo patrón (cambian IPs, puertos y valores; se mantiene la estructura del
+ataque).
+
+Salida: `mode_used`, `attack_id`, `notebook_used`, `window_structure`, `pattern_summary`,
+`signals`, `explanation_for_teacher`, `rows`, `summary`, `columns`, `csv_preview`, `synthetic_notice`.
+Cada fila
 lleva un campo `section` (`background_before` / `attack` / `background_after`) para distinguirla
 visualmente; ese campo NO va en el CSV. Columnas: `timestamp, src_ip, dst_ip, protocol, src_port,
 dst_port, packets, bytes, flags, label`.

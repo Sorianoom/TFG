@@ -135,21 +135,6 @@ ATTACK_TEMPLATES = {
             "abanico' de un origen hacia muchos destinos es el patrón que detecta la v5."
         ),
     },
-    "anomaly-spam": {
-        "pattern_summary": "Un origen envía correo (SMTP, puerto 25) hacia muchos servidores de correo.",
-        "signals": ["puerto 25", "muchos destinos", "repetición", "concentración temporal"],
-        "generation_rules": {
-            "src_hosts": 1, "dst_hosts": 40, "dst_port": 25, "vary_dst_ports": False,
-            "protocol": "TCP", "packets_range": [5, 15], "bytes_range": [500, 3000],
-            "flags": ["SA", "A"], "label": "anomaly-spam",
-        },
-        "scale_target": "dst",
-        "explanation_for_teacher": (
-            "Esta simulación representa una campaña de spam SMTP: un origen contacta muchos "
-            "servidores de correo (puerto 25) con envíos repetitivos. Es un caso difícil porque, "
-            "sin ver el contenido del correo, se parece mucho al correo legítimo."
-        ),
-    },
 }
 
 SUPPORTED_ATTACKS = list(ATTACK_TEMPLATES.keys())
@@ -365,6 +350,8 @@ def generate_window(template: dict, rules: dict, attack_flows: int, intensity: s
 
     Cada fila lleva un campo extra `section` (background_before / attack / background_after)
     para que el frontend pueda distinguirlas visualmente. Ese campo NO va en el CSV.
+
+    Cada ejecución genera una variante distinta del mismo patrón (datos sintéticos de demo).
     """
     attack_flows = clamp_num_flows(attack_flows)
     scale_target = template.get("scale_target", "dst")
