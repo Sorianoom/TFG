@@ -26,11 +26,11 @@ El clasificador principal es la versión \textbf{v5}. La versión \textbf{v3} se
 \texttt{april.week2} & 400\,000 & Generalización: contiene sobre todo escaneo SSH. \\
 \hline
 \end{tabular}
-\caption{Conjuntos de evaluación a nivel de flujo y su tamaño (fuente: resúmenes \texttt{flow\_level\_detection\_summary\_*} y \texttt{generalization\_summary\_*}).}
+\caption{Conjuntos de evaluación a nivel de flujo y su tamaño en número de trazas. El conjunto principal se usa para formular y evaluar las reglas. Los otros dos se reservan para la generalización.}
 \label{tab:exp_config}
 \end{table}
 
-Los ficheros principales de entrada son las ventanas extraídas de UGR'16 (Capítulo~\ref{cap:algoritmos}). Los de salida son los resúmenes \texttt{flow\_level\_detection\_summary\_v3.csv} y \texttt{flow\_level\_detection\_summary\_v5\_integrated.csv} (conjunto principal de estudio), los \texttt{generalization\_summary\_v5\_integrated\_*.csv} (generalización) y \texttt{ml\_baseline\_summary.csv} (línea base). El detalle por traza queda en los ficheros \texttt{flow\_level\_detection\_results\_*}.
+La entrada de la evaluación son las ventanas extraídas de UGR'16 (Capítulo~\ref{cap:algoritmos}). La salida se organiza en cuatro tipos de artefacto. El primero es un \textbf{resumen binario}, con los recuentos de confusión (VP, FP, FN y VN) y las métricas de ataque frente a tráfico normal. El segundo es un \textbf{resumen por familia y subtipo}, con las trazas predichas, las etiquetadas y los aciertos de cada clase. El tercero recoge los \textbf{resultados de generalización}, con esa misma estructura sobre otras semanas. El cuarto es la \textbf{comparación con los modelos clásicos} de aprendizaje automático. El detalle por traza, una fila por flujo con su decisión, familia, subtipo, confianza y señal, se conserva aparte para poder inspeccionar casos concretos. Todos estos artefactos forman parte del material complementario.
 
 
 \section{Métricas de evaluación}
@@ -59,11 +59,13 @@ v3 (base estable) & 0,930 & 0,991 & 0,960$^{*}$ & 1\,816\,688 / 137\,365 / 17\,2
 v5 (final) & 0,926 & 0,991 & 0,957 & 1\,816\,688 / 145\,702 / 17\,228 / 4\,890\,713 \\
 \hline
 \end{tabular}
-\caption{Detección binaria (ataque/normal) en \texttt{august.week1}. Fuente: \texttt{flow\_level\_detection\_summary\_v3.csv} y \texttt{\_v5\_integrated.csv}. $^{*}$El fichero de la v3 no almacena el F1, que se obtiene de su precisión y recall.}
+\caption{Detección binaria (ataque/normal) en \texttt{august.week1} para la base estable v3 y la versión final v5. $^{*}$El resumen de la v3 no almacena el F1, que se obtiene de su precisión y recall.}
 \label{tab:exp_binaria}
 \end{table}
 
-Las dos versiones separan bien el tráfico de ataque del tráfico normal, con un recall de 0,991 en los dos casos. Aun así, hay un matiz: en el conjunto principal de estudio, la v5 obtiene una precisión ligeramente \emph{menor} que la v3 (0,926 frente a 0,930). La causa está documentada en el propio resumen: el tercer pase SSH de la v5 genera 8\,389 predicciones adicionales que, en esta semana, se contabilizan como falsos positivos (campo \texttt{SSH\_PASE3 override\_fp}), porque \texttt{august.week1} apenas contiene escaneo SSH etiquetado. Dicho de otra forma, el pase que permite recuperar el escaneo SSH tiene un coste en precisión en aquellas semanas donde ese ataque no aparece etiquetado. Esa contrapartida se compensa en \texttt{april.week2}, como se verá en la sección de generalización.
+En la última columna, los \textbf{VP} son ataques correctamente detectados, los \textbf{FP} tráfico etiquetado como normal que el clasificador marca como ataque, los \textbf{FN} ataques que el clasificador no detecta y los \textbf{VN} tráfico normal clasificado correctamente.
+
+Las dos versiones separan bien el tráfico de ataque del tráfico normal, con un recall de 0,991 en los dos casos. Aun así, hay un matiz: en el conjunto principal de estudio, la v5 obtiene una precisión ligeramente \emph{menor} que la v3 (0,926 frente a 0,930). La causa está documentada en el propio resumen: el tercer pase de detección SSH de la v5 genera 8\,389 predicciones adicionales que, en esta semana, se contabilizan como falsos positivos añadidos por ese pase, porque \texttt{august.week1} apenas contiene escaneo SSH etiquetado. Ese tercer pase agrega por origen el tráfico hacia el puerto 22 (el fan-out de cada origen) y puede reclasificar como escaneo flujos que el contexto local no había marcado. Es lo que permite recuperar el escaneo SSH en \texttt{april.week2}, pero a cambio añade falsas alarmas cuando ese mismo patrón de fan-out aparece en tráfico etiquetado como \emph{background}. Por eso el pase tiene un coste en precisión en las semanas donde ese ataque no está etiquetado, un coste que se compensa en \texttt{april.week2}, como se verá en la sección de generalización.
 
 Además, un falso positivo no siempre es tráfico completamente normal. En esta evaluación se respeta la etiqueta original del dataset: si una traza aparece como \emph{background} y el clasificador la marca como ataque, se cuenta como falso positivo. Sin embargo, en tráfico real puede haber comportamientos anómalos que no hayan sido etiquetados originalmente como ataque. Por eso, algunas de estas alertas podrían corresponder a flujos con una estructura parecida a la de un ataque, aunque el sistema que generó las etiquetas del dataset los dejase dentro del tráfico de fondo. En este trabajo no se corrigen esas etiquetas ni se usan para mejorar artificialmente las métricas, pero sí se consideran una posible explicación de parte de las falsas alarmas.
 
@@ -101,7 +103,7 @@ nerisbotnet & 16\,462 & 99\,762 & 4\,420 & 0,269 & 0,044 & 0,076 \\
 anomaly-sshscan & 8\,397 & 44 & 0 & 0,000 & 0,000 & 0,000 \\
 \hline
 \end{tabular}
-\caption{Resultados por familia en \texttt{august.week1} (derivados de \texttt{flow\_level\_detection\_summary\_v5\_integrated.csv}). El escaneo SSH se evalúa realmente en \texttt{april.week2} (Tabla~\ref{tab:exp_sshscan}).}
+\caption{Resultados por familia en \texttt{august.week1}, derivados del resumen por familia de la v5 (trazas predichas, etiquetadas y aciertos de cada clase). El escaneo SSH se evalúa realmente en \texttt{april.week2} (Tabla~\ref{tab:exp_sshscan}).}
 \label{tab:exp_familia}
 \end{table}
 % [REVISAR: en el resumen, los aciertos a nivel de familia vertical_scan (410782) no coinciden exactamente con la suma de aciertos de scan11+scan44 (102220+304396=406616), diferencia de 4166, por distinto criterio de acierto entre nivel familia y subtipo. No afecta a las cifras por subtipo mostradas.]
@@ -135,7 +137,7 @@ La recuperación del escaneo SSH es el cambio más visible de la v5. La Tabla~\r
 anomaly-sshscan (\texttt{april.week2}) & 26\,599 & 29\,298 & 26\,580 & 0,999 & 0,907 & 0,951 \\
 \hline
 \end{tabular}
-\caption{Escaneo SSH detectado por la v5 en \texttt{april.week2} (fuente: \texttt{generalization\_summary\_v5\_integrated\_april\_week2.csv}).}
+\caption{Escaneo SSH detectado por la v5 en \texttt{april.week2}, obtenido del resumen de generalización de esa semana.}
 \label{tab:exp_sshscan}
 \end{table}
 
@@ -164,13 +166,13 @@ SVM & 0,660 & 0,780 \\
 Regresión logística & 0,615 & 0,760 \\
 \hline
 \end{tabular}
-\caption{Línea base de ML clásico: F1 macro sobre las 8 clases originales (incluían \texttt{anomaly-spam} y \texttt{blacklist}) frente al cálculo sobre las clases activas. Fuente: \texttt{ml\_baseline\_summary.csv} y \texttt{ml\_baseline\_summary\_active\_families.csv}. El F1 macro es la media del F1 por clase.}
+\caption{Línea base de ML clásico: F1 macro sobre las 8 clases originales (incluían \texttt{anomaly-spam} y \texttt{blacklist}) frente al cálculo sobre las clases activas. Se obtiene del resumen por clase del baseline, antes y después de excluir las clases no activas. El F1 macro es la media del F1 por clase.}
 \label{tab:exp_ml}
 \end{table}
 
 El baseline principal se calcula sobre las \textbf{clases activas} del trabajo: el tráfico de fondo (\emph{background}) y los cinco tipos de ataque presentes en la muestra (\texttt{anomaly-udpscan}, \texttt{dos}, \texttt{nerisbotnet}, \texttt{scan11} y \texttt{scan44}). Se dejan fuera dos etiquetas que no forman parte del objetivo principal. La primera es \texttt{anomaly-spam}, descartada metodológicamente (Capítulos~\ref{cap:herramientas_datos} y~\ref{cap:algoritmos}). La segunda es \texttt{blacklist}, que está en el dataset pero no es una familia de ataque activa del TFG, así que queda fuera de la tabla principal de comparación. El escaneo SSH (\texttt{anomaly-sshscan}) no entra en este baseline por su escasez de muestras en el conjunto principal de estudio, coherente con su evaluación específica en \texttt{april.week2}.
 
-Como el F1 macro es la media del F1 por clase, recalcularlo sobre las clases activas no altera las métricas por clase: simplemente deja de promediar las clases excluidas. El cálculo se realiza con el script \texttt{recompute\_baseline\_no\_spam.py} sobre el resumen por clase, sin reentrenar ni sobrescribir los CSV originales, y se guarda en \texttt{ml\_baseline\_summary\_active\_families.csv}. La Tabla~\ref{tab:exp_ml} muestra el efecto: al dejar fuera dos clases en las que varios modelos rendían mal (en especial la regresión logística y la SVM), el F1 macro sube en todos los modelos. Por ejemplo, la regresión logística pasa de 0,615 a 0,760.
+Como el F1 macro es la media del F1 por clase, recalcularlo sobre las clases activas no altera las métricas por clase: simplemente deja de promediar las clases excluidas. El recálculo parte del resumen por clase ya calculado, vuelve a promediar el F1 únicamente sobre las clases activas y guarda el resultado aparte, sin reentrenar ningún modelo ni sobrescribir los resultados originales. Partir de ese resumen aísla el efecto exacto de excluir esas clases, manteniendo el mismo muestreo, los mismos modelos y las mismas predicciones. La Tabla~\ref{tab:exp_ml} muestra el efecto: al dejar fuera dos clases en las que varios modelos rendían mal (en especial la regresión logística y la SVM), el F1 macro sube en todos los modelos. Por ejemplo, la regresión logística pasa de 0,615 a 0,760.
 
 El modelo Random Forest se deja fuera de esta comparación principal. En las pruebas alcanzaba métricas casi perfectas, con un F1 macro en torno a 0,98. No es un resultado que se oculte, pero se interpreta con cautela: en una muestra equilibrada y con características derivadas, puede reflejar en parte particularidades del propio conjunto de datos más que una capacidad real de generalización \cite{sommer2010outside}. Por eso se documenta, pero no se usa como referencia principal de la comparación. Aun así, sus resultados siguen guardados en los ficheros del experimento.
 
@@ -195,7 +197,7 @@ En este trabajo, generalizar significa comprobar si el clasificador funciona sob
 \texttt{april.week2} & 0,845 & 0,903 & 0,873 & Sobre todo escaneo SSH. \\
 \hline
 \end{tabular}
-\caption{Detección binaria de la v5 por semana (fuente: \texttt{flow\_level\_detection\_summary\_v5\_integrated.csv} y \texttt{generalization\_summary\_v5\_integrated\_*.csv}).}
+\caption{Detección binaria de la v5 por semana, obtenida de los resúmenes binarios de la v5 en cada semana evaluada.}
 \label{tab:exp_general}
 \end{table}
 

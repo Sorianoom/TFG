@@ -26,14 +26,14 @@ De forma general, los IDS se dividen en dos grandes familias según cómo decide
   \item \textbf{Detección basada en anomalías.} En lugar de buscar firmas concretas, se construye un modelo de lo que se considera comportamiento normal y se marca como sospechoso todo lo que se desvía de ese modelo \cite{chandola2009anomaly}. Su ventaja es que puede detectar amenazas no vistas antes, ya que no depende de conocer el ataque de antemano. Su limitación es que suele generar más falsos positivos, porque no todo lo que se sale de lo normal es necesariamente un ataque.
 \end{itemize}
 
-\begin{figure}[ht]
+El enfoque desarrollado en este TFG está más cerca de la detección basada en anomalías y, sobre todo, en el comportamiento del tráfico. No se utilizan firmas de ataques concretos ni se depende de conocer de antemano cada amenaza. En su lugar, se estudia cómo se comporta el tráfico (cuántos destinos contacta un origen, cómo se reparte la actividad, qué servicios se usan) y se definen reglas que describen esos comportamientos. La diferencia importante respecto a un detector de anomalías puramente estadístico es que aquí cada decisión va acompañada de una explicación: no solo se dice que algo es anómalo, sino qué señal concreta lo ha provocado.
+
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{imagenes/fig_ids_firmas_vs_anomalias.pdf}
 \caption{Comparación esquemática entre un IDS basado en firmas y un IDS basado en anomalías.}
 \label{fig:ids_firmas_anomalias}
 \end{figure}
-
-El enfoque desarrollado en este TFG está más cerca de la detección basada en anomalías y, sobre todo, en el comportamiento del tráfico. No se utilizan firmas de ataques concretos ni se depende de conocer de antemano cada amenaza. En su lugar, se estudia cómo se comporta el tráfico (cuántos destinos contacta un origen, cómo se reparte la actividad, qué servicios se usan) y se definen reglas que describen esos comportamientos. La diferencia importante respecto a un detector de anomalías puramente estadístico es que aquí cada decisión va acompañada de una explicación: no solo se dice que algo es anómalo, sino qué señal concreta lo ha provocado.
 
 \section{Tráfico NetFlow}
 \label{sec:concep_netflow}
@@ -51,14 +51,14 @@ La información que recoge un flujo NetFlow incluye, de forma general:
   \item las \textbf{banderas} (\emph{flags}) TCP, cuando corresponde, que indican el tipo de los paquetes (por ejemplo, intentos de conexión).
 \end{itemize}
 
-\begin{figure}[ht]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.65\textwidth]{imagenes/fig_flujo_netflow.pdf}
 \caption{Esquema de un flujo NetFlow: varios paquetes de una comunicación se resumen en un registro de metadatos.}
 \label{fig:flujo_netflow}
 \end{figure}
 
-\begin{table}[ht]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{|l|p{8.5cm}|}
@@ -151,9 +151,7 @@ R = \frac{VP}{VP + FN}, \qquad
 F_1 = \frac{2 \, P \, R}{P + R}.
 \]
 
-Estas dos métricas miran cosas distintas y conviene leerlas juntas. Una precisión alta indica que el sistema genera pocas falsas alarmas. Un recall alto indica que se le escapan pocos ataques. A menudo hay una tensión entre ambas: ser muy estricto reduce los falsos positivos pero puede aumentar los falsos negativos, y al revés. La medida $F_1$ es útil porque resume ese equilibrio en un solo número.
-
-\begin{table}[ht]
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{|l|c|p{3.6cm}|p{4.6cm}|}
@@ -170,5 +168,7 @@ F1 & $\frac{2 \, P \, R}{P + R}$ & Media armónica de precisión y recall. & Res
 \caption{Precisión, recall y F1: interpretación de las métricas utilizadas.}
 \label{tab:metricas_prf1}
 \end{table}
+
+Estas dos métricas miran cosas distintas y conviene leerlas juntas. Una precisión alta indica que el sistema genera pocas falsas alarmas. Un recall alto indica que se le escapan pocos ataques. A menudo hay una tensión entre ambas: ser muy estricto reduce los falsos positivos pero puede aumentar los falsos negativos, y al revés. La medida $F_1$ es útil porque resume ese equilibrio en un solo número.
 
 Por último, queda explicar por qué no se usa como métrica principal la \textbf{exactitud} (\emph{accuracy}), es decir, la proporción de aciertos sobre el total. En detección de intrusiones los datos suelen estar muy \textbf{desbalanceados}: la inmensa mayoría del tráfico es normal y solo una pequeña parte son ataques. En ese escenario, un sistema que clasificara absolutamente todo como tráfico normal obtendría una exactitud altísima, simplemente porque casi todo es normal, y aun así no detectaría ni un solo ataque. Por eso, en este trabajo se da prioridad a precisión, recall y $F_1$, que reflejan mejor la capacidad real de detección sobre las clases minoritarias.

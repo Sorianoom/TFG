@@ -5,30 +5,36 @@ Este apéndice recoge tablas de resultados ampliadas que sirven de soporte a la 
 
 Todas las cifras provienen de los ficheros de resultados del proyecto. El escaneo SSH (\texttt{anomaly-sshscan}) apenas tiene muestras etiquetadas en \texttt{august.week1}, por lo que su evaluación representativa se hace en \texttt{april.week2}. La clase de campaña SMTP (\texttt{anomaly-spam}) se descartó del análisis y no se incluye como resultado activo.
 
-Las tablas de este apéndice proceden de ficheros CSV derivados de los resultados del clasificador y de la línea base. Son de tres tipos. El primero es un \textbf{resumen binario}, con los recuentos de confusión (VP, FP, FN y VN) y las métricas de precisión, recall y $F_1$. El segundo es un \textbf{resumen por familia y subtipo}, con la clase, las trazas etiquetadas, las predichas, los aciertos y sus métricas. El tercero es un \textbf{resumen de la línea base de aprendizaje automático}, con el modelo, la clase, la precisión, el recall, el $F_1$ y el soporte. Los nombres concretos de cada fichero se citan en las fuentes de las tablas, a efectos de reproducibilidad.
+Las tablas de este apéndice proceden de ficheros CSV derivados de los resultados del clasificador y de la línea base. Son de tres tipos. El primero es un \textbf{resumen binario}, con los recuentos de confusión (VP, FP, FN y VN) y las métricas de precisión, recall y $F_1$. El segundo es un \textbf{resumen por familia y subtipo}, con la clase, las trazas etiquetadas, las predichas, los aciertos y sus métricas. El tercero es un \textbf{resumen de la línea base de aprendizaje automático}, con el modelo, la clase, la precisión, el recall, el $F_1$ y el soporte. Todas estas tablas son de elaboración propia a partir de los resultados experimentales del proyecto, que forman parte del material complementario.
 
-\section{Detección binaria: recuentos de confusión completos}
+\section{Evolución de las versiones del clasificador}
 \label{sec:apc_binaria}
 
-La Tabla~\ref{tab:apc_binaria} amplía la tabla binaria del Capítulo~\ref{cap:experimentos} con los recuentos de confusión completos (verdaderos y falsos positivos y negativos) de las versiones v3 y v5 sobre el conjunto principal de estudio.
+La Tabla~\ref{tab:apc_binaria} resume la evolución de las cinco versiones del clasificador. Para cada una indica el cambio principal y, en las que disponen de un resumen comparable, su detección binaria (precisión, recall y $F_1$) sobre el conjunto principal de estudio (\texttt{august.week1}). De la v2 a la v5 la evaluación se hizo con la misma metodología a nivel de flujo. La v1 fue una primera versión exploratoria que no dejó un resumen binario homogéneo, por lo que no se reportan sus métricas.
 
-\begin{table}[ht]
+\begin{table}[!htbp]
 \centering
 \small
-\begin{tabular}{|l|r|r|r|r|c|c|c|}
+\begin{tabular}{|l|p{4.4cm}|c|c|c|p{3.6cm}|}
 \hline
-\textbf{Versión} & \textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} & \textbf{P} & \textbf{R} & \textbf{F1} \\
+\textbf{Versión} & \textbf{Cambio principal} & \textbf{P} & \textbf{R} & \textbf{F1} & \textbf{Observación o limitación} \\
 \hline
-v3 (base estable) & 1\,816\,688 & 137\,365 & 17\,228 & 4\,899\,050 & 0,930 & 0,991 & 0,960$^{*}$ \\
+v1 & Reglas locales (ventana de $\pm$30 filas) con señales básicas. & --- & --- & --- & Etapa exploratoria, sin un resumen binario homogéneo comparable. \\
 \hline
-v5 (final) & 1\,816\,688 & 145\,702 & 17\,228 & 4\,890\,713 & 0,926 & 0,991 & 0,957 \\
+v2 & Decisión jerárquica (ataque/background, familia y subtipo). & 0,961 & 0,991 & 0,976$^{*}$ & Buen binario, pero el subtipo \texttt{scan11}/\texttt{scan44} muy inestable. \\
+\hline
+v3 (base estable) & Segundo pase global por ventana. & 0,930 & 0,991 & 0,960$^{*}$ & Estabiliza el escaneo vertical; aún no detecta el escaneo SSH. \\
+\hline
+v4 & Reparto de confianza alto/bajo en la botnet. & 0,930 & 0,991 & 0,960$^{*}$ & Experimental; binario igual que la v3, mejora no concluyente. \\
+\hline
+v5 (final) & Tercer pase global por origen (fan-out SSH al puerto 22). & 0,926 & 0,991 & 0,957 & Recupera el escaneo SSH; añade falsos positivos en semanas sin SSH. \\
 \hline
 \end{tabular}
-\caption{Detección binaria en \texttt{august.week1}: recuentos de confusión completos. $^{*}$El F1 de la v3 se deriva de su precisión y recall. Fuente: \texttt{flow\_level\_detection\_summary\_v3.csv} y \texttt{\_v5\_integrated.csv}.}
+\caption{Evolución de las versiones del clasificador: cambio principal y detección binaria (ataque/normal) en \texttt{august.week1}. $^{*}$El F1 marcado se deriva de la precisión y el recall, ya que esos resúmenes no lo almacenan. La v1 fue una primera versión exploratoria sin un resumen binario homogéneo.}
 \label{tab:apc_binaria}
 \end{table}
 
-La diferencia entre las dos versiones está en los falsos positivos: la v5 añade 8\,337 falsas alarmas respecto a la v3, atribuibles al tercer pase de escaneo SSH en una semana donde ese ataque apenas aparece etiquetado.
+Entre la base estable v3 y la versión final v5, la diferencia está en los falsos positivos: la v5 añade 8\,337 falsas alarmas respecto a la v3 (de 137\,365 a 145\,702), atribuibles al tercer pase de escaneo SSH en una semana donde ese ataque apenas aparece etiquetado. Los recuentos de confusión completos (VP, FP, FN y VN) de la v3 y la v5 se recogen en el Capítulo~\ref{cap:experimentos}.
 
 \section{Resultados por subtipo de la v5}
 \label{sec:apc_familia}
@@ -55,7 +61,7 @@ nerisbotnet & 99\,762 & 16\,462 & 4\,420 & 0,269 & 0,044 & 0,076 \\
 anomaly-sshscan & 44 & 8\,397 & 0 & 0,000 & 0,000 & 0,000 \\
 \hline
 \end{tabular}
-\caption{Resultados por subtipo de la v5 en \texttt{august.week1}. El escaneo SSH no es representativo en esta semana, con solo 44 trazas etiquetadas, y se evalúa en \texttt{april.week2} (Tabla~\ref{tab:apc_general}). Fuente: \texttt{flow\_level\_detection\_summary\_v5\_integrated.csv}.}
+\caption{Resultados por subtipo de la v5 en \texttt{august.week1}. El escaneo SSH no es representativo en esta semana, con solo 44 trazas etiquetadas, y se evalúa en \texttt{april.week2} (Tabla~\ref{tab:apc_general}).}
 \label{tab:apc_familia}
 \end{table}
 
@@ -102,10 +108,8 @@ SVM & 0,767 & 0,990 & 0,995 & 0,912 & 0,707 & 0,311 & 0,780 \\
 \hline
 MLP & 0,833 & 0,990 & 1,000 & 0,992 & 0,801 & 0,721 & 0,889 \\
 \hline
-Random Forest$^{*}$ & 0,898 & 0,990 & 1,000 & 0,999 & 0,993 & 0,992 & 0,979 \\
-\hline
 \end{tabular}}
-\caption{F1 por clase activa de la línea base de aprendizaje automático (muestra equilibrada, 2\,778 ejemplos por clase). $^{*}$Random Forest se documenta pero no se usa como referencia principal en el Capítulo~\ref{cap:experimentos}: su rendimiento casi perfecto sobre una muestra preparada puede reflejar particularidades del conjunto más que una capacidad real de generalización. Fuente: \texttt{ml\_baseline\_summary\_active\_families.csv} y \texttt{ml\_baseline\_results\_active\_families.csv}.}
+\caption{F1 por clase activa de la línea base de aprendizaje automático (muestra equilibrada, 2\,778 ejemplos por clase). Recoge los cuatro modelos de la comparación principal de la memoria.}
 \label{tab:apc_ml}
 \end{table}
 

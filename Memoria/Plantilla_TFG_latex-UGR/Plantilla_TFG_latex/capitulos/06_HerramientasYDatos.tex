@@ -49,7 +49,9 @@ Cada traza del dataset es un \textbf{flujo NetFlow}: un resumen de una comunicac
 
 En la práctica, el conjunto de datos se maneja como \textbf{archivos CSV de trazas NetFlow}, en los que cada fila es un flujo y cada columna un campo de sus metadatos. Las trazas de UGR'16 siguen un formato de \textbf{13 columnas} sin cabecera, derivado de la exportación con herramientas tipo \emph{nfdump}. La Tabla~\ref{tab:csv_netflow_estructura} resume ese formato con el campo, su tipo de dato y su dominio o interpretación.
 
-\begin{table}[ht]
+La consecuencia más importante de trabajar con NetFlow es que \textbf{no se observa el contenido} de las comunicaciones: solo se puede saber quién habla con quién, por qué puerto, cuándo y con qué volumen. Esto resulta útil por privacidad y escalabilidad, pero también supone un límite: hay ataques cuya naturaleza solo se aprecia mirando el contenido, y que por tanto son difíciles de caracterizar únicamente con metadatos.
+
+\begin{table}[!htbp]
 \centering
 \small
 \begin{tabular}{|l|l|p{6.4cm}|}
@@ -87,7 +89,7 @@ Etiqueta & Categórico & Clase real de la traza (\emph{background} o tipo de ata
 \label{tab:csv_netflow_estructura}
 \end{table}
 
-La consecuencia más importante de trabajar con NetFlow es que \textbf{no se observa el contenido} de las comunicaciones: solo se puede saber quién habla con quién, por qué puerto, cuándo y con qué volumen. Esto resulta útil por privacidad y escalabilidad, pero también supone un límite: hay ataques cuya naturaleza solo se aprecia mirando el contenido, y que por tanto son difíciles de caracterizar únicamente con metadatos.
+\clearpage
 
 \section{Proceso de limpieza y preparación de datos}
 \label{sec:herr_preprocesado}

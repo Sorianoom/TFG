@@ -61,18 +61,27 @@ Estos datos son los que alimentan tanto la portada como las páginas de ataque. 
 \section{Visualización de familias de ataque}
 \label{sec:web_visualizacion}
 
-Cuando el usuario pulsa sobre una familia, la web abre su página de detalle. Allí se muestra, para esa familia, la descripción del ataque, un diagrama del patrón, una explicación en lenguaje sencillo, las características que mira el detector (cada señal con qué mide y por qué importa), los pasos de detección, una regla simplificada en forma de pseudocódigo, lo que el detector \emph{no} usa, sus métricas con su significado, el contexto de validación y sus limitaciones.
+La Figura~\ref{fig:web_principal} muestra la pantalla principal de la aplicación, desde la que se accede a las familias de ataque y a las funciones generales del sistema.
 
-La idea es que cualquier persona con formación en informática, aunque no sea especialista en seguridad, pueda entender por qué el detector marca un ataque. Por eso las señales se explican con palabras y no solo con fórmulas, y la regla se presenta de forma ilustrativa, no como el código real. Las métricas que se muestran son las mismas que se documentan en el Capítulo~\ref{cap:experimentos}.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{imagenes/web_pantalla_principal.png}
+\caption{Pantalla principal de la aplicación web, desde la que se accede a las familias de ataque y a las principales funciones del sistema.}
+\label{fig:web_principal}
+\end{figure}
 
-\begin{figure}[ht]
+Cuando el usuario pulsa sobre una familia, la web abre su página de detalle (Figura~\ref{fig:web_detalle}). Allí se muestra, para esa familia, la descripción del ataque, un diagrama del patrón, una explicación en lenguaje sencillo, las características que mira el detector (cada señal con qué mide y por qué importa), los pasos de detección, una regla simplificada en forma de pseudocódigo, lo que el detector \emph{no} usa, sus métricas con su significado, el contexto de validación y sus limitaciones.
+
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{imagenes/web_detalle_familia.png}
 \caption{Pantalla de detalle de una familia de ataque en la aplicación web.}
 \label{fig:web_detalle}
 \end{figure}
 
-\begin{figure}[ht]
+La idea es que cualquier persona con formación en informática, aunque no sea especialista en seguridad, pueda entender por qué el detector marca un ataque. Por eso las señales se explican con palabras y no solo con fórmulas, y la regla se presenta de forma ilustrativa, no como el código real. Las métricas que se muestran son las mismas que se documentan en el Capítulo~\ref{cap:experimentos}. La Figura~\ref{fig:web_senales} recoge cómo presenta la web esas señales conductuales.
+
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{imagenes/web_senales_detector.png}
 \caption{Señales conductuales mostradas por la web para explicar la decisión del detector.}
@@ -107,18 +116,18 @@ Esta integración depende de configuración local. Necesita que se hayan configu
 \section{Ejecución del clasificador desde la web}
 \label{sec:web_clasificador}
 
-La web permite probar el clasificador sin tocar los scripts. El usuario sube una ventana en formato CSV (con un límite de tamaño pequeño, de unos pocos megabytes), la web comprueba que tenga las columnas esperadas y la envía al backend, que ejecuta el clasificador sobre cada traza. La respuesta incluye, por traza, la decisión (ataque o normal), la familia, el subtipo, un nivel de confianza y la señal que ha justificado la decisión, junto con un resumen del conjunto.
+La web permite probar el clasificador sin tocar los scripts. El usuario sube una ventana en formato CSV (con un límite de tamaño pequeño, de unos pocos megabytes), la web comprueba que tenga las columnas esperadas y la envía al backend, que ejecuta el clasificador sobre cada traza. La respuesta incluye, por traza, la decisión (ataque o normal), la familia, el subtipo, un nivel de confianza y la señal que ha justificado la decisión, junto con un resumen del conjunto (Figura~\ref{fig:web_clasificador}).
 
-La interfaz distingue con cuidado dos cosas que es fácil confundir. La \textbf{confianza} es la fuerza de la evidencia de la regla, no una probabilidad de un modelo. El \textbf{acierto} solo puede calcularse si el CSV incluye la etiqueta real. Si no la trae, la web muestra solo la confianza y lo indica, sin inventar un porcentaje de acierto.
-
-Esta función está pensada para pruebas pequeñas o de demostración. No procesa el dataset completo ni grandes volúmenes desde la interfaz, que es justo el trabajo que hacen los scripts de análisis del Capítulo~\ref{cap:experimentos}.
-
-\begin{figure}[ht]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{imagenes/web_clasificador.png}
 \caption{Ejecución del clasificador contextual desde la aplicación web sobre un CSV pequeño de ejemplo.}
 \label{fig:web_clasificador}
 \end{figure}
+
+La interfaz distingue con cuidado dos cosas que es fácil confundir. La \textbf{confianza} es la fuerza de la evidencia de la regla, no una probabilidad de un modelo. El \textbf{acierto} solo puede calcularse si el CSV incluye la etiqueta real. Si no la trae, la web muestra solo la confianza y lo indica, sin inventar un porcentaje de acierto.
+
+Esta función está pensada para pruebas pequeñas o de demostración. No procesa el dataset completo ni grandes volúmenes desde la interfaz, que es justo el trabajo que hacen los scripts de análisis del Capítulo~\ref{cap:experimentos}.
 
 \section{Despliegue y ejecución}
 \label{sec:web_despliegue}
