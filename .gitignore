@@ -64,3 +64,19 @@ Docs/00_RESUMEN_MAESTRO_TFG.md
 # Muestras locales con IPs reales del dataset (no se entregan; se usan las sintéticas)
 data/pruebas/pruebaScan11.csv
 data/pruebas/pruebaScan44.csv
+
+# ===== Entorno y dependencias adicionales (preventivo) =====
+.venv/
+build/
+node_modules/
+dist/
+
+# ===== Datos binarios pesados adicionales =====
+*.parquet
+*.pkl
+
+# ===== Credenciales y sesiones: nunca versionar =====
+# El .env ya se ignora arriba; estas reglas cubren la sesión de NotebookLM y claves.
+storage_state.json
+*.pem
+*.key
