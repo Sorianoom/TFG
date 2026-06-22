@@ -48,7 +48,7 @@ La información que recoge un flujo NetFlow incluye, de forma general:
   \item el \textbf{protocolo} de transporte (TCP, UDP, etc.).
   \item la \textbf{duración} del flujo.
   \item el número de \textbf{paquetes} y de \textbf{bytes} intercambiados.
-  \item las \textbf{banderas} (\emph{flags}) TCP, cuando corresponde, que indican el tipo de los paquetes (por ejemplo, intentos de conexión).
+  \item las \textbf{flags} TCP, cuando corresponde, que indican el tipo de los paquetes (por ejemplo, intentos de conexión).
 \end{itemize}
 
 \begin{figure}[!htbp]
@@ -169,6 +169,6 @@ F1 & $\frac{2 \, P \, R}{P + R}$ & Media armónica de precisión y recall. & Res
 \label{tab:metricas_prf1}
 \end{table}
 
-Estas dos métricas miran cosas distintas y conviene leerlas juntas. Una precisión alta indica que el sistema genera pocas falsas alarmas. Un recall alto indica que se le escapan pocos ataques. A menudo hay una tensión entre ambas: ser muy estricto reduce los falsos positivos pero puede aumentar los falsos negativos, y al revés. La medida $F_1$ es útil porque resume ese equilibrio en un solo número.
+Estas métricas miran cosas distintas y conviene leerlas juntas. Una precisión alta indica que el sistema genera pocas falsas alarmas. Un recall alto indica que se le escapan pocos ataques. A menudo hay una tensión entre ambas: ser muy estricto reduce los falsos positivos pero puede aumentar los falsos negativos, y al revés. La medida $F_1$ es útil porque resume ese equilibrio en un solo número.
 
 Por último, queda explicar por qué no se usa como métrica principal la \textbf{exactitud} (\emph{accuracy}), es decir, la proporción de aciertos sobre el total. En detección de intrusiones los datos suelen estar muy \textbf{desbalanceados}: la inmensa mayoría del tráfico es normal y solo una pequeña parte son ataques. En ese escenario, un sistema que clasificara absolutamente todo como tráfico normal obtendría una exactitud altísima, simplemente porque casi todo es normal, y aun así no detectaría ni un solo ataque. Por eso, en este trabajo se da prioridad a precisión, recall y $F_1$, que reflejan mejor la capacidad real de detección sobre las clases minoritarias.

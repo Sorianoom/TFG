@@ -20,9 +20,9 @@ El planteamiento se puede ver en varias capas:
 
 Un punto central del planteamiento es que el problema \textbf{no se reduce a clasificar}. Asignar una etiqueta a cada traza es necesario, pero no suficiente: se busca una detección \textbf{justificable}, en la que la salida vaya acompañada de la evidencia que la respalda. Esta exigencia de interpretabilidad condiciona todo el diseño posterior.
 
-En este planteamiento, los modelos de lenguaje y NotebookLM ocupan un papel \textbf{de apoyo}. Ayudan a interpretar patrones, a resumir el comportamiento observado y a documentar las hipótesis sobre las señales de cada ataque. No deciden qué tráfico es malicioso ni actúan como detectores automáticos: la detección final la realiza siempre el clasificador basado en reglas, que es explícito y revisable.
+En este planteamiento, los LLMs y NotebookLM ocupan un papel \textbf{de apoyo}. Ayudan a interpretar patrones, a resumir el comportamiento observado y a documentar las hipótesis sobre las señales de cada ataque. No deciden qué tráfico es malicioso ni actúan como detectores automáticos: la detección final la realiza siempre el clasificador basado en reglas, que es explícito y revisable.
 
-El estudio se centra en \textbf{seis familias de ataque} del dataset, elegidas por ser representativas de comportamientos distintos: \texttt{scan11} y \texttt{scan44} (escaneo vertical desde uno o varios orígenes), \texttt{anomaly-udpscan} (escaneo UDP), \texttt{dos} (inundación de un servicio), \texttt{nerisbotnet} (actividad coordinada tipo red de bots) y \texttt{anomaly-sshscan} (escaneo horizontal por SSH). Estas familias cubren patrones diferentes (verticales, horizontales, de concentración y de coordinación), lo que las hace adecuadas para estudiar el alcance del enfoque.
+El estudio se centra en \textbf{seis familias de ataque} del dataset, elegidas por ser representativas de comportamientos distintos: \texttt{scan11} y \texttt{scan44} (escaneo vertical desde uno o varios orígenes), \texttt{anomaly-udpscan} (escaneo UDP), \texttt{dos} (denegación de un servicio), \texttt{nerisbotnet} (actividad coordinada tipo red de bots) y \texttt{anomaly-sshscan} (escaneo horizontal por SSH). Estas familias cubren patrones diferentes (verticales, horizontales, de concentración y de coordinación), lo que las hace adecuadas para estudiar el alcance del enfoque.
 
 \section{Entrada del sistema}
 \label{sec:prob_entrada}
@@ -35,7 +35,7 @@ La entrada del sistema son \textbf{registros NetFlow}, es decir, resúmenes de c
   \item el protocolo de transporte (TCP, UDP, etc.).
   \item la duración del flujo.
   \item el número de paquetes y de bytes.
-  \item las banderas (\emph{flags}) cuando proceden.
+  \item las flags cuando proceden.
 \end{itemize}
 
 Estos registros no se analizan de forma completamente aislada. El sistema trabaja sobre \textbf{ventanas de tráfico}: conjuntos de flujos próximos en el tiempo que permiten observar el comportamiento en su contexto. La razón es que muchos ataques solo tienen sentido cuando se miran varias trazas en conjunto. Una traza suelta puede parecer inofensiva, mientras que el patrón aparece al considerar el grupo. Por tanto, la entrada efectiva del sistema es una ventana de flujos NetFlow, y cada flujo se interpreta teniendo en cuenta su entorno.

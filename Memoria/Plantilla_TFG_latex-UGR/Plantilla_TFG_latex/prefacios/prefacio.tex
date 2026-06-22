@@ -20,14 +20,14 @@ Mario Soriano Morón\\
 \end{center}
 
 %\vspace{0.7cm}
-\noindent{\textbf{Palabras clave}: detección de intrusiones, NetFlow, UGR'16, reglas conductuales, explicabilidad, modelos de lenguaje, NotebookLM.}\\
+\noindent{\textbf{Palabras clave}: detección de intrusiones, NetFlow, UGR'16, reglas conductuales, explicabilidad, modelos de lenguaje, NotebookLM, LLMs.}\\
 
 \vspace{0.7cm}
 \noindent{\textbf{Resumen}}\\
 
-Este Trabajo de Fin de Grado estudia cómo los modelos de lenguaje pueden ayudar a mejorar las prestaciones de un sistema de detección de intrusiones en red, sin convertirse en el motor de detección. El trabajo se apoya en el dataset UGR'16, construido a partir de tráfico real de un proveedor de servicios de Internet (ISP), y analiza sus trazas NetFlow, que resumen cada comunicación mediante metadatos, sin el contenido.
+Este Trabajo de Fin de Grado estudia cómo los grandes modelos de lenguaje pueden ayudar a mejorar las prestaciones de un sistema de detección de intrusiones en red, sin convertirse en el motor de detección. El trabajo se apoya en el dataset UGR'16, construido a partir de tráfico real de un proveedor de servicios de Internet (ISP), y analiza sus trazas NetFlow, que resumen cada comunicación mediante metadatos, sin el contenido.
 
-La detección final no la realiza un modelo de lenguaje, sino un clasificador contextual basado en reglas conductuales (la versión v5). Ese clasificador trabaja en tres pases: un análisis local de cada flujo, una agregación global por ventana y un pase global por origen que recupera el escaneo SSH. Los modelos de lenguaje y NotebookLM intervienen solo como apoyo en la fase de análisis, para interpretar patrones y formular hipótesis que después se comprueban con código y datos.
+La detección final no la realiza un modelo de lenguaje, sino un clasificador contextual basado en reglas conductuales. Ese clasificador trabaja en tres fases: un análisis local de cada flujo, una agregación global por ventana y una pasada global por origen, para completar la calisificacion de los ataques restantes. Los modelos de lenguaje y NotebookLM intervienen solo como apoyo en la fase de análisis, para interpretar patrones y formular hipótesis que después se comprueban con código y datos.
 
 La evaluación, con precisión, recall y F1, muestra una detección binaria alta, con un F1 de 0,957 en el conjunto principal de estudio, y un buen comportamiento en las familias con patrones más claros, como el escaneo UDP y los escaneos verticales. El escaneo SSH, que con contexto local no se detectaba, pasa a detectarse con un F1 de 0,951 en una semana independiente. El trabajo incluye una comparación con aprendizaje automático clásico como referencia y una aplicación web que ayuda a visualizar, explicar y probar el detector. El enfoque prioriza la explicabilidad: cada decisión se acompaña de la señal que la justifica.
 
@@ -86,7 +86,7 @@ D. \textbf{Antonio Miguel Mora García} y D. \textbf{Juan Francisco Valenzuela V
 
 \vspace{0.5cm}
 
-\textbf{Informa:}
+\textbf{Informan:}
 
 \vspace{0.5cm}
 
