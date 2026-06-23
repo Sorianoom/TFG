@@ -19,7 +19,6 @@ import asyncio
 import json
 import logging
 import os as _os
-import subprocess
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -64,50 +63,51 @@ ALLOWED_ORIGINS = [
 _VERCEL_REGEX = r"https://[a-zA-Z0-9-]+(\.vercel\.app)$"
 ALLOWED_ORIGIN_REGEX = _os.environ.get("CORS_ORIGIN_REGEX", _VERCEL_REGEX)
 
-# Intervalo de relogin de NotebookLM en segundos (por defecto 1 hora).
-_NOTEBOOKLM_RELOGIN_INTERVAL = int(_os.environ.get("NOTEBOOKLM_RELOGIN_INTERVAL", "3600"))
+# Intervalo del keepalive de NotebookLM en segundos (por defecto 6 horas).
+_NOTEBOOKLM_KEEPALIVE_INTERVAL = int(_os.environ.get("NOTEBOOKLM_KEEPALIVE_INTERVAL", "3600"))
 
 
 # ---------------------------------------------------------------------------
-# Tarea de fondo: relogin periódico de NotebookLM
+# Tarea de fondo: keepalive periódico de NotebookLM
 # ---------------------------------------------------------------------------
 
-async def _notebooklm_relogin_loop() -> None:
-    """Ejecuta `notebooklm login` cada hora para mantener la sesión activa.
+async def _notebooklm_keepalive_loop() -> None:
+    """Hace una petición ligera a NotebookLM cada 6 horas para renovar las cookies
+    de sesión sin necesidad de login interactivo.
+
+    Ejecuta `notebooklm list` en headless: no abre ventana de navegador, solo
+    usa las cookies guardadas en storage_state.json y las refresca si el servidor
+    devuelve cookies nuevas.
 
     Solo arranca si NOTEBOOKLM_ENABLED=true y NOTEBOOKLM_AUTH_PATH está definido.
-    Espera el primer intervalo antes de la primera ejecución (el login inicial lo
-    hace el usuario manualmente antes de arrancar el servidor).
     """
     if not (config.env_bool("NOTEBOOKLM_ENABLED") and config.env_str("NOTEBOOKLM_AUTH_PATH")):
-        logger.info("NotebookLM relogin scheduler: desactivado (IA OFF o sin AUTH_PATH).")
+        logger.info("NotebookLM keepalive: desactivado (IA OFF o sin AUTH_PATH).")
         return
 
-    auth_path = config.env_str("NOTEBOOKLM_AUTH_PATH")
-    cmd = [sys.executable, "-m", "notebooklm", "login", "--storage-state", auth_path]
-    logger.info("NotebookLM relogin scheduler: activo, intervalo=%ds.", _NOTEBOOKLM_RELOGIN_INTERVAL)
+    logger.info("NotebookLM keepalive: activo, intervalo=%ds.", _NOTEBOOKLM_KEEPALIVE_INTERVAL)
 
     while True:
-        await asyncio.sleep(_NOTEBOOKLM_RELOGIN_INTERVAL)
-        logger.info("NotebookLM relogin: ejecutando login…")
+        await asyncio.sleep(_NOTEBOOKLM_KEEPALIVE_INTERVAL)
+        logger.info("NotebookLM keepalive: refrescando cookies…")
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=120,
+            proc = await asyncio.create_subprocess_exec(
+                sys.executable, "-m", "notebooklm", "auth", "refresh", "--quiet",
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.PIPE,
             )
-            if result.returncode == 0:
-                logger.info("NotebookLM relogin: OK.\n%s", result.stdout.strip())
+            _, stderr = await asyncio.wait_for(proc.communicate(), timeout=120)
+            if proc.returncode == 0:
+                logger.info("NotebookLM keepalive: cookies renovadas correctamente.")
             else:
                 logger.warning(
-                    "NotebookLM relogin: salió con código %d.\nstdout: %s\nstderr: %s",
-                    result.returncode, result.stdout.strip(), result.stderr.strip(),
+                    "NotebookLM keepalive: código %d — la sesión puede haber expirado. %s",
+                    proc.returncode, stderr.decode().strip(),
                 )
-        except subprocess.TimeoutExpired:
-            logger.error("NotebookLM relogin: timeout (>120 s).")
+        except asyncio.TimeoutError:
+            logger.error("NotebookLM keepalive: timeout (>120 s).")
         except Exception as exc:
-            logger.error("NotebookLM relogin: error inesperado: %s", exc)
+            logger.error("NotebookLM keepalive: error inesperado: %s", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +116,7 @@ async def _notebooklm_relogin_loop() -> None:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    task = asyncio.create_task(_notebooklm_relogin_loop())
+    task = asyncio.create_task(_notebooklm_keepalive_loop())
     yield
     task.cancel()
     try:
