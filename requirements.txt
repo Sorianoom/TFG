@@ -19,5 +19,6 @@ tqdm==4.67.3
 notebooklm-py==0.6.0
 playwright==1.60.0
 
-# Nota: fastapi / uvicorn NO se incluyen porque no están instalados ni en uso
-# todavía; añádelos solo cuando se implemente la parte web.
+# --- Web backend ---
+fastapi
+uvicorn[standard]
