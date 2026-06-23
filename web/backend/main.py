@@ -15,7 +15,13 @@ Ejecución:
     uvicorn main:app --reload
 """
 
+import asyncio
 import json
+import logging
+import os as _os
+import subprocess
+import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -29,6 +35,8 @@ import simulator
 from services import notebooklm_service
 from services import classifier_service
 
+logger = logging.getLogger("tfg.backend")
+
 # ---------------------------------------------------------------------------
 # Metadatos
 # ---------------------------------------------------------------------------
@@ -38,31 +46,95 @@ PROJECT_NAME = "Mapa mental del TFG: detección explicativa de anomalías NetFlo
 PRINCIPAL_CLASSIFIER = "v5 integrated"
 BASE_CLASSIFIER = "v3"
 
-# Ruta a web/data/ resuelta respecto a ESTE archivo (no al directorio de trabajo),
-# de modo que funcione tanto desde la raíz del proyecto como desde web/backend.
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-
-# Frontend compilado por Vite (web/frontend/dist). Se sirve en "/" si existe.
 DIST_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 INDEX_FILE = DIST_DIR / "index.html"
 ASSETS_DIR = DIST_DIR / "assets"
 NOT_BUILT_MSG = "Frontend no compilado. Ejecuta: cd web/frontend && npm run build"
 
-# Orígenes permitidos para el frontend de desarrollo (Vite).
+# Orígenes explícitos: desarrollo local + los que se añadan vía CORS_ORIGINS (CSV).
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    *[o.strip() for o in _os.environ.get("CORS_ORIGINS", "").split(",") if o.strip()],
 ]
+
+# Regex que cubre cualquier subdominio de Vercel (*.vercel.app) y el dominio
+# personalizado si se configura en CORS_ORIGIN_REGEX.
+_VERCEL_REGEX = r"https://[a-zA-Z0-9-]+(\.vercel\.app)$"
+ALLOWED_ORIGIN_REGEX = _os.environ.get("CORS_ORIGIN_REGEX", _VERCEL_REGEX)
+
+# Intervalo de relogin de NotebookLM en segundos (por defecto 1 hora).
+_NOTEBOOKLM_RELOGIN_INTERVAL = int(_os.environ.get("NOTEBOOKLM_RELOGIN_INTERVAL", "3600"))
+
+
+# ---------------------------------------------------------------------------
+# Tarea de fondo: relogin periódico de NotebookLM
+# ---------------------------------------------------------------------------
+
+async def _notebooklm_relogin_loop() -> None:
+    """Ejecuta `notebooklm login` cada hora para mantener la sesión activa.
+
+    Solo arranca si NOTEBOOKLM_ENABLED=true y NOTEBOOKLM_AUTH_PATH está definido.
+    Espera el primer intervalo antes de la primera ejecución (el login inicial lo
+    hace el usuario manualmente antes de arrancar el servidor).
+    """
+    if not (config.env_bool("NOTEBOOKLM_ENABLED") and config.env_str("NOTEBOOKLM_AUTH_PATH")):
+        logger.info("NotebookLM relogin scheduler: desactivado (IA OFF o sin AUTH_PATH).")
+        return
+
+    auth_path = config.env_str("NOTEBOOKLM_AUTH_PATH")
+    cmd = [sys.executable, "-m", "notebooklm", "login", "--storage-state", auth_path]
+    logger.info("NotebookLM relogin scheduler: activo, intervalo=%ds.", _NOTEBOOKLM_RELOGIN_INTERVAL)
+
+    while True:
+        await asyncio.sleep(_NOTEBOOKLM_RELOGIN_INTERVAL)
+        logger.info("NotebookLM relogin: ejecutando login…")
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            if result.returncode == 0:
+                logger.info("NotebookLM relogin: OK.\n%s", result.stdout.strip())
+            else:
+                logger.warning(
+                    "NotebookLM relogin: salió con código %d.\nstdout: %s\nstderr: %s",
+                    result.returncode, result.stdout.strip(), result.stderr.strip(),
+                )
+        except subprocess.TimeoutExpired:
+            logger.error("NotebookLM relogin: timeout (>120 s).")
+        except Exception as exc:
+            logger.error("NotebookLM relogin: error inesperado: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Lifespan: arranca la tarea de fondo al iniciar el servidor
+# ---------------------------------------------------------------------------
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    task = asyncio.create_task(_notebooklm_relogin_loop())
+    yield
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+
 
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
 
-app = FastAPI(title=PROJECT_NAME, version=API_VERSION)
+app = FastAPI(title=PROJECT_NAME, version=API_VERSION, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=ALLOWED_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
