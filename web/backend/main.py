@@ -114,8 +114,27 @@ async def _notebooklm_keepalive_loop() -> None:
 # Lifespan: arranca la tarea de fondo al iniciar el servidor
 # ---------------------------------------------------------------------------
 
+def _prepare_auth_path() -> None:
+    """Copia storage_state.json de /etc/secrets/ (read-only) a /tmp/ (escribible).
+
+    Render monta los Secret Files en un sistema de ficheros de solo lectura.
+    notebooklm-py necesita poder actualizar las cookies tras cada petición,
+    así que trabajamos sobre una copia en /tmp/ que sí es escribible.
+    """
+    import shutil
+    src = config.env_str("NOTEBOOKLM_AUTH_PATH", "")
+    if not src or not Path(src).exists():
+        return
+    dst = Path("/tmp/storage_state.json")
+    if not dst.exists() or dst.stat().st_mtime < Path(src).stat().st_mtime:
+        shutil.copy2(src, dst)
+        logger.info("Auth path copiado a %s (escribible).", dst)
+    _os.environ["NOTEBOOKLM_AUTH_PATH"] = str(dst)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    _prepare_auth_path()
     task = asyncio.create_task(_notebooklm_keepalive_loop())
     yield
     task.cancel()
