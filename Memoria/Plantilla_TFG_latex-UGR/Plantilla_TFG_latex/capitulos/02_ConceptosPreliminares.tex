@@ -28,10 +28,16 @@ De forma general, los IDS se dividen en dos grandes familias según cómo decide
 
 El enfoque desarrollado en este TFG está más cerca de la detección basada en anomalías y, sobre todo, en el comportamiento del tráfico. No se utilizan firmas de ataques concretos ni se depende de conocer de antemano cada amenaza. En su lugar, se estudia cómo se comporta el tráfico (cuántos destinos contacta un origen, cómo se reparte la actividad, qué servicios se usan) y se definen reglas que describen esos comportamientos. La diferencia importante respecto a un detector de anomalías puramente estadístico es que aquí cada decisión va acompañada de una explicación: no solo se dice que algo es anómalo, sino qué señal concreta lo ha provocado.
 
+Este tipo de detección suele requerir algo más que observar cada flujo de manera aislada. Un único registro puede corresponder a una comunicación legítima y no mostrar ninguna señal claramente maliciosa, mientras que el comportamiento sospechoso aparece al analizar varios flujos relacionados durante un mismo intervalo de tiempo. Por este motivo, es habitual agrupar el tráfico en ventanas temporales y estudiar características agregadas, como el número de conexiones, la cantidad de destinos o puertos contactados y la concentración del tráfico sobre un mismo objetivo.
+
+A partir de esas relaciones pueden reconocerse patrones generales. En un \emph{escaneo vertical}, un mismo origen prueba numerosos puertos de un único destino, mientras que en un \emph{escaneo horizontal} contacta muchos destinos a través de un mismo servicio. Un ataque de denegación de servicio concentra una actividad especialmente intensa contra un objetivo, y una botnet puede manifestarse mediante varios equipos que actúan de forma parecida o coordinada. También resulta útil el concepto de \emph{fan-out}, que representa el número de destinos distintos contactados por un mismo origen. Estos comportamientos se presentan aquí únicamente de forma introductoria, ya que su interpretación mediante ventanas y contexto se desarrolla con mayor detalle en los capítulos posteriores.
+
+La Figura~\ref{fig:ids_firmas_anomalias} compara de forma esquemática los dos enfoques, el basado en firmas y el basado en anomalías.
+
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{imagenes/fig_ids_firmas_vs_anomalias.pdf}
-\caption{Comparación esquemática entre un IDS basado en firmas y un IDS basado en anomalías.}
+\caption{Comparación esquemática entre un IDS basado en firmas y un IDS basado en anomalías. Fuente: elaboración propia.}
 \label{fig:ids_firmas_anomalias}
 \end{figure}
 
@@ -51,10 +57,12 @@ La información que recoge un flujo NetFlow incluye, de forma general:
   \item las \textbf{flags} TCP, cuando corresponde, que indican el tipo de los paquetes (por ejemplo, intentos de conexión).
 \end{itemize}
 
+La Figura~\ref{fig:flujo_netflow} muestra un esquema de flujo de NetFlow, y la Tabla~\ref{tab:campos_netflow} resume los campos principales que se utilizan en este trabajo. Además de los campos de metadatos, cada traza incluye una \textbf{etiqueta} que indica si corresponde a tráfico normal o a un tipo concreto de ataque. Esa etiqueta se usa solo para evaluar el rendimiento del detector, no para entrenarlo.
+
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.65\textwidth]{imagenes/fig_flujo_netflow.pdf}
-\caption{Esquema de un flujo NetFlow: varios paquetes de una comunicación se resumen en un registro de metadatos.}
+\caption{Esquema de un flujo NetFlow: varios paquetes de una comunicación se resumen en un registro de metadatos. Fuente: elaboración propia.}
 \label{fig:flujo_netflow}
 \end{figure}
 
@@ -99,11 +107,15 @@ Esta característica tiene dos caras. Por un lado, es muy útil: permite analiza
 \section{Dataset UGR'16}
 \label{sec:concep_ugr16}
 
-UGR'16 es un conjunto de datos público pensado para evaluar sistemas de detección de intrusiones en red \cite{ugr16}. Su principal interés es que está construido a partir de \textbf{tráfico real} capturado en la red de un proveedor de servicios de Internet (ISP), y no a partir de tráfico generado en un laboratorio. Esto es relevante porque el tráfico real incluye toda la variedad y el ruido propios de una red en producción, lo que hace que la evaluación sea más representativa de un escenario realista.
+UGR'16 es un conjunto de datos público creado específicamente para facilitar la evaluación de sistemas de detección de intrusiones en red \cite{ugr16}. Su principal interés frente a otros conjuntos de datos más antiguos es que se construyó a partir de \textbf{tráfico real} recogido durante más de cuatro meses en la red de un proveedor español de servicios de Internet (ISP). La captura se realizó mediante varios colectores NetFlow v9 situados en distintos puntos de la infraestructura, obteniendo más de 16.900 millones de registros de flujo. Las direcciones IP fueron anonimizadas para proteger la privacidad de los usuarios, pero se mantuvieron las características necesarias para estudiar el comportamiento de las comunicaciones. Al proceder de una red en producción, el tráfico incluye variaciones de volumen, conexiones legítimas, protocolos distintos, actividad periódica y comportamientos poco frecuentes que difícilmente aparecerían en un entorno de laboratorio. Esta variedad introduce ruido y situaciones ambiguas, pero también permite evaluar un detector en unas condiciones más cercanas a las que encontraría en un escenario real.
 
-El dataset está formado por registros NetFlow y, además del tráfico normal, incluye \textbf{ataques etiquetados} de distintas familias. Esa etiqueta indica, para cada traza, si corresponde a tráfico de fondo o a un tipo concreto de ataque. Disponer de etiquetas es lo que permite, más adelante, medir si un detector acierta o no, comparando su salida con la realidad conocida del dataset.
+El dataset está formado por registros NetFlow, donde cada fila representa de forma resumida una comunicación observada en la red. Entre los datos disponibles se encuentran la marca temporal, la duración del flujo, las direcciones y puertos de origen y destino, el protocolo, las banderas de la conexión y el número de paquetes y bytes intercambiados. Junto al tráfico de fondo, UGR'16 contiene \textbf{ataques y anomalías etiquetados} pertenecientes a distintas familias, entre ellas ataques de denegación de servicio, botnets y diferentes tipos de escaneo. Parte de estos ataques se generó de forma controlada sobre la propia infraestructura del ISP, de manera que quedaran mezclados con el tráfico real, mientras que otras anomalías fueron identificadas posteriormente durante el análisis del conjunto de datos.
 
-Otra característica útil de UGR'16 es que cubre un periodo largo de tiempo, organizado en distintas capturas. Esto abre la puerta a estudiar no solo si un detector funciona sobre los datos con los que se ha diseñado, sino también si \emph{generaliza} a tráfico de momentos diferentes. El detalle de las capturas concretas, su distribución y las semanas utilizadas se trata más adelante, en el capítulo de herramientas y datos. Aquí basta con entender por qué UGR'16 es una base adecuada para este trabajo: es tráfico real, está etiquetado por familias de ataque y permite plantear pruebas de generalización.
+Cada registro incorpora además una etiqueta que indica si el flujo pertenece al tráfico de fondo, denominado \emph{background}, o a una familia concreta de ataque. Estas etiquetas se utilizan como referencia para comparar posteriormente las predicciones del sistema con la clase asignada a cada traza. A partir de esta comparación se calculan los verdaderos positivos, falsos positivos, falsos negativos y verdaderos negativos, así como las métricas de precisión, recall y $F_1$.
+
+Es importante diferenciar entre la información utilizada para detectar y la empleada para evaluar. La etiqueta no se proporciona al clasificador como una característica de entrada ni interviene en la decisión sobre si un flujo es normal o malicioso. El detector trabaja únicamente con los campos y patrones observables del tráfico, como los orígenes y destinos, los puertos, el protocolo, el volumen y el contexto temporal. Las etiquetas se consultan una vez ejecutado el sistema para comprobar sus resultados. Aun así, deben entenderse como la referencia proporcionada por UGR'16, ya que el tráfico marcado como \emph{background} puede contener comportamientos atípicos que no hubieran sido identificados o etiquetados originalmente.
+
+Otra característica útil de UGR'16 es su organización temporal. Los datos se dividen en dos bloques principales y, dentro de ellos, en capturas semanales. El conjunto de calibración reúne tráfico de fondo real recogido entre marzo y junio de 2016, mientras que el conjunto de prueba contiene tráfico de julio y agosto, combinando actividad real con ataques introducidos de forma controlada. Esta duración permite estudiar variaciones que no se aprecian en capturas breves, como las diferencias entre el día y la noche, los días laborables y los fines de semana, o los cambios que se producen entre semanas. Para este trabajo resulta especialmente importante porque permite diseñar y evaluar el detector sobre una captura concreta y comprobar después si las reglas obtenidas se mantienen sobre periodos diferentes. El detalle de las capturas seleccionadas, su distribución y las semanas utilizadas se presenta más adelante, en el capítulo de herramientas y datos. Aquí basta con entender por qué UGR'16 constituye una base adecuada para el trabajo: contiene tráfico real y prolongado en el tiempo, ofrece información estructurada en forma de flujos, incorpora varias familias de ataque etiquetadas y permite plantear experimentos de generalización temporal.
 
 \section{Aprendizaje automático clásico}
 \label{sec:concep_ml}
@@ -115,7 +127,6 @@ Existen muchos modelos clásicos de clasificación, y varios de ellos se usan ha
 \begin{itemize}
   \item \textbf{K vecinos más cercanos (KNN):} clasifica cada ejemplo según las etiquetas de los ejemplos más parecidos a él.
   \item \textbf{Máquinas de vectores soporte (SVM):} buscan una frontera que separe lo mejor posible las distintas clases \cite{cortes1995support}.
-  \item \textbf{Random Forest:} combina muchos árboles de decisión para obtener una predicción más robusta \cite{breiman2001random}.
   \item \textbf{Regresión logística:} estima la probabilidad de que un ejemplo pertenezca a una clase a partir de una combinación de sus características.
   \item \textbf{Redes neuronales / perceptrón multicapa (MLP):} modelos formados por capas de neuronas artificiales capaces de aprender relaciones no lineales entre las características.
 \end{itemize}
@@ -127,7 +138,7 @@ Estos modelos pueden ofrecer muy buenos resultados, pero comparten una caracter�
 
 Los modelos de lenguaje grandes (LLM, \emph{Large Language Models}) son modelos entrenados sobre grandes cantidades de texto que aprenden a predecir y generar lenguaje natural. La mayoría se basa en la arquitectura \emph{transformer} \cite{vaswani2017attention}, y los modelos más recientes han mostrado una notable capacidad para resumir información, responder preguntas y razonar sobre textos a partir de las instrucciones que reciben \cite{brown2020language}. A alto nivel, pueden entenderse como asistentes capaces de leer documentación, sintetizarla y ayudar a explorar un problema.
 
-En este trabajo se utiliza \textbf{NotebookLM} \cite{notebooklm}, una herramienta basada en modelos de lenguaje que permite cargar documentos y hacer preguntas sobre ellos, de modo que las respuestas se apoyan en ese material. Su papel en el TFG es servir de \textbf{apoyo al análisis}: ayuda a revisar documentación, resumir patrones observados, comparar ventanas de tráfico y formular hipótesis sobre qué señales caracterizan a cada ataque. Esas hipótesis se transforman después en reglas que se comprueban con código.
+En este trabajo se utiliza \textbf{NotebookLM} \cite{notebooklm}, una herramienta basada en modelos de lenguaje que permite cargar documentos y hacer preguntas sobre ellos, de modo que las respuestas se apoyan en ese material. Funciona como un sistema de \textbf{generación aumentada por recuperación} (RAG, \emph{Retrieval-Augmented Generation}): en lugar de responder solo con lo que el modelo aprendió durante su entrenamiento, primero recupera los fragmentos relevantes de los documentos que se le han dado y, sobre esa base, genera la respuesta. Esto lo hace adecuado para trabajar sobre el material concreto del proyecto, ya que las respuestas se ciñen a las fuentes cargadas. Su papel en el TFG es servir de \textbf{apoyo al análisis}: ayuda a revisar documentación, resumir patrones observados, comparar ventanas de tráfico y formular hipótesis sobre qué señales caracterizan a cada ataque. Esas hipótesis se transforman después en reglas que se comprueban con código.
 
 Un punto se mantiene durante toda la memoria: \textbf{NotebookLM y los LLM no detectan ataques ni sustituyen al clasificador}. No deciden qué tráfico es malicioso. La detección final la realiza siempre el clasificador contextual basado en reglas, que es un algoritmo explícito y revisable. Esta separación es deliberada: permite aprovechar la capacidad de los modelos de lenguaje para interpretar y documentar, sin que el sistema dependa de una respuesta generada por un modelo difícil de auditar.
 
@@ -150,6 +161,8 @@ P = \frac{VP}{VP + FP}, \qquad
 R = \frac{VP}{VP + FN}, \qquad
 F_1 = \frac{2 \, P \, R}{P + R}.
 \]
+
+La Tabla~\ref{tab:metricas_prf1} resume estas tres métricas, con su fórmula y su interpretación en detección de intrusiones.
 
 \begin{table}[!htbp]
 \centering

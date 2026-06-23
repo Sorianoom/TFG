@@ -14,10 +14,12 @@ El clasificador desarrollado no utiliza aprendizaje automático supervisado para
 
 Este planteamiento no significa que todos los ataques se resuelvan con la misma facilidad. Algunas familias presentan patrones claros en los metadatos NetFlow, mientras que otras son más difíciles de separar del tráfico normal porque la información disponible es limitada. Esta diferencia es importante y se tendrá en cuenta durante toda la memoria. El objetivo no es presentar el sistema como una solución perfecta, sino estudiar hasta dónde puede llegar un enfoque explicativo basado en reglas conductuales, apoyado por LLMs durante el análisis y validado sobre datos reales.
 
+La Figura~\ref{fig:pipeline_general} resume este flujo de trabajo de principio a fin: parte de las trazas NetFlow de UGR'16, pasa por la limpieza y la extracción de ventanas, sigue con el análisis asistido por LLMs y las reglas conductuales, y termina en el clasificador contextual, su evaluación y la aplicación web.
+
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{imagenes/fig_pipeline_general.pdf}
-\caption{Visión general del flujo de trabajo del proyecto, desde las trazas NetFlow de UGR'16 hasta el clasificador contextual y la aplicación web.}
+\caption{Visión general del flujo de trabajo del proyecto, desde las trazas NetFlow de UGR'16 hasta el clasificador contextual y la aplicación web. Fuente: elaboración propia.}
 \label{fig:pipeline_general}
 \end{figure}
 
@@ -42,7 +44,7 @@ Por último, la aplicación web surge como una forma de hacer que el trabajo no 
 \subsection{Objetivo general}
 \label{sec:intro_obj_general}
 
-El objetivo general de este Trabajo de Fin de Grado es diseñar, implementar y evaluar un sistema de detección explicativa de anomalías en tráfico NetFlow sobre el dataset UGR'16. El sistema se apoya en modelos de lenguaje y en NotebookLM durante la fase de análisis, pero la detección final no la realizan estos modelos, sino un clasificador contextual basado en reglas conductuales interpretables. La meta no es alcanzar una detección perfecta ni una generalización universal, sino estudiar hasta dónde puede llegar este enfoque sobre datos reales, dejando claro qué decisiones toma el sistema y por qué.
+El objetivo general de este Trabajo de Fin de Grado es diseñar, implementar y evaluar un sistema de detección explicativa de anomalías en tráfico NetFlow sobre el dataset UGR'16. El sistema se apoya en modelos de lenguaje y en NotebookLM durante la fase de análisis, pero la detección final no la realizan estos modelos, sino un clasificador contextual basado en reglas conductuales interpretables. Ese clasificador se construye observando ventanas de tráfico de cada familia de ataque, extrayendo de ellas las señales que distinguen su comportamiento y traduciendo esas señales en reglas explícitas. Las reglas se aplican en varios pases, de lo local a lo global: primero el contexto cercano de cada flujo, luego el conjunto de la ventana y, por último, la agregación por origen. El detalle de ese diseño se desarrolla en el Capítulo~\ref{cap:algoritmos}. La meta no es alcanzar una detección perfecta ni una generalización universal, sino estudiar hasta dónde puede llegar este enfoque sobre datos reales, dejando claro qué decisiones toma el sistema y por qué.
 
 \subsection{Objetivos específicos}
 \label{sec:intro_obj_especificos}

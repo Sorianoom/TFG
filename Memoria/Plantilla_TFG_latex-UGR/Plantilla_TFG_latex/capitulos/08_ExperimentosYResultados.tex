@@ -10,6 +10,8 @@ Todas las cifras provienen de los ficheros de resultados del proyecto.
 
 La evaluación se realiza sobre el dataset UGR'16 \cite{ugr16}, con tráfico NetFlow real etiquetado. El \textbf{conjunto principal de estudio} es \texttt{august.week1}, la semana sobre la que se formularon las reglas. Las pruebas de \textbf{generalización} se hacen sobre \texttt{august.week2} y \texttt{april.week2}, que no se usaron para diseñar las reglas. En todos los casos, las \textbf{etiquetas del dataset se usan solo para evaluar}.
 
+La elección de cada semana responde a qué ataques contiene. Se tomó \texttt{august.week1} como semana de diseño porque es la que reúne, con un número de trazas suficiente, casi todas las familias del núcleo (escaneo UDP, escaneo vertical \texttt{scan11} y \texttt{scan44}, \texttt{dos} y \texttt{nerisbotnet}), lo que permite estudiar su comportamiento y formular las reglas sobre un mismo conjunto. Las otras dos semanas se reservan para comprobar si esas reglas se sostienen sobre tráfico que no se usó en el diseño. \texttt{august.week2} aporta otra muestra del núcleo de escaneos en un periodo distinto, y \texttt{april.week2} se eligió específicamente porque concentra el escaneo SSH, casi ausente en agosto, y es la única forma de evaluar de manera representativa el tercer pase de la v5.
+
 El clasificador principal es la versión \textbf{v5}. La versión \textbf{v3} se conserva como base estable y sirve de referencia, y la \textbf{v4} fue una prueba que no se adoptó como solución final. La evaluación se hace a nivel de flujo (cada traza recibe una decisión) y los resultados se vuelcan en ficheros de resumen por versión y por semana. La Tabla~\ref{tab:exp_config} recoge los conjuntos de evaluación y sus tamaños.
 
 \begin{table}[ht]
@@ -72,11 +74,11 @@ Además, un falso positivo no siempre es tráfico completamente normal. En esta 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{imagenes/fig_v3_vs_v5_binaria.pdf}
-\caption{Comparacion del rendimiento binario de las versiones v3 y v5 y efecto del contexto global en la deteccion de \texttt{anomaly-sshscan}.}
+\caption{Comparacion del rendimiento binario de las versiones v3 y v5 y efecto del contexto global en la deteccion de \texttt{anomaly-sshscan}. Fuente: elaboración propia.}
 \label{fig:v3_vs_v5}
 \end{figure}
 
-La v5 no es un detector perfecto. Su valor está en que mantiene el rendimiento de la v3 en el núcleo de ataques y, además, recupera una familia que la v3 no detectaba en absoluto, a costa de algún falso positivo en las semanas sin ese ataque. La v4, en cambio, exploró un reparto de confianza en la familia de botnet que no mejoró de forma concluyente, por lo que no se adopta.
+La Figura~\ref{fig:v3_vs_v5} resume esta comparación binaria entre la v3 y la v5 y el salto en la detección del escaneo SSH al pasar del contexto local al global. La v5 no es un detector perfecto. Su valor está en que mantiene el rendimiento de la v3 en el núcleo de ataques y, además, recupera una familia que la v3 no detectaba en absoluto, a costa de algún falso positivo en las semanas sin ese ataque. La v4, en cambio, exploró un reparto de confianza en la familia de botnet que no mejoró de forma concluyente, por lo que no se adopta.
 
 \section{Resultados por familia de ataque}
 \label{sec:exp_familia}
@@ -111,11 +113,11 @@ anomaly-sshscan & 8\,397 & 44 & 0 & 0,000 & 0,000 & 0,000 \\
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.9\textwidth]{imagenes/fig_f1_por_familia.pdf}
-\caption{F1 por familia de ataque para la version v5 del clasificador.}
+\caption{F1 por familia de ataque para la version v5 del clasificador. Fuente: elaboración propia.}
 \label{fig:f1_familia}
 \end{figure}
 
-El comportamiento por familia es el siguiente:
+La Figura~\ref{fig:f1_familia} muestra de un vistazo el $F_1$ de cada familia con la v5. El comportamiento por familia es el siguiente:
 
 \begin{itemize}
   \item \textbf{anomaly-udpscan}: es la familia mejor detectada en estos datos (F1 0,968, recall 1,000). El patrón es muy claro en \texttt{august.week1}. Sin embargo, no aparece en las otras semanas disponibles, por lo que su generalización fuera del conjunto principal de estudio no se ha podido comprobar y queda como trabajo futuro.
@@ -148,7 +150,7 @@ Por último, la clase de campaña SMTP de baja evidencia se descartó del análi
 \section{Comparación con Machine Learning clásico}
 \label{sec:exp_ml}
 
-Como referencia secundaria, se entrenaron varios modelos clásicos de aprendizaje automático sobre una muestra equilibrada por clases: regresión logística, $k$ vecinos más cercanos (KNN), máquinas de vectores soporte (SVM) y un perceptrón multicapa (MLP). También se entrenó un Random Forest, aunque se deja \textbf{fuera de la comparación principal} por las razones que se explican más adelante. Estos modelos se utilizan como \textbf{línea base de comparación}, no como sustituto del clasificador contextual \cite{buczak2016survey}. La Tabla~\ref{tab:exp_ml} resume su rendimiento.
+Como referencia secundaria, se entrenaron varios modelos clásicos de aprendizaje automático sobre una muestra equilibrada por clases: regresión logística, $k$ vecinos más cercanos (KNN), máquinas de vectores soporte (SVM) y un perceptrón multicapa (MLP). Estos modelos se utilizan como \textbf{línea base de comparación}, no como sustituto del clasificador contextual \cite{buczak2016survey}. La Tabla~\ref{tab:exp_ml} resume su rendimiento.
 
 \begin{table}[ht]
 \centering
@@ -173,8 +175,6 @@ Regresión logística & 0,615 & 0,760 \\
 El baseline principal se calcula sobre las \textbf{clases activas} del trabajo: el tráfico de fondo (\emph{background}) y los cinco tipos de ataque presentes en la muestra (\texttt{anomaly-udpscan}, \texttt{dos}, \texttt{nerisbotnet}, \texttt{scan11} y \texttt{scan44}). Se dejan fuera dos etiquetas que no forman parte del objetivo principal. La primera es \texttt{anomaly-spam}, descartada metodológicamente (Capítulos~\ref{cap:herramientas_datos} y~\ref{cap:algoritmos}). La segunda es \texttt{blacklist}, que está en el dataset pero no es una familia de ataque activa del TFG, así que queda fuera de la tabla principal de comparación. El escaneo SSH (\texttt{anomaly-sshscan}) no entra en este baseline por su escasez de muestras en el conjunto principal de estudio, coherente con su evaluación específica en \texttt{april.week2}.
 
 Como el F1 macro es la media del F1 por clase, recalcularlo sobre las clases activas no altera las métricas por clase: simplemente deja de promediar las clases excluidas. El recálculo parte del resumen por clase ya calculado, vuelve a promediar el F1 únicamente sobre las clases activas y guarda el resultado aparte, sin reentrenar ningún modelo ni sobrescribir los resultados originales. Partir de ese resumen aísla el efecto exacto de excluir esas clases, manteniendo el mismo muestreo, los mismos modelos y las mismas predicciones. La Tabla~\ref{tab:exp_ml} muestra el efecto: al dejar fuera dos clases en las que varios modelos rendían mal (en especial la regresión logística y la SVM), el F1 macro sube en todos los modelos. Por ejemplo, la regresión logística pasa de 0,615 a 0,760.
-
-El modelo Random Forest se deja fuera de esta comparación principal. En las pruebas alcanzaba métricas casi perfectas, con un F1 macro en torno a 0,98. No es un resultado que se oculte, pero se interpreta con cautela: en una muestra equilibrada y con características derivadas, puede reflejar en parte particularidades del propio conjunto de datos más que una capacidad real de generalización \cite{sommer2010outside}. Por eso se documenta, pero no se usa como referencia principal de la comparación. Aun así, sus resultados siguen guardados en los ficheros del experimento.
 
 En cualquier caso, el rendimiento del baseline hay que leerlo con cuidado \cite{sommer2010outside}. Son modelos \textbf{supervisados}, que necesitan etiquetas para entrenar, y se evalúan sobre una muestra equilibrada, más favorable que el tráfico real desbalanceado. Además, ofrecen menos trazabilidad que el clasificador contextual: predicen bien, pero no explican cada decisión con una señal observable del tráfico. La diferencia que importa no es la métrica, sino el equilibrio entre \textbf{rendimiento predictivo} y \textbf{explicabilidad}. Este trabajo prioriza lo segundo e incluye el aprendizaje automático clásico como una referencia honesta, no como el enfoque principal.
 
@@ -204,11 +204,11 @@ En este trabajo, generalizar significa comprobar si el clasificador funciona sob
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.9\textwidth]{imagenes/fig_generalizacion_semanas.pdf}
-\caption{Resultados binarios de generalizacion por semana evaluada.}
+\caption{Resultados binarios de generalizacion por semana evaluada. Fuente: elaboración propia.}
 \label{fig:generalizacion}
 \end{figure}
 
-En \texttt{august.week2} se observa que el núcleo de escaneos generaliza de forma razonable: el escaneo vertical mantiene un buen recuento de aciertos (62\,961 sobre 73\,830 trazas etiquetadas como escaneo vertical). El recall binario baja a 0,747, en parte porque esta semana contiene una gran cantidad de tráfico de campaña SMTP que el sistema no resuelve y que penaliza el recall agregado. Recordemos que el escaneo UDP \textbf{no aparece} en esta semana, por lo que su generalización no puede comprobarse.
+La Figura~\ref{fig:generalizacion} compara la precisión, el recall y el $F_1$ binarios de la v5 en las tres semanas. En \texttt{august.week2} se observa que el núcleo de escaneos generaliza de forma razonable: el escaneo vertical mantiene un buen recuento de aciertos (62\,961 sobre 73\,830 trazas etiquetadas como escaneo vertical). El recall binario baja a 0,747, en parte porque esta semana contiene una gran cantidad de tráfico de campaña SMTP que el sistema no resuelve y que penaliza el recall agregado. Recordemos que el escaneo UDP \textbf{no aparece} en esta semana, por lo que su generalización no puede comprobarse.
 
 En \texttt{april.week2}, que contiene principalmente escaneo SSH, la v5 alcanza una detección binaria de F1 0,873, y la familia de escaneo SSH se detecta con F1 0,951 (Tabla~\ref{tab:exp_sshscan}). En esta semana, el tercer pase de la v5 funciona como se esperaba: de las 26\,580 detecciones por fan-out, ninguna se contabiliza como falso positivo del propio pase. Esto indica, dentro de estos datos, que la mejora de la v5 no depende únicamente del conjunto principal de estudio.
 
@@ -228,35 +228,18 @@ La diferencia con el aprendizaje automático supervisado también se ve aquí. U
 \section{Amenazas a la validez}
 \label{sec:exp_amenazas}
 
-Los resultados deben interpretarse teniendo en cuenta las limitaciones de la Tabla~\ref{tab:exp_amenazas}.
+Los resultados de este capítulo deben leerse teniendo en cuenta varias amenazas a su validez, que conviene declarar de forma abierta:
 
-\begin{table}[ht]
-\centering
-\small
-\begin{tabular}{|p{4.3cm}|p{8.5cm}|}
-\hline
-\textbf{Amenaza} & \textbf{Descripción} \\
-\hline
-Dependencia de UGR'16 & Toda la evaluación se hace sobre un único dataset. Los resultados pueden no trasladarse a otras redes. \\
-\hline
-Desbalance extremo & El tráfico normal domina ampliamente, lo que obliga a interpretar las métricas con cuidado y descarta la exactitud como medida principal. \\
-\hline
-Etiquetas disponibles & La evaluación depende de las etiquetas del dataset. Puede ocurrir que algunos flujos marcados como \emph{background} tengan una estructura anómala o parecida a la de un ataque, aunque no estén etiquetados como tal. En ese caso se contabilizan como falsos positivos. \\
-\hline
-Ausencia de payload & NetFlow no incluye contenido, lo que limita de forma estructural la detección de algunas familias. \\
-\hline
-Familias con pocas muestras & El escaneo SSH tiene muy pocas trazas en \texttt{august.week1} (44) y \texttt{august.week2} (5), por lo que su evaluación se concentra en \texttt{april.week2}. \\
-\hline
-Sesgo de diseño & Las reglas se formularon observando ventanas del propio dataset, lo que puede favorecer los resultados sobre esos mismos datos. \\
-\hline
-Generalización limitada & Solo se ha probado en otras semanas de UGR'16, no en tráfico de una red distinta. El escaneo UDP no se ha podido evaluar fuera del conjunto principal de estudio. \\
-\hline
-No equivale a producción & La evaluación se hace sobre ventanas y capturas, no sobre un flujo continuo en tiempo real. \\
-\hline
-\end{tabular}
-\caption{Principales amenazas a la validez de los resultados.}
-\label{tab:exp_amenazas}
-\end{table}
+\begin{itemize}
+  \item \textbf{Dependencia de UGR'16.} Toda la evaluación se apoya en un único dataset. Aunque es tráfico real de un proveedor de servicios de Internet, los resultados no tienen por qué trasladarse tal cual a otras redes, con distinta composición de tráfico y otros ataques.
+  \item \textbf{Desbalance extremo.} El tráfico normal domina con mucho sobre el malicioso. Esto obliga a interpretar las métricas con cuidado y es la razón por la que se descarta la exactitud como medida principal, en favor de la precisión, el recall y el $F_1$.
+  \item \textbf{Dependencia de las etiquetas.} La salida del sistema se compara siempre con las etiquetas del dataset. Si un flujo marcado como \emph{background} tiene en realidad una estructura anómala, se cuenta como falso positivo aunque su comportamiento se parezca al de un ataque. Parte de las falsas alarmas puede explicarse así.
+  \item \textbf{Ausencia de contenido.} Al trabajar con NetFlow no hay payload. Esto limita de forma estructural la detección de las familias cuya naturaleza solo se aprecia mirando el contenido, y no los metadatos.
+  \item \textbf{Familias con pocas muestras.} El escaneo SSH apenas tiene trazas etiquetadas en \texttt{august.week1} (44) y \texttt{august.week2} (5), por lo que su evaluación representativa se concentra en \texttt{april.week2}. Con tan pocos ejemplos en una semana no se pueden extraer conclusiones sólidas sobre ella.
+  \item \textbf{Sesgo de diseño.} Las reglas se formularon observando ventanas del propio dataset, lo que puede favorecer los resultados sobre esos mismos datos. Es parte del motivo por el que se reservan otras semanas para la generalización.
+  \item \textbf{Generalización limitada.} Solo se ha probado en otras semanas de UGR'16, nunca en una red distinta. Además, el escaneo UDP no aparece fuera del conjunto principal de estudio, de modo que su generalización queda sin comprobar.
+  \item \textbf{No equivale a producción.} La evaluación se hace sobre ventanas y capturas ya disponibles, no sobre un flujo continuo en tiempo real, que plantearía retos añadidos de rendimiento y de decisión en caliente.
+\end{itemize}
 
 \section{Conclusiones del capítulo}
 \label{sec:exp_conclusion}

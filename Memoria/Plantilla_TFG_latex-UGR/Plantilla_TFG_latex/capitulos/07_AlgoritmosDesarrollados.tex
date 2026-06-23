@@ -17,7 +17,7 @@ Un principio que se mantiene en todo el diseño es que las \textbf{etiquetas del
 
 El diseño de las reglas se apoyó en la captura principal del dataset UGR'16, correspondiente a la primera semana de agosto. El fichero original (de aproximadamente 80~GB) se limpió y validó hasta obtener un único archivo CSV de trazas NetFlow de esa semana, con una fila por flujo y las columnas de tiempo, duración, direcciones, puertos, protocolo, banderas, paquetes, bytes y etiqueta descritas en la Tabla~\ref{tab:csv_netflow_estructura}. El conjunto resultante reúne \textbf{100\,155\,976 trazas válidas}. De ellas, el tráfico de fondo (\emph{background}) supone la inmensa mayoría, con \textbf{98\,170\,672 trazas} (en torno al 98\,\%), de modo que el tráfico malicioso es una fracción pequeña (alrededor del 2\,\%).
 
-La distribución de las etiquetas maliciosas documentada en la captura principal es la siguiente:
+La Tabla~\ref{tab:distribucion_familias} muestra la distribución de las etiquetas maliciosas documentada en la captura principal:
 
 \begin{table}[ht]
 \centering
@@ -97,6 +97,16 @@ Trabajar con ventanas es lo que permite observar el comportamiento alrededor del
 Durante el diseño se utilizaron modelos de lenguaje, en particular NotebookLM, como \textbf{apoyo al análisis}. Su función fue interpretar los patrones de cada familia, resumir el comportamiento observado y ayudar a formular hipótesis sobre las señales relevantes. En ningún caso decidieron la detección: cada hipótesis sugerida se tradujo en una regla y se comprobó después con código y datos.
 
 Para ese análisis se prepararon, por ataque, paquetes de material estructurado (mediante los scripts de automatización de NotebookLM). Cada paquete reunía las fuentes centradas en el ataque, las ventanas por número de filas y por tiempo, y un resumen de contexto. A partir de ese material, NotebookLM producía análisis intermedios (análisis estructural, comparación con el tráfico de fondo y síntesis de validación) que servían de guía, pero que siempre se contrastaban con la ejecución del clasificador. De este modo, el conocimiento aportado por los LLMs quedó incorporado en forma de reglas revisables, y no como una caja negra.
+
+A modo de ejemplo, del análisis asistido surgieron hipótesis que, una vez comprobadas con los datos, se concretaron en reglas como estas:
+
+\begin{itemize}
+  \item Si un mismo origen contacta por SSH (puerto 22) con muchos destinos distintos a lo largo de la ventana, ese fan-out elevado se marca como escaneo horizontal, aunque cada flujo por separado parezca inofensivo.
+  \item Si un origen envía por UDP flujos de un solo paquete, sin pasar por el DNS, hacia muchas IP y puertos distintos, esa dispersión ligera se marca como escaneo UDP.
+  \item Si varios orígenes repiten la misma combinación de puerto, bytes y paquetes dentro del mismo intervalo de tiempo, esa coincidencia se interpreta como coordinación tipo red de bots.
+\end{itemize}
+
+Cada una de estas reglas parte de una observación que el análisis con NotebookLM ayudó a formular y que luego se validó sobre los datos reales. Las reglas completas, con sus umbrales concretos, se recogen en el Apéndice~\ref{ap:pseudocodigo}.
 
 \section{Evolución de versiones del clasificador}
 \label{sec:alg_versiones}

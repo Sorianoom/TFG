@@ -1,8 +1,15 @@
-\documentclass[a4paper,11pt]{book}
+\documentclass[a4paper,11pt,oneside]{book}
 %\documentclass[a4paper,twoside,11pt,titlepage]{book}
 \usepackage{listings}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
+
+% Unificar la nomenclatura de tablas: "Tabla" en los captions y en el índice
+% (por defecto, babel-spanish usa "Cuadro" e "Índice de cuadros").
+\addto\captionsspanish{%
+  \renewcommand{\tablename}{Tabla}%
+  \renewcommand{\listtablename}{Índice de tablas}%
+}
 
 % \usepackage[style=list, number=none]{glossary} %
 %\usepackage{titlesec}
