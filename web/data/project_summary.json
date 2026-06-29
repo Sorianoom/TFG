@@ -24,8 +24,8 @@
   },
   "comparacion_ml": {
     "objetivo": "Baseline académico predictivo, NO sustituto de la v3.",
-    "modelos": ["LogisticRegression", "KNN", "SVM", "RandomForest", "MLPClassifier"],
-    "mejor_modelo": "RandomForest (F1 macro ~0.95 sobre muestra balanceada)",
+    "modelos": ["LogisticRegression", "KNN", "SVM", "MLPClassifier"],
+    "mejor_modelo": "KNN (F1 macro ~0.877 sobre muestra balanceada)",
     "conclusion": "El ML clásico supera en métricas a la v3 en varias familias, pero es supervisado, opaco y depende de la etiqueta y de features correlacionadas. La v3 sigue siendo la propuesta principal por interpretabilidad y trazabilidad.",
     "documento": "29_comparacion_ml_clasico.md"
   },
