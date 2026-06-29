@@ -113,10 +113,6 @@ export default function Home({ attacks }) {
                   <span className="bar-val">{fmt(m.f1)}</span>
                 </div>
               ))}
-              <p className="cmp-note">
-                Random Forest se estudió como baseline fuerte, pero se deja fuera de esta visualización
-                principal para no desplazar el foco hacia un modelo supervisado especialmente potente.
-              </p>
             </div>
 
             <div className="cmp-chart cmp-v5col">
