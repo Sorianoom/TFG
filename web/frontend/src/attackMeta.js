@@ -278,10 +278,10 @@ if source_contacts_many_ssh_destinations:
 // F1 macro = media del F1 entre las 8 clases (incluye tráfico normal y blacklist; no incluye SSH Scan),
 // medido sobre una muestra equilibrada (~2778 ejemplos por clase). Fuente: ml_baseline_summary.csv.
 export const ML_COMPARISON = [
-  { name: "KNN", f1: 0.877, note: "vecinos más cercanos" },
-  { name: "MLP", f1: 0.803, note: "red neuronal sencilla" },
-  { name: "SVM", f1: 0.660, note: "vectores soporte" },
-  { name: "Logistic Regression", f1: 0.615, note: "regresión logística" },
+  { name: "KNN", f1: 0.942, note: "vecinos más cercanos" },
+  { name: "MLP", f1: 0.889, note: "red neuronal sencilla" },
+  { name: "SVM", f1: 0.780, note: "vectores soporte" },
+  { name: "Logistic Regression", f1: 0.760, note: "regresión logística" },
 ];
 
 // F1 por familia de la v5, calculado de los summaries reales (F1 = 2·P·R/(P+R)).
